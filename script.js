@@ -2,7 +2,12 @@
   'use strict';
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const menuData = window.BAR_MARTIRI_MENU || { categories: [], products: [] };
+  const menuData = window.BAR_MARTIRI_MENU || {
+    categories: [],
+    products: [],
+    productTranslations: {},
+    categoryOverrides: {},
+  };
   const supabaseConfig = window.BAR_MARTIRI_SUPABASE || {};
   const story = document.querySelector('.assembly-story');
   const dock = document.querySelector('[data-bottom-dock]');
@@ -39,6 +44,14 @@
 
   const UI_TEXT = Object.freeze({
     'Kalo te permbajtja': { sq: 'Kalo te përmbajtja', it: 'Vai al contenuto', en: 'Skip to content' },
+    'Kreu i faqes': { sq: 'Kreu i faqes', it: 'Intestazione del sito', en: 'Site header' },
+    'Bar Martiri, kryefaqja': { sq: 'Bar Martiri, kryefaqja', it: 'Bar Martiri, pagina iniziale', en: 'Bar Martiri, home page' },
+    'Ndrysho gjuhën': { sq: 'Ndrysho gjuhën', it: 'Cambia lingua', en: 'Change language' },
+    'Navigimi kryesor': { sq: 'Navigimi kryesor', it: 'Navigazione principale', en: 'Main navigation' },
+    'Hap menune': { sq: 'Hap menunë', it: 'Apri il menu', en: 'Open menu' },
+    'Mbyll menune': { sq: 'Mbyll menunë', it: 'Chiudi il menu', en: 'Close menu' },
+    'Kategorite e menuse': { sq: 'Kategoritë e menusë', it: 'Categorie del menu', en: 'Menu categories' },
+    'Lidhje te tjera': { sq: 'Lidhje të tjera', it: 'Altri collegamenti', en: 'Other links' },
     'Spille · Shqipëri': { sq: 'Spille · Shqipëri', it: 'Spille · Albania', en: 'Spille · Albania' },
     'E bute. E fresket. E jotja.': { sq: 'E butë. E freskët. E jotja.', it: 'Morbido. Fresco. Tuo.', en: 'Soft. Fresh. Yours.' },
     'Akullorja qe nis me kaushin.': { sq: 'Akullorja që nis me kaushin.', it: 'Il gelato che inizia dal cono.', en: 'The ice cream that starts with the cone.' },
@@ -198,6 +211,20 @@
 
   function categoryLabelFor(category) {
     return category?.labels?.[currentLanguage] || category?.label || '';
+  }
+
+  function productTranslationFor(product) {
+    if (currentLanguage === 'sq') return null;
+    return menuData.productTranslations?.[product?.id]?.[currentLanguage] || null;
+  }
+
+  function productNameFor(product) {
+    return productTranslationFor(product)?.name || product?.name || dynamicText('unnamedProduct');
+  }
+
+  function productDescriptionFor(product) {
+    if (!String(product?.description || '').trim()) return '';
+    return productTranslationFor(product)?.description || product.description;
   }
 
   function applyLanguage(language) {
@@ -538,7 +565,7 @@
     return {
       id: String(product.id || `product-${index}`),
       name: String(product.name || '').slice(0, 80),
-      category: String(product.category || ''),
+      category: menuData.categoryOverrides?.[String(product.id || '')] || String(product.category || ''),
       description: String(product.description || '').slice(0, 240),
       price:
         product.price === null || product.price === undefined
@@ -672,7 +699,7 @@
 
     const image = document.createElement('img');
     image.src = product.image || 'assets/optimized/ice-cream-cone.webp';
-    image.alt = product.name || 'Produkt i Bar Martiri';
+    image.alt = productNameFor(product);
     image.loading = 'lazy';
     image.decoding = 'async';
     image.width = 560;
@@ -681,8 +708,8 @@
     const body = document.createElement('div');
     const title = document.createElement('h4');
     const description = document.createElement('p');
-    title.textContent = capitalizeWords(product.name || dynamicText('unnamedProduct'));
-    description.textContent = product.description || '';
+    title.textContent = capitalizeWords(productNameFor(product));
+    description.textContent = productDescriptionFor(product);
     body.append(title, description);
 
     const price = formatPrice(product.price);

@@ -6,7 +6,7 @@ Repository privat me kopjen e codebase-it publik të faqes:
 - Burimi i kopjes: deployment-i live në Netlify
 - Data e kopjes: 3 gusht 2026
 - Përditësimi i fundit: menuja e thjeshtuar, zgjedhja Shqip/Italiano/English,
-  kufiri i scroll-it dhe renditja e produkteve nga admini
+  përkthimi i produkteve, kufiri i scroll-it dhe renditja nga admini
 
 ## Përmbajtja
 
@@ -20,6 +20,11 @@ Repository privat me kopjen e codebase-it publik të faqes:
   `backup/product-description-drafts-2026-08-03.json`
 
 ## Renditja dhe përshkrimet
+
+Emrat dhe përshkrimet e produkteve shfaqen në shqip, italisht ose anglisht
+sipas gjuhës së zgjedhur. Emrat tregtarë të markave nuk përkthehen. Përkthimet
+lidhen me ID-në e produktit, ndaj çmimet dhe të dhënat burimore në Supabase nuk
+ndryshohen.
 
 Paneli i adminit mbështet renditje manuale me shigjeta, alfabetike dhe sipas
 çmimit. Renditja ruhet te fusha ekzistuese `sort_order`.
@@ -43,4 +48,4 @@ të tjera private.
 Skedarët në root mund të ngarkohen si faqe statike në Netlify. Menuja dinamike
 vazhdon të varet nga projekti Supabase i konfiguruar në `supabase-config.js`.
 
-Kopja ZIP më e fundit: `bar-martiri-production-snapshot-2026-08-03-v3.zip`.
+Kopja ZIP më e fundit: `bar-martiri-production-snapshot-2026-08-03-v4.zip`.
