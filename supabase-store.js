@@ -133,6 +133,26 @@
     return normalized;
   }
 
+  async function saveProductOrder(products) {
+    const normalized = products
+      .map(normalizeProduct)
+      .map((product, index) => ({ ...product, sortOrder: index }));
+    if (!client) {
+      saveLocalProducts(normalized);
+      return normalized;
+    }
+
+    const { data, error } = await client
+      .from('products')
+      .upsert(normalized.map(toDatabaseProduct), { onConflict: 'id' })
+      .select('id,name,category,description,price,image,sort_order');
+
+    if (error) throw error;
+    return (data?.length ? data : normalized)
+      .map(normalizeProduct)
+      .sort((left, right) => left.sortOrder - right.sortOrder);
+  }
+
   async function uploadImage(file, originalName = 'product.webp') {
     if (!client) return '';
 
@@ -182,6 +202,7 @@
     saveProduct,
     deleteProduct,
     replaceProducts,
+    saveProductOrder,
     uploadImage,
     signIn,
     getSession,

@@ -14,6 +14,11 @@
   const productGrid = document.querySelector('[data-product-grid]');
   const menuStatus = document.querySelector('[data-menu-status]');
   const cookieBanner = document.querySelector('[data-cookie-banner]');
+  const welcomeGate = document.querySelector('[data-welcome-gate]');
+  const welcomeStatus = document.querySelector('[data-welcome-status]');
+  const welcomeLoader = document.querySelector('[data-welcome-loader]');
+  const languageChoices = [...document.querySelectorAll('[data-language-choice]')];
+  const languageSwitches = [...document.querySelectorAll('[data-language-switch]')];
   const mapFrame = document.querySelector('[data-map-shell] iframe');
   const mapPlaceholder = document.querySelector('[data-map-placeholder]');
   const MENU_CACHE_KEY = 'barMartiri.publicMenu.v2';
@@ -24,6 +29,91 @@
   const REVIEW_CACHE_TTL = 6 * 60 * 60 * 1000;
   const SPILLE_COORDS = { latitude: 41.0966, longitude: 19.4583 };
   const COOKIE_NAME = 'bar_martiri_cookie_pref';
+  const LANGUAGE_KEY = 'barMartiri.language.v1';
+
+  const LANGUAGE_LOCALES = Object.freeze({
+    sq: 'sq-AL',
+    it: 'it-IT',
+    en: 'en-GB',
+  });
+
+  const UI_TEXT = Object.freeze({
+    'Kalo te permbajtja': { sq: 'Kalo te përmbajtja', it: 'Vai al contenuto', en: 'Skip to content' },
+    'Spille · Shqipëri': { sq: 'Spille · Shqipëri', it: 'Spille · Albania', en: 'Spille · Albania' },
+    'E bute. E fresket. E jotja.': { sq: 'E butë. E freskët. E jotja.', it: 'Morbido. Fresco. Tuo.', en: 'Soft. Fresh. Yours.' },
+    'Akullorja qe nis me kaushin.': { sq: 'Akullorja që nis me kaushin.', it: 'Il gelato che inizia dal cono.', en: 'The ice cream that starts with the cone.' },
+    'Pese shije': { sq: 'Pesë shije', it: 'Cinque gusti', en: 'Five flavours' },
+    'Nje Martiri.': { sq: 'Një Martiri.', it: 'Un Martiri.', en: 'One Martiri.' },
+    'Baza': { sq: 'Baza', it: 'La base', en: 'The base' },
+    'E bere me qumesht': { sq: 'E bërë me qumësht', it: 'Preparato con latte', en: 'Made with milk' },
+    'E lemuar, e fresket dhe e pergatitur per momentin tend prane detit.': { sq: 'E lëmuar, e freskët dhe e përgatitur për momentin tënd pranë detit.', it: 'Cremoso, fresco e preparato per il tuo momento vicino al mare.', en: 'Smooth, fresh and made for your moment by the sea.' },
+    'Kaushi': { sq: 'Kaushi', it: 'Il cono', en: 'The cone' },
+    'Vafer krokante': { sq: 'Vafer krokante', it: 'Cialda croccante', en: 'Crisp wafer' },
+    'Nje fund i lehte dhe krokant per cdo spirale akulloreje.': { sq: 'Një bazë e lehtë dhe krokante për çdo spirale akulloreje.', it: 'Una base leggera e croccante per ogni spirale di gelato.', en: 'A light, crisp base for every swirl of ice cream.' },
+    'Rreshqit per ta krijuar': { sq: 'Rrëshqit për ta krijuar', it: 'Scorri per crearlo', en: 'Scroll to build it' },
+    'Bar në Spille': { sq: 'Bar në Spille', it: 'Bar a Spille', en: 'Bar in Spille' },
+    'Vera pranë detit nis te Martiri.': { sq: 'Vera pranë detit nis te Martiri.', it: "L'estate al mare inizia da Martiri.", en: 'Summer by the sea starts at Martiri.' },
+    'Bar Martiri në Spille, Shqipëri, është ndalesa pranë plazhit për shezlongje, akullore, kafe dhe pije të freskëta. Parkimi falas dhe aksesi i thjeshtë e bëjnë ditën në det më të lehtë.': { sq: 'Bar Martiri në Spille, Shqipëri, është ndalesa pranë plazhit për shezlongje, akullore, kafe dhe pije të freskëta. Parkimi falas dhe aksesi i thjeshtë e bëjnë ditën në det më të lehtë.', it: 'Bar Martiri a Spille, Albania, è una sosta vicino alla spiaggia per lettini, gelato, caffè e bibite. Il parcheggio gratuito e il facile accesso rendono più semplice la giornata al mare.', en: 'Bar Martiri in Spille, Albania, is a beachside stop for sunbeds, ice cream, coffee and cold drinks. Free parking and easy access make a day by the sea simpler.' },
+    'Shezlongje pranë detit': { sq: 'Shezlongje pranë detit', it: 'Lettini vicino al mare', en: 'Sunbeds by the sea' },
+    'Prenoto vendin tënd për një ditë pushimi në Spille.': { sq: 'Prenoto vendin tënd për një ditë pushimi në Spille.', it: 'Prenota il tuo posto per una giornata di relax a Spille.', en: 'Book your spot for a relaxing day in Spille.' },
+    'Parkim falas': { sq: 'Parkim falas', it: 'Parcheggio gratuito', en: 'Free parking' },
+    'Parkim pa pagesë për klientët e Bar Martiri.': { sq: 'Parkim pa pagesë për klientët e Bar Martiri.', it: 'Parcheggio gratuito per i clienti di Bar Martiri.', en: 'Free parking for Bar Martiri customers.' },
+    'Shije verore': { sq: 'Shije verore', it: "Sapori d'estate", en: 'Summer flavours' },
+    'Akullore, kafe dhe pije të freskëta pranë plazhit.': { sq: 'Akullore, kafe dhe pije të freskëta pranë plazhit.', it: 'Gelato, caffè e bibite vicino alla spiaggia.', en: 'Ice cream, coffee and cold drinks by the beach.' },
+    'Po marrim kushtet e fundit.': { sq: 'Po marrim kushtet e fundit.', it: 'Stiamo caricando le condizioni attuali.', en: 'Loading the latest conditions.' },
+    'Moti: MET Norway': { sq: 'Moti: MET Norway', it: 'Meteo: MET Norway', en: 'Weather: MET Norway' },
+    'Prane detit': { sq: 'Pranë detit', it: 'Vicino al mare', en: 'By the sea' },
+    'Ndal per shijen.': { sq: 'Ndal për shijen.', it: 'Fermati per il gusto.', en: 'Stop for the flavour.' },
+    'Qendro per pamjen.': { sq: 'Qëndro për pamjen.', it: 'Resta per la vista.', en: 'Stay for the view.' },
+    'Orari': { sq: 'Orari', it: 'Orari', en: 'Hours' },
+    'Cdo dite': { sq: 'Çdo ditë', it: 'Tutti i giorni', en: 'Every day' },
+    'Hap ne harte': { sq: 'Hap në hartë', it: 'Apri la mappa', en: 'Open map' },
+    'Google Reviews': { sq: 'Vlerësime në Google', it: 'Recensioni Google', en: 'Google Reviews' },
+    'Vleresimi aktual nga': { sq: 'Vlerësimi aktual nga', it: 'Valutazione attuale da', en: 'Current rating from' },
+    'pershtypje te publikuara ne Google.': { sq: 'vlerësime të publikuara në Google.', it: 'recensioni pubblicate su Google.', en: 'reviews published on Google.' },
+    'Shiko te gjitha ne Google': { sq: 'Shiko të gjitha në Google', it: 'Vedi tutte su Google', en: 'See all on Google' },
+    'Shihemi': { sq: 'Shihemi', it: 'Ci vediamo', en: 'See you' },
+    'te Martiri.': { sq: 'te Martiri.', it: 'da Martiri.', en: 'at Martiri.' },
+    'Akullore, kafe dhe pije te fresketa, cdo dite nga 06:00 deri ne 23:00.': { sq: 'Akullore, kafe dhe pije të freskëta, çdo ditë nga 06:00 deri në 23:00.', it: 'Gelato, caffè e bibite, tutti i giorni dalle 06:00 alle 23:00.', en: 'Ice cream, coffee and cold drinks, every day from 06:00 to 23:00.' },
+    'Na gjen ketu': { sq: 'Na gjen këtu', it: 'Ci trovi qui', en: 'Find us here' },
+    'Harta ngarkohet vetem kur e kerkon ti.': { sq: 'Harta ngarkohet vetëm kur e kërkon ti.', it: 'La mappa si carica solo quando lo richiedi.', en: 'The map loads only when you request it.' },
+    'Ngarko Google Maps': { sq: 'Ngarko Google Maps', it: 'Carica Google Maps', en: 'Load Google Maps' },
+    'Adresa': { sq: 'Adresa', it: 'Indirizzo', en: 'Address' },
+    'Merr drejtimin': { sq: 'Merr drejtimin', it: 'Indicazioni stradali', en: 'Get directions' },
+    'Informacion': { sq: 'Informacion', it: 'Informazioni', en: 'Information' },
+    'Pushimi yt ne Spille': { sq: 'Pushimi yt në Spille', it: 'La tua vacanza a Spille', en: 'Your break in Spille' },
+    'Deti, hija dhe gjithcka qe te duhet per nje dite te qete.': { sq: 'Deti, hija dhe gjithçka që të duhet për një ditë të qetë.', it: 'Il mare, l’ombra e tutto ciò che serve per una giornata tranquilla.', en: 'The sea, shade and everything you need for a relaxed day.' },
+    'Bar Martiri eshte prane plazhit, me sherbim te thjeshte dhe hapesire per te kaluar diten me familjen ose miqte.': { sq: 'Bar Martiri është pranë plazhit, me shërbim të thjeshtë dhe hapësirë për të kaluar ditën me familjen ose miqtë.', it: 'Bar Martiri è vicino alla spiaggia, con un servizio semplice e spazio per trascorrere la giornata con la famiglia o gli amici.', en: 'Bar Martiri is by the beach, with simple service and space to spend the day with family or friends.' },
+    'Shezlongje': { sq: 'Shezlongje', it: 'Lettini', en: 'Sunbeds' },
+    'Prenoto vendin tend prane detit me nje telefonate.': { sq: 'Prenoto vendin tënd pranë detit me një telefonatë.', it: 'Prenota il tuo posto vicino al mare con una telefonata.', en: 'Book your place by the sea with one phone call.' },
+    'Parkim pa pagese per klientet e Bar Martiri.': { sq: 'Parkim pa pagesë për klientët e Bar Martiri.', it: 'Parcheggio gratuito per i clienti di Bar Martiri.', en: 'Free parking for Bar Martiri customers.' },
+    'Akses i thjeshte': { sq: 'Akses i thjeshtë', it: 'Accesso facile', en: 'Easy access' },
+    'Na gjen lehte nga Rruga e Pishave ne Spille.': { sq: 'Na gjen lehtë nga Rruga e Pishave në Spille.', it: 'Ci trovi facilmente da Rruga e Pishave a Spille.', en: 'Find us easily from Rruga e Pishave in Spille.' },
+    'Hapur cdo dite': { sq: 'Hapur çdo ditë', it: 'Aperto ogni giorno', en: 'Open every day' },
+    'Te presim nga ora 06:00 deri ne 23:00.': { sq: 'Të presim nga ora 06:00 deri në 23:00.', it: 'Ti aspettiamo dalle 06:00 alle 23:00.', en: 'We welcome you from 06:00 to 23:00.' },
+    'Prenotime shezlongjesh': { sq: 'Prenotime shezlongjesh', it: 'Prenotazione lettini', en: 'Sunbed reservations' },
+    'Rezervo me telefon': { sq: 'Rezervo me telefon', it: 'Prenota per telefono', en: 'Book by phone' },
+    'Telefono tani': { sq: 'Telefono tani', it: 'Chiama ora', en: 'Call now' },
+    'Preferencat e cookies': { sq: 'Preferencat e cookies', it: 'Preferenze cookie', en: 'Cookie preferences' },
+    'Privatesia': { sq: 'Privatësia', it: 'Privacy', en: 'Privacy' },
+    'Ruajme vetem preferencen tende. Google Maps ngarkohet vetem pasi ta pranosh.': { sq: 'Ruajmë vetëm preferencën tënde. Google Maps ngarkohet vetëm pasi ta pranosh.', it: 'Salviamo solo la tua preferenza. Google Maps si carica solo dopo il consenso.', en: 'We only save your preference. Google Maps loads only after you consent.' },
+    'Vetem te nevojshmet': { sq: 'Vetëm të nevojshmet', it: 'Solo necessari', en: 'Essential only' },
+    'Prano': { sq: 'Prano', it: 'Accetta', en: 'Accept' },
+    'Home': { sq: 'Kryefaqja', it: 'Home', en: 'Home' },
+    'Location': { sq: 'Vendndodhja', it: 'Posizione', en: 'Location' },
+    'Info': { sq: 'Info', it: 'Info', en: 'Info' },
+  });
+
+  const DYNAMIC_TEXT = Object.freeze({
+    loadingMenu: { sq: 'Po ngarkohet menuja…', it: 'Caricamento del menu…', en: 'Loading the menu…' },
+    menuReady: { sq: 'Menuja është gati. Zgjidh gjuhën.', it: 'Il menu è pronto. Scegli la lingua.', en: 'The menu is ready. Choose your language.' },
+    refreshingMenu: { sq: 'Po përditësojmë menunë…', it: 'Aggiornamento del menu…', en: 'Updating the menu…' },
+    cachedMenu: { sq: 'Po shfaqet menuja e ruajtur. Provo përsëri pas pak për përditësimet.', it: 'Mostriamo il menu salvato. Riprova tra poco per gli aggiornamenti.', en: 'Showing the saved menu. Try again shortly for updates.' },
+    products: { sq: 'produkte', it: 'prodotti', en: 'products' },
+    comingSoon: { sq: 'Së shpejti', it: 'Prossimamente', en: 'Coming soon' },
+    emptyCategory: { sq: 'Produktet e kësaj kategorie do të shtohen së shpejti.', it: 'I prodotti di questa categoria saranno aggiunti presto.', en: 'Products in this category will be added soon.' },
+    unnamedProduct: { sq: 'Pa emër', it: 'Senza nome', en: 'Unnamed' },
+  });
 
   const optimizedLocalImages = {
     'assets/icecream-gallery/ice-cream-cone-transparent.png':
@@ -43,12 +133,138 @@
   let previousFocus = null;
   let closeTimer = 0;
   let menuRendered = false;
-  let menuRefreshStarted = false;
   let catalogProducts = menuData.products.map(normalizeProduct);
   let storyImagesLoaded = false;
   let lastScrollY = window.scrollY;
   let lastPanelScrollY = 0;
   let scrollFrame = 0;
+  let currentLanguage = 'sq';
+  let menuLoadPromise = null;
+  let lastTouchY = null;
+
+  function dynamicText(key) {
+    return DYNAMIC_TEXT[key]?.[currentLanguage] || DYNAMIC_TEXT[key]?.sq || '';
+  }
+
+  function setDynamicText(element, key) {
+    if (!element) return;
+    element.dataset.i18nDynamic = key;
+    element.textContent = dynamicText(key);
+  }
+
+  function translateTextNodes(root = document.body) {
+    if (!root) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let node = walker.nextNode();
+    while (node) {
+      const parent = node.parentElement;
+      if (parent && !['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(parent.tagName)) {
+        const trimmed = node.nodeValue.trim();
+        const normalized = trimmed.replace(/\s+/g, ' ');
+        if (normalized) {
+          if (!node.__barMartiriSourceText && UI_TEXT[normalized]) {
+            node.__barMartiriSourceText = normalized;
+          }
+          const source = node.__barMartiriSourceText;
+          const translated = source && UI_TEXT[source]?.[currentLanguage];
+          if (translated) {
+            const leading = node.nodeValue.match(/^\s*/)?.[0] || '';
+            const trailing = node.nodeValue.match(/\s*$/)?.[0] || '';
+            node.nodeValue = `${leading}${translated}${trailing}`;
+          }
+        }
+      }
+      node = walker.nextNode();
+    }
+  }
+
+  function translateAttributes(root = document.body) {
+    if (!root) return;
+    const attributes = ['aria-label', 'title', 'placeholder', 'data-dock-label'];
+    root.querySelectorAll(attributes.map((name) => `[${name}]`).join(',')).forEach((element) => {
+      attributes.forEach((name) => {
+        if (!element.hasAttribute(name)) return;
+        const sourceKey = `i18nSource${name.replace(/(^|-)(\w)/g, (_, dash, letter) => letter.toUpperCase())}`;
+        const current = element.getAttribute(name);
+        if (!element.dataset[sourceKey] && UI_TEXT[current]) {
+          element.dataset[sourceKey] = current;
+        }
+        const source = element.dataset[sourceKey];
+        const translated = source && UI_TEXT[source]?.[currentLanguage];
+        if (translated) element.setAttribute(name, translated);
+      });
+    });
+  }
+
+  function categoryLabelFor(category) {
+    return category?.labels?.[currentLanguage] || category?.label || '';
+  }
+
+  function applyLanguage(language) {
+    currentLanguage = LANGUAGE_LOCALES[language] ? language : 'sq';
+    document.documentElement.lang = LANGUAGE_LOCALES[currentLanguage];
+    try {
+      localStorage.setItem(LANGUAGE_KEY, currentLanguage);
+    } catch {
+      // The selected language still applies for this visit.
+    }
+
+    translateTextNodes(document.body);
+    translateAttributes(document.body);
+    document.querySelectorAll('[data-i18n-dynamic]').forEach((element) => {
+      element.textContent = dynamicText(element.dataset.i18nDynamic);
+    });
+    languageSwitches.forEach((button) => {
+      button.setAttribute('aria-pressed', String(button.dataset.languageSwitch === currentLanguage));
+    });
+
+    if (menuRendered) {
+      renderCategories();
+      renderProducts();
+    }
+  }
+
+  function closeWelcomeGate(language) {
+    applyLanguage(language);
+    if (!welcomeGate) return;
+    welcomeGate.classList.add('is-leaving');
+    document.body.classList.remove('is-welcome-open');
+    window.setTimeout(() => {
+      welcomeGate.hidden = true;
+      if (!getCookiePreference()) window.setTimeout(showCookieBanner, 450);
+    }, reducedMotion ? 0 : 260);
+  }
+
+  async function initializeWelcomeGate() {
+    if (!welcomeGate) {
+      void refreshProducts();
+      if (!getCookiePreference()) window.setTimeout(showCookieBanner, 650);
+      return;
+    }
+
+    setDynamicText(welcomeStatus, 'loadingMenu');
+    languageChoices.forEach((button) => (button.disabled = true));
+    await Promise.all([
+      Promise.race([
+        refreshProducts(),
+        new Promise((resolve) => window.setTimeout(resolve, 4500)),
+      ]),
+      new Promise((resolve) => window.setTimeout(resolve, 650)),
+    ]);
+
+    setDynamicText(welcomeStatus, 'menuReady');
+    welcomeLoader?.classList.add('is-ready');
+    languageChoices.forEach((button) => {
+      button.disabled = false;
+      button.addEventListener('click', () => closeWelcomeGate(button.dataset.languageChoice), {
+        once: true,
+      });
+    });
+  }
+
+  languageSwitches.forEach((button) => {
+    button.addEventListener('click', () => applyLanguage(button.dataset.languageSwitch));
+  });
 
   function normalizeDegrees(value) {
     return ((value % 360) + 360) % 360;
@@ -360,51 +576,58 @@
     }
   }
 
-  async function refreshProducts() {
-    if (menuRefreshStarted) return;
-    menuRefreshStarted = true;
+  function refreshProducts() {
+    if (menuLoadPromise) return menuLoadPromise;
 
-    const cachedProducts = readCachedProducts();
-    if (cachedProducts?.length) {
-      catalogProducts = cachedProducts;
-      renderProducts();
-      if (menuStatus) menuStatus.textContent = '';
-      return;
-    }
-
-    if (!supabaseConfig.url || !supabaseConfig.publishableKey) return;
-    if (menuStatus) menuStatus.textContent = 'Po perditesojme menune...';
-
-    try {
-      const query = new URLSearchParams({
-        select: 'id,name,category,description,price,image,sort_order,created_at',
-        order: 'sort_order.asc,created_at.asc',
-      });
-      const response = await fetch(
-        `${supabaseConfig.url}/rest/v1/products?${query.toString()}`,
-        {
-          headers: {
-            apikey: supabaseConfig.publishableKey,
-            Authorization: `Bearer ${supabaseConfig.publishableKey}`,
-          },
+    menuLoadPromise = (async () => {
+      const cachedProducts = readCachedProducts();
+      if (cachedProducts?.length) {
+        catalogProducts = cachedProducts;
+        if (menuRendered) renderProducts();
+        if (menuStatus) {
+          menuStatus.textContent = '';
+          delete menuStatus.dataset.i18nDynamic;
         }
-      );
-      if (!response.ok) throw new Error(`Menu request failed with ${response.status}`);
+        return catalogProducts;
+      }
 
-      const products = (await response.json()).map(normalizeProduct);
-      if (products.length) {
-        catalogProducts = products;
-        cacheProducts(products);
-        renderProducts();
+      if (!supabaseConfig.url || !supabaseConfig.publishableKey) return catalogProducts;
+      setDynamicText(menuStatus, 'refreshingMenu');
+
+      try {
+        const query = new URLSearchParams({
+          select: 'id,name,category,description,price,image,sort_order,created_at',
+          order: 'sort_order.asc,created_at.asc',
+        });
+        const response = await fetch(
+          `${supabaseConfig.url}/rest/v1/products?${query.toString()}`,
+          {
+            headers: {
+              apikey: supabaseConfig.publishableKey,
+              Authorization: `Bearer ${supabaseConfig.publishableKey}`,
+            },
+          }
+        );
+        if (!response.ok) throw new Error(`Menu request failed with ${response.status}`);
+
+        const products = (await response.json()).map(normalizeProduct);
+        if (products.length) {
+          catalogProducts = products;
+          cacheProducts(products);
+          if (menuRendered) renderProducts();
+        }
+        if (menuStatus) {
+          menuStatus.textContent = '';
+          delete menuStatus.dataset.i18nDynamic;
+        }
+      } catch (error) {
+        console.error('Menuja nuk mund te perditesohet.', error);
+        setDynamicText(menuStatus, 'cachedMenu');
       }
-      if (menuStatus) menuStatus.textContent = '';
-    } catch (error) {
-      console.error('Menuja nuk mund te perditesohet.', error);
-      if (menuStatus) {
-        menuStatus.textContent =
-          'Po shfaqet menuja e ruajtur. Provo perseri pas pak per perditesimet.';
-      }
-    }
+      return catalogProducts;
+    })();
+
+    return menuLoadPromise;
   }
 
   function formatPrice(price) {
@@ -414,7 +637,7 @@
 
   function capitalizeWords(value) {
     return String(value || '').replace(/(^|\s)(\S)/g, (match, space, letter) => {
-      return `${space}${letter.toLocaleUpperCase('sq-AL')}`;
+      return `${space}${letter.toLocaleUpperCase(LANGUAGE_LOCALES[currentLanguage])}`;
     });
   }
 
@@ -427,7 +650,7 @@
       button.className = 'category-tab';
       button.type = 'button';
       button.dataset.category = category.id;
-      button.textContent = capitalizeWords(category.label);
+      button.textContent = capitalizeWords(categoryLabelFor(category));
       button.setAttribute('aria-controls', `menu-category-${category.id}`);
       button.classList.toggle('is-active', category.id === activeCategory);
       button.addEventListener('click', () => {
@@ -458,7 +681,7 @@
     const body = document.createElement('div');
     const title = document.createElement('h4');
     const description = document.createElement('p');
-    title.textContent = capitalizeWords(product.name || 'Pa emer');
+    title.textContent = capitalizeWords(product.name || dynamicText('unnamedProduct'));
     description.textContent = product.description || '';
     body.append(title, description);
 
@@ -489,8 +712,10 @@
       const title = document.createElement('h3');
       const count = document.createElement('span');
       title.id = `menu-category-title-${category.id}`;
-      title.textContent = capitalizeWords(category.label);
-      count.textContent = products.length ? `${products.length} produkte` : 'Se shpejti';
+      title.textContent = capitalizeWords(categoryLabelFor(category));
+      count.textContent = products.length
+        ? `${products.length} ${dynamicText('products')}`
+        : dynamicText('comingSoon');
       heading.append(title, count);
 
       const items = document.createElement('div');
@@ -500,7 +725,7 @@
       } else {
         const empty = document.createElement('p');
         empty.className = 'empty-category';
-        empty.textContent = 'Produktet e kesaj kategorie do te shtohen se shpejti.';
+        empty.textContent = dynamicText('emptyCategory');
         items.append(empty);
       }
 
@@ -672,6 +897,41 @@
     },
     { passive: true }
   );
+
+  function isAtDocumentEnd() {
+    const root = document.documentElement;
+    return window.scrollY >= Math.max(0, root.scrollHeight - window.innerHeight - 1);
+  }
+
+  window.addEventListener(
+    'wheel',
+    (event) => {
+      if (!activePanel && event.deltaY > 0 && isAtDocumentEnd()) event.preventDefault();
+    },
+    { passive: false }
+  );
+
+  window.addEventListener(
+    'touchstart',
+    (event) => {
+      lastTouchY = event.touches[0]?.clientY ?? null;
+    },
+    { passive: true }
+  );
+
+  window.addEventListener(
+    'touchmove',
+    (event) => {
+      const nextTouchY = event.touches[0]?.clientY ?? null;
+      const scrollingPastEnd =
+        lastTouchY !== null && nextTouchY !== null && nextTouchY < lastTouchY;
+      if (!activePanel && scrollingPastEnd && isAtDocumentEnd()) event.preventDefault();
+      lastTouchY = nextTouchY;
+    },
+    { passive: false }
+  );
+
+  window.addEventListener('touchend', () => (lastTouchY = null), { passive: true });
 
   panels.forEach((panel) => {
     panel.addEventListener(
@@ -934,9 +1194,7 @@
   loadGoogleReviewStats();
   createStoryMotion();
   createMarqueeVisibility();
-  if (!getCookiePreference()) {
-    window.setTimeout(showCookieBanner, 650);
-  }
+  void initializeWelcomeGate();
   const year = document.querySelector('[data-current-year]');
   if (year) year.textContent = new Date().getFullYear();
 })();

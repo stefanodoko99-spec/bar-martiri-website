@@ -1,11 +1,11 @@
 (function defineMenuData() {
   const categories = [
-    { id: 'icecreams', label: 'Akullore' },
-    { id: 'sodas', label: 'Pije Freskuese' },
-    { id: 'coffee', label: 'Kafe' },
-    { id: 'beers', label: 'Birra' },
-    { id: 'cocktails', label: 'Kokteje' },
-    { id: 'alcohol', label: 'Alkool' },
+    { id: 'icecreams', label: 'Akullore', labels: { sq: 'Akullore', it: 'Gelato', en: 'Ice Cream' } },
+    { id: 'sodas', label: 'Pije Freskuese', labels: { sq: 'Pije Freskuese', it: 'Bibite', en: 'Soft Drinks' } },
+    { id: 'coffee', label: 'Kafe', labels: { sq: 'Kafe', it: 'Caffè', en: 'Coffee' } },
+    { id: 'beers', label: 'Birra', labels: { sq: 'Birra', it: 'Birre', en: 'Beers' } },
+    { id: 'cocktails', label: 'Kokteje', labels: { sq: 'Kokteje', it: 'Cocktail', en: 'Cocktails' } },
+    { id: 'alcohol', label: 'Alkol', labels: { sq: 'Alkol', it: 'Alcolici', en: 'Spirits' } },
   ];
 
   const products = [

@@ -137,9 +137,37 @@
     </script>
     <link rel="preload" href="assets/optimized/waffle-cone.webp" as="image" type="image/webp">
     <link rel="preload" href="assets/optimized/vanilla-soft-serve.webp" as="image" type="image/webp">
-    <link rel="stylesheet" href="styles.css?v=20260730-8">
+    <link rel="stylesheet" href="styles.css?v=20260803-1">
   </head>
-  <body>
+  <body class="is-welcome-open">
+    <section
+      class="welcome-gate"
+      data-welcome-gate
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="welcome-title"
+    >
+      <div class="welcome-card">
+        <p class="eyebrow">Bar Martiri · Spille</p>
+        <h1 id="welcome-title">Zgjidh gjuhën</h1>
+        <p class="welcome-status" data-welcome-status aria-live="polite">
+          Po ngarkohet menuja…
+        </p>
+        <span class="welcome-loader" data-welcome-loader aria-hidden="true"></span>
+        <div class="language-choice" aria-label="Zgjedhja e gjuhës">
+          <button type="button" data-language-choice="sq" disabled>Shqip</button>
+          <button type="button" data-language-choice="it" disabled>Italiano</button>
+          <button type="button" data-language-choice="en" disabled>English</button>
+        </div>
+      </div>
+    </section>
+    <noscript>
+      <style>
+        .welcome-gate { display: none !important; }
+        body { overflow: auto !important; }
+      </style>
+    </noscript>
+
     <a class="skip-link" href="#main">Kalo te permbajtja</a>
 
     <header class="site-header" aria-label="Kreu i faqes">
@@ -147,7 +175,14 @@
         <span>Bar</span>
         <strong>Martiri</strong>
       </a>
-      <p class="place-mark">Spille · Shqipëri</p>
+      <div class="header-tools">
+        <p class="place-mark">Spille · Shqipëri</p>
+        <div class="language-switcher" data-language-switcher aria-label="Ndrysho gjuhën">
+          <button type="button" data-language-switch="sq" aria-pressed="true">SQ</button>
+          <button type="button" data-language-switch="it" aria-pressed="false">IT</button>
+          <button type="button" data-language-switch="en" aria-pressed="false">EN</button>
+        </div>
+      </div>
     </header>
 
     <main id="main">
@@ -688,7 +723,7 @@
     <script defer src="assets/vendor/gsap.min.js"></script>
     <script defer src="assets/vendor/ScrollTrigger.min.js"></script>
     <script defer src="supabase-config.js?v=20260730-1"></script>
-    <script defer src="menu-data.js?v=20260730-1"></script>
-    <script defer src="script.js?v=20260730-4"></script>
+    <script defer src="menu-data.js?v=20260803-1"></script>
+    <script defer src="script.js?v=20260803-1"></script>
   </body>
 </html>

@@ -27,6 +27,9 @@
   const productError = document.querySelector('[data-product-error]');
   const storageStatus = document.querySelector('[data-storage-status]');
   const storageNotice = document.querySelector('[data-storage-notice]');
+  const sortMode = document.querySelector('[data-sort-mode]');
+  const applySortButton = document.querySelector('[data-apply-sort]');
+  const sortStatus = document.querySelector('[data-sort-status]');
   let products = [...menuData.products];
   let currentImage = '';
   let pendingImage = null;
@@ -153,6 +156,71 @@
     return String(price || '').trim() ? `${price} ALL` : 'Pa cmim';
   }
 
+  function normalizeSortOrders(items) {
+    return items.map((product, index) => ({ ...product, sortOrder: index }));
+  }
+
+  function categoryRank(categoryId) {
+    const index = menuData.categories.findIndex((category) => category.id === categoryId);
+    return index < 0 ? menuData.categories.length : index;
+  }
+
+  function sortWithinCategories(items, compare) {
+    return [...items].sort((left, right) => {
+      const categoryDifference = categoryRank(left.category) - categoryRank(right.category);
+      return categoryDifference || compare(left, right);
+    });
+  }
+
+  async function persistProductOrder(nextProducts, successMessage) {
+    if (!store?.saveProductOrder) throw new Error('Ruajtja e renditjes nuk eshte e disponueshme.');
+    if (sortStatus) sortStatus.textContent = 'Po ruhet renditja…';
+    if (applySortButton) applySortButton.disabled = true;
+    try {
+      products = await store.saveProductOrder(normalizeSortOrders(nextProducts));
+      renderProducts();
+      if (sortStatus) sortStatus.textContent = successMessage;
+    } catch (error) {
+      if (sortStatus) sortStatus.textContent = error.message || 'Renditja nuk mund te ruhet.';
+    } finally {
+      if (applySortButton) applySortButton.disabled = false;
+    }
+  }
+
+  async function moveProduct(productId, direction) {
+    const product = products.find((item) => item.id === productId);
+    if (!product) return;
+    const peers = products.filter((item) => item.category === product.category);
+    const peerIndex = peers.findIndex((item) => item.id === productId);
+    const neighbour = peers[peerIndex + direction];
+    if (!neighbour) return;
+
+    const currentIndex = products.findIndex((item) => item.id === productId);
+    const neighbourIndex = products.findIndex((item) => item.id === neighbour.id);
+    const reordered = [...products];
+    [reordered[currentIndex], reordered[neighbourIndex]] = [
+      reordered[neighbourIndex],
+      reordered[currentIndex],
+    ];
+    await persistProductOrder(reordered, 'Renditja manuale u ruajt.');
+  }
+
+  function createMoveButton(product, direction, disabled) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.disabled = disabled;
+    button.setAttribute(
+      'aria-label',
+      direction < 0 ? `Leviz ${product.name} lart` : `Leviz ${product.name} poshte`
+    );
+    button.innerHTML =
+      direction < 0
+        ? '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"></path></svg>'
+        : '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg>';
+    button.addEventListener('click', () => void moveProduct(product.id, direction));
+    return button;
+  }
+
   function renderProducts() {
     if (!productList) return;
     productList.replaceChildren();
@@ -167,10 +235,14 @@
     }
 
     products.forEach((product) => {
-      const row = document.createElement('button');
+      const row = document.createElement('div');
       row.className = 'admin-product-row';
-      row.type = 'button';
       row.dataset.productId = product.id;
+
+      const selectProduct = document.createElement('button');
+      selectProduct.className = 'admin-product-select';
+      selectProduct.type = 'button';
+      selectProduct.setAttribute('aria-label', `Ndrysho ${product.name || 'produktin'}`);
 
       const image = document.createElement('img');
       image.src = product.image || 'assets/icecream-gallery/ice-cream-cone-transparent.png';
@@ -184,9 +256,20 @@
       details.append(name, category);
 
       const price = document.createElement('span');
+      price.className = 'admin-product-price';
       price.textContent = formatPrice(product.price);
-      row.append(image, details, price);
-      row.addEventListener('click', () => editProduct(product.id));
+      selectProduct.append(image, details, price);
+      selectProduct.addEventListener('click', () => editProduct(product.id));
+
+      const categoryProducts = products.filter((item) => item.category === product.category);
+      const categoryIndex = categoryProducts.findIndex((item) => item.id === product.id);
+      const controls = document.createElement('div');
+      controls.className = 'reorder-controls';
+      controls.append(
+        createMoveButton(product, -1, categoryIndex === 0),
+        createMoveButton(product, 1, categoryIndex === categoryProducts.length - 1)
+      );
+      row.append(selectProduct, controls);
       productList.append(row);
     });
   }
@@ -269,7 +352,8 @@
       const savedProduct = await store.saveProduct(product);
       const existingIndex = products.findIndex((item) => item.id === savedProduct.id);
       if (existingIndex >= 0) products[existingIndex] = savedProduct;
-      else products.unshift(savedProduct);
+      else products.push(savedProduct);
+      products.sort((left, right) => Number(left.sortOrder) - Number(right.sortOrder));
       renderProducts();
       resetEditor();
     } catch (error) {
@@ -371,6 +455,97 @@
   });
   document.querySelector('[data-cancel-edit]')?.addEventListener('click', resetEditor);
 
+  sortMode?.addEventListener('change', () => {
+    if (!sortStatus) return;
+    sortStatus.textContent =
+      sortMode.value === 'manual'
+        ? 'Per renditjen manuale perdor shigjetat prane cdo produkti.'
+        : 'Kliko Apliko per ta ruajtur kete renditje.';
+  });
+
+  applySortButton?.addEventListener('click', async () => {
+    const mode = sortMode?.value || 'manual';
+    if (mode === 'manual') {
+      if (sortStatus) {
+        sortStatus.textContent = 'Perdor shigjetat lart dhe poshte prane produkteve.';
+      }
+      return;
+    }
+
+    const byName = (left, right) =>
+      String(left.name || '').localeCompare(String(right.name || ''), 'sq-AL', {
+        sensitivity: 'base',
+      });
+    let compare = byName;
+    if (mode.startsWith('price-')) {
+      const direction = mode === 'price-desc' ? -1 : 1;
+      compare = (left, right) => {
+        const leftPrice = String(left.price ?? '').trim() === '' ? null : Number(left.price);
+        const rightPrice = String(right.price ?? '').trim() === '' ? null : Number(right.price);
+        if (leftPrice === null && rightPrice === null) return byName(left, right);
+        if (leftPrice === null) return 1;
+        if (rightPrice === null) return -1;
+        return (leftPrice - rightPrice) * direction || byName(left, right);
+      };
+    }
+
+    const reordered = sortWithinCategories(products, compare);
+    await persistProductOrder(
+      reordered,
+      mode === 'alphabetical'
+        ? 'Renditja alfabetike u ruajt.'
+        : 'Renditja sipas cmimit u ruajt.'
+    );
+  });
+
+  document.querySelector('[data-apply-description-drafts]')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget;
+    if (
+      !window.confirm(
+        'Te plotesohen pershkrimet bosh dhe te korrigjohen kategorite e shenuara ne draft?'
+      )
+    ) {
+      return;
+    }
+
+    try {
+      button.disabled = true;
+      if (sortStatus) sortStatus.textContent = 'Po aplikohen pershkrimet draft…';
+      const response = await fetch('backup/product-description-drafts-2026-08-03.json', {
+        cache: 'no-store',
+      });
+      if (!response.ok) throw new Error('Skedari i pershkrimeve nuk u gjet.');
+      const drafts = await response.json();
+      const draftsById = new Map(drafts.map((draft) => [String(draft.id), draft]));
+      let changed = 0;
+      const merged = products.map((product) => {
+        const draft = draftsById.get(String(product.id));
+        if (!draft) return product;
+        const next = { ...product };
+        if (!String(product.description || '').trim() && String(draft.description || '').trim()) {
+          next.description = String(draft.description).slice(0, 240);
+        }
+        if (draft.category && draft.category !== product.category) {
+          next.category = String(draft.category);
+        }
+        if (next.description !== product.description || next.category !== product.category) changed += 1;
+        return next;
+      });
+      products = await store.saveProductOrder(merged);
+      renderProducts();
+      resetEditor();
+      if (sortStatus) {
+        sortStatus.textContent = `${changed} produkte u perditesuan. Kontrolloji nga formulari.`;
+      }
+    } catch (error) {
+      if (sortStatus) {
+        sortStatus.textContent = error.message || 'Pershkrimet nuk mund te aplikohen.';
+      }
+    } finally {
+      button.disabled = false;
+    }
+  });
+
   document.querySelector('[data-export]')?.addEventListener('click', () => {
     const blob = new Blob([JSON.stringify(products, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -389,13 +564,14 @@
       if (!Array.isArray(imported)) throw new Error();
       products = imported
         .filter((item) => item && typeof item === 'object')
-        .map((item) => ({
+        .map((item, index) => ({
           id: String(item.id || createId()),
           name: String(item.name || '').slice(0, 80),
           category: String(item.category || menuData.categories[0]?.id || ''),
           description: String(item.description || '').slice(0, 240),
           price: String(item.price || ''),
           image: String(item.image || ''),
+          sortOrder: Number(item.sortOrder ?? item.sort_order ?? index),
         }))
         .filter((item) => item.name);
       products = await store.replaceProducts(products);

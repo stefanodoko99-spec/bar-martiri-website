@@ -7,7 +7,7 @@
     <link rel="icon" href="assets/icecream-gallery/ice-cream-cone-transparent.png">
     <meta name="robots" content="noindex, nofollow, noarchive">
     <title>Admin | Bar Martiri</title>
-    <link rel="stylesheet" href="admin.css?v=20260729-2">
+    <link rel="stylesheet" href="admin.css?v=20260803-1">
   </head>
   <body>
     <header class="admin-header">
@@ -82,8 +82,28 @@
               <h3 id="product-list-title">Te gjitha produktet</h3>
               <span data-product-count>0</span>
             </div>
+            <div class="sort-toolbar">
+              <label>
+                Renditja
+                <select data-sort-mode>
+                  <option value="manual">Manuale</option>
+                  <option value="alphabetical">Alfabetike A–Z</option>
+                  <option value="price-asc">Çmimi: i ulët–i lartë</option>
+                  <option value="price-desc">Çmimi: i lartë–i ulët</option>
+                </select>
+              </label>
+              <button class="secondary-button" type="button" data-apply-sort>Apliko</button>
+              <p class="sort-status" data-sort-status role="status" aria-live="polite"></p>
+            </div>
             <div class="admin-product-list" data-admin-product-list></div>
             <div class="data-actions">
+              <button class="secondary-button" type="button" data-apply-description-drafts>
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M4 19.5V5a2 2 0 0 1 2-2h9l5 5v11.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19.5Z"></path>
+                  <path d="M14 3v6h6M8 13h8M8 17h6"></path>
+                </svg>
+                Apliko përshkrimet draft
+              </button>
               <button class="secondary-button" type="button" data-export>
                 <svg aria-hidden="true" viewBox="0 0 24 24">
                   <path d="M12 3v12M7 10l5 5 5-5M5 21h14"></path>
@@ -168,8 +188,8 @@
     <script src="assets/vendor/crypto-js.min.js"></script>
     <script src="assets/vendor/supabase.min.js"></script>
     <script src="supabase-config.js?v=20260729-2"></script>
-    <script src="menu-data.js?v=20260729-2"></script>
-    <script src="supabase-store.js?v=20260729-1"></script>
-    <script src="admin.js?v=20260729-6"></script>
+    <script src="menu-data.js?v=20260803-1"></script>
+    <script src="supabase-store.js?v=20260803-1"></script>
+    <script src="admin.js?v=20260803-1"></script>
   </body>
 </html>
