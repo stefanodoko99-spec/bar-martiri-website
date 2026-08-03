@@ -412,6 +412,12 @@
     return `${String(price).trim()} ALL`;
   }
 
+  function capitalizeWords(value) {
+    return String(value || '').replace(/(^|\s)(\S)/g, (match, space, letter) => {
+      return `${space}${letter.toLocaleUpperCase('sq-AL')}`;
+    });
+  }
+
   function renderCategories() {
     if (!categoryTabs) return;
     categoryTabs.replaceChildren();
@@ -421,7 +427,7 @@
       button.className = 'category-tab';
       button.type = 'button';
       button.dataset.category = category.id;
-      button.textContent = category.label;
+      button.textContent = capitalizeWords(category.label);
       button.setAttribute('aria-controls', `menu-category-${category.id}`);
       button.classList.toggle('is-active', category.id === activeCategory);
       button.addEventListener('click', () => {
@@ -452,7 +458,7 @@
     const body = document.createElement('div');
     const title = document.createElement('h4');
     const description = document.createElement('p');
-    title.textContent = product.name || 'Pa emer';
+    title.textContent = capitalizeWords(product.name || 'Pa emer');
     description.textContent = product.description || '';
     body.append(title, description);
 
@@ -483,7 +489,7 @@
       const title = document.createElement('h3');
       const count = document.createElement('span');
       title.id = `menu-category-title-${category.id}`;
-      title.textContent = category.label;
+      title.textContent = capitalizeWords(category.label);
       count.textContent = products.length ? `${products.length} produkte` : 'Se shpejti';
       heading.append(title, count);
 
