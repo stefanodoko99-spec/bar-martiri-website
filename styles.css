@@ -44,7 +44,7 @@ html {
   color-scheme: light;
   scroll-behavior: smooth;
   overflow-x: clip;
-  overscroll-behavior-y: none;
+  overscroll-behavior-y: contain;
 }
 
 body {
@@ -56,7 +56,7 @@ body {
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.5;
-  overscroll-behavior-y: none;
+  overscroll-behavior-y: contain;
   text-rendering: optimizeLegibility;
 }
 
@@ -176,6 +176,7 @@ textarea {
 button,
 a {
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 button {
@@ -254,12 +255,12 @@ svg {
 }
 
 .language-switcher button {
-  min-width: 34px;
-  min-height: 34px;
+  min-width: 44px;
+  min-height: 44px;
   padding: 0 8px;
   background: transparent;
   color: var(--ink-soft);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
   cursor: pointer;
 }
@@ -271,6 +272,8 @@ svg {
 
 .wordmark {
   display: inline-flex;
+  min-height: 44px;
+  justify-content: center;
   flex-direction: column;
   color: var(--ink);
   font-size: 13px;
@@ -724,10 +727,13 @@ svg {
 .weather-credit {
   position: absolute;
   right: var(--page-pad);
-  bottom: 9px;
+  bottom: 0;
   z-index: 2;
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
   color: rgba(255, 255, 255, 0.58);
-  font-size: 9px;
+  font-size: 10px;
   text-decoration: none;
   text-transform: uppercase;
 }
@@ -950,6 +956,11 @@ svg {
 }
 
 .footer-meta a {
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
   white-space: nowrap;
 }
 
@@ -1193,7 +1204,7 @@ svg {
 }
 
 .category-tab {
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 14px;
   border: 1px solid var(--line);
   border-radius: 6px;
@@ -1393,7 +1404,7 @@ svg {
 
 .secondary-button,
 .cookie-button {
-  min-height: 42px;
+  min-height: 44px;
   padding: 0 16px;
   border: 1px solid var(--ink);
   border-radius: 6px;
@@ -1527,9 +1538,9 @@ svg {
   bottom: calc(max(14px, env(safe-area-inset-bottom)) + var(--dock-height) + 14px);
   left: var(--page-pad);
   display: grid;
-  width: min(540px, calc(100% - (var(--page-pad) * 2)));
-  gap: 20px;
-  padding: 22px;
+  width: min(460px, calc(100% - (var(--page-pad) * 2)));
+  gap: 14px;
+  padding: 16px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--paper-strong);
@@ -1658,9 +1669,9 @@ svg {
   }
 
   .language-switcher button {
-    min-width: 30px;
-    min-height: 30px;
-    padding: 0 6px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 7px;
   }
 
   .assembly-story {
@@ -1827,7 +1838,7 @@ svg {
   }
 
   .dock-action span {
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .bottom-dock.is-compact .dock-action {
@@ -1959,7 +1970,7 @@ svg {
     right: 10px;
     left: 10px;
     width: auto;
-    padding: 18px;
+    padding: 14px;
   }
 
   .cookie-actions {
@@ -1969,7 +1980,7 @@ svg {
 
   .cookie-button {
     padding: 0 10px;
-    font-size: 9px;
+    font-size: 11px;
   }
 
   .footer-meta {
@@ -1987,7 +1998,7 @@ svg {
   }
 
   .dock-action span {
-    font-size: 8px;
+    font-size: 10px;
   }
 
   .panel-header h2 {

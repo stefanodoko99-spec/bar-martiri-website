@@ -9,6 +9,7 @@
     categoryOverrides: {},
   };
   const supabaseConfig = window.BAR_MARTIRI_SUPABASE || {};
+  const localProductImages = window.BAR_MARTIRI_LOCAL_PRODUCT_IMAGES || {};
   const story = document.querySelector('.assembly-story');
   const dock = document.querySelector('[data-bottom-dock]');
   const dockActions = [...document.querySelectorAll('[data-dock-action]')];
@@ -26,12 +27,11 @@
   const languageSwitches = [...document.querySelectorAll('[data-language-switch]')];
   const mapFrame = document.querySelector('[data-map-shell] iframe');
   const mapPlaceholder = document.querySelector('[data-map-placeholder]');
-  const MENU_CACHE_KEY = 'barMartiri.publicMenu.v2';
-  const MENU_CACHE_TTL = 5 * 60 * 1000;
+  const MENU_CACHE_KEY = 'barMartiri.publicMenu.v3';
+  const MENU_CACHE_TTL = 24 * 60 * 60 * 1000;
+  const MENU_CACHE_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
   const WEATHER_CACHE_KEY = 'barMartiri.spilleWeather.v1';
   const WEATHER_CACHE_TTL = 60 * 60 * 1000;
-  const REVIEW_CACHE_KEY = 'barMartiri.googleReviews.v1';
-  const REVIEW_CACHE_TTL = 6 * 60 * 60 * 1000;
   const SPILLE_COORDS = { latitude: 41.0966, longitude: 19.4583 };
   const COOKIE_NAME = 'bar_martiri_cookie_pref';
   const LANGUAGE_KEY = 'barMartiri.language.v1';
@@ -42,12 +42,38 @@
     en: 'en-GB',
   });
 
+  const SEO_TEXT = Object.freeze({
+    sq: {
+      title: 'Bar Martiri Spille | Shezlongje pranë Detit',
+      description:
+        'Bar Martiri në Spille, Shqipëri: shezlongje, parkim falas, akullore, kafe dhe pije pranë detit për pushimet tuaja verore.',
+      path: '/',
+    },
+    it: {
+      title: 'Bar Martiri Spille | Lettini vicino al mare',
+      description:
+        'Bar Martiri a Spille, Albania: lettini, parcheggio gratuito, gelato, caffè e bibite vicino al mare.',
+      path: '/it/',
+    },
+    en: {
+      title: 'Bar Martiri Spille | Sunbeds by the Sea',
+      description:
+        'Bar Martiri in Spille, Albania: sunbeds, free parking, ice cream, coffee and cold drinks by the sea.',
+      path: '/en/',
+    },
+  });
+
   const UI_TEXT = Object.freeze({
     'Kalo te permbajtja': { sq: 'Kalo te përmbajtja', it: 'Vai al contenuto', en: 'Skip to content' },
     'Kreu i faqes': { sq: 'Kreu i faqes', it: 'Intestazione del sito', en: 'Site header' },
     'Bar Martiri, kryefaqja': { sq: 'Bar Martiri, kryefaqja', it: 'Bar Martiri, pagina iniziale', en: 'Bar Martiri, home page' },
     'Ndrysho gjuhën': { sq: 'Ndrysho gjuhën', it: 'Cambia lingua', en: 'Change language' },
     'Navigimi kryesor': { sq: 'Navigimi kryesor', it: 'Navigazione principale', en: 'Main navigation' },
+    'Shërbimet e Bar Martiri': { sq: 'Shërbimet e Bar Martiri', it: 'Servizi di Bar Martiri', en: 'Bar Martiri services' },
+    'Shijet e akullores': { sq: 'Shijet e akullores', it: 'Gusti del gelato', en: 'Ice cream flavours' },
+    'Akullore vanilje qe vendoset ne kaush': { sq: 'Akullore vanilje që vendoset në kaush', it: 'Gelato alla vaniglia servito nel cono', en: 'Vanilla ice cream placed in a cone' },
+    '5 nga 5': { sq: '5 nga 5', it: '5 su 5', en: '5 out of 5' },
+    'BAR MARTIRI · SPILLE · AKULLORE · KAFE · DET ·': { sq: 'BAR MARTIRI · SPILLE · AKULLORE · KAFE · DET ·', it: 'BAR MARTIRI · SPILLE · GELATO · CAFFÈ · MARE ·', en: 'BAR MARTIRI · SPILLE · ICE CREAM · COFFEE · SEA ·' },
     'Hap menune': { sq: 'Hap menunë', it: 'Apri il menu', en: 'Open menu' },
     'Mbyll menune': { sq: 'Mbyll menunë', it: 'Chiudi il menu', en: 'Close menu' },
     'Kategorite e menuse': { sq: 'Kategoritë e menusë', it: 'Categorie del menu', en: 'Menu categories' },
@@ -82,6 +108,8 @@
     'Cdo dite': { sq: 'Çdo ditë', it: 'Tutti i giorni', en: 'Every day' },
     'Hap ne harte': { sq: 'Hap në hartë', it: 'Apri la mappa', en: 'Open map' },
     'Google Reviews': { sq: 'Vlerësime në Google', it: 'Recensioni Google', en: 'Google Reviews' },
+    'Vlerësimi i fundit i verifikuar më 3 gusht 2026, nga': { sq: 'Vlerësimi i fundit i verifikuar më 3 gusht 2026, nga', it: 'Ultima valutazione verificata il 3 agosto 2026, da', en: 'Latest rating verified on 3 August 2026, from' },
+    'vlerësime në Google.': { sq: 'vlerësime në Google.', it: 'recensioni su Google.', en: 'Google reviews.' },
     'Vleresimi aktual nga': { sq: 'Vlerësimi aktual nga', it: 'Valutazione attuale da', en: 'Current rating from' },
     'pershtypje te publikuara ne Google.': { sq: 'vlerësime të publikuara në Google.', it: 'recensioni pubblicate su Google.', en: 'reviews published on Google.' },
     'Shiko te gjitha ne Google': { sq: 'Shiko të gjitha në Google', it: 'Vedi tutte su Google', en: 'See all on Google' },
@@ -118,10 +146,10 @@
   });
 
   const DYNAMIC_TEXT = Object.freeze({
-    loadingMenu: { sq: 'Po ngarkohet menuja…', it: 'Caricamento del menu…', en: 'Loading the menu…' },
-    menuReady: { sq: 'Menuja është gati. Zgjidh gjuhën.', it: 'Il menu è pronto. Scegli la lingua.', en: 'The menu is ready. Choose your language.' },
+    chooseLanguage: { sq: 'Zgjidh gjuhën për të vazhduar.', it: 'Scegli la lingua per continuare.', en: 'Choose your language to continue.' },
     refreshingMenu: { sq: 'Po përditësojmë menunë…', it: 'Aggiornamento del menu…', en: 'Updating the menu…' },
     cachedMenu: { sq: 'Po shfaqet menuja e ruajtur. Provo përsëri pas pak për përditësimet.', it: 'Mostriamo il menu salvato. Riprova tra poco per gli aggiornamenti.', en: 'Showing the saved menu. Try again shortly for updates.' },
+    offlineMenu: { sq: 'Lidhja me menunë nuk është e disponueshme. Po shfaqen vetëm produktet bazë.', it: 'Il collegamento al menu non è disponibile. Vengono mostrati solo i prodotti di base.', en: 'The menu connection is unavailable. Only the basic products are shown.' },
     products: { sq: 'produkte', it: 'prodotti', en: 'products' },
     comingSoon: { sq: 'Së shpejti', it: 'Prossimamente', en: 'Coming soon' },
     emptyCategory: { sq: 'Produktet e kësaj kategorie do të shtohen së shpejti.', it: 'I prodotti di questa categoria saranno aggiunti presto.', en: 'Products in this category will be added soon.' },
@@ -153,7 +181,7 @@
   let scrollFrame = 0;
   let currentLanguage = 'sq';
   let menuLoadPromise = null;
-  let lastTouchY = null;
+  let productImageObserver = null;
 
   function dynamicText(key) {
     return DYNAMIC_TEXT[key]?.[currentLanguage] || DYNAMIC_TEXT[key]?.sq || '';
@@ -175,8 +203,10 @@
         const trimmed = node.nodeValue.trim();
         const normalized = trimmed.replace(/\s+/g, ' ');
         if (normalized) {
-          if (!node.__barMartiriSourceText && UI_TEXT[normalized]) {
-            node.__barMartiriSourceText = normalized;
+          if (!node.__barMartiriSourceText) {
+            node.__barMartiriSourceText = UI_TEXT[normalized]
+              ? normalized
+              : Object.keys(UI_TEXT).find((key) => UI_TEXT[key]?.sq === normalized);
           }
           const source = node.__barMartiriSourceText;
           const translated = source && UI_TEXT[source]?.[currentLanguage];
@@ -193,7 +223,7 @@
 
   function translateAttributes(root = document.body) {
     if (!root) return;
-    const attributes = ['aria-label', 'title', 'placeholder', 'data-dock-label'];
+    const attributes = ['aria-label', 'title', 'placeholder', 'alt', 'data-dock-label'];
     root.querySelectorAll(attributes.map((name) => `[${name}]`).join(',')).forEach((element) => {
       attributes.forEach((name) => {
         if (!element.hasAttribute(name)) return;
@@ -215,7 +245,22 @@
 
   function productTranslationFor(product) {
     if (currentLanguage === 'sq') return null;
+    const databaseTranslation = product?.translations?.[currentLanguage];
+    if (databaseTranslation?.name || databaseTranslation?.description) return databaseTranslation;
     return menuData.productTranslations?.[product?.id]?.[currentLanguage] || null;
+  }
+
+  function updateDocumentMetadata() {
+    const metadata = SEO_TEXT[currentLanguage] || SEO_TEXT.sq;
+    const absoluteUrl = new URL(metadata.path, window.location.origin).href;
+    document.title = metadata.title;
+    document.querySelector('meta[name="description"]')?.setAttribute('content', metadata.description);
+    document.querySelector('meta[property="og:title"]')?.setAttribute('content', metadata.title);
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', metadata.description);
+    document.querySelector('meta[property="og:url"]')?.setAttribute('content', absoluteUrl);
+    document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', metadata.title);
+    document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', metadata.description);
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', absoluteUrl);
   }
 
   function productNameFor(product) {
@@ -230,6 +275,7 @@
   function applyLanguage(language) {
     currentLanguage = LANGUAGE_LOCALES[language] ? language : 'sq';
     document.documentElement.lang = LANGUAGE_LOCALES[currentLanguage];
+    updateDocumentMetadata();
     try {
       localStorage.setItem(LANGUAGE_KEY, currentLanguage);
     } catch {
@@ -253,33 +299,57 @@
 
   function closeWelcomeGate(language) {
     applyLanguage(language);
+    const languagePath = SEO_TEXT[currentLanguage]?.path;
+    if (languagePath && window.location.pathname !== languagePath) {
+      window.location.assign(languagePath);
+      return;
+    }
     if (!welcomeGate) return;
     welcomeGate.classList.add('is-leaving');
     document.body.classList.remove('is-welcome-open');
     window.setTimeout(() => {
       welcomeGate.hidden = true;
-      if (!getCookiePreference()) window.setTimeout(showCookieBanner, 450);
     }, reducedMotion ? 0 : 260);
+    scheduleStoryMotion();
   }
 
-  async function initializeWelcomeGate() {
-    if (!welcomeGate) {
+  function getInitialLanguage() {
+    const routeLanguage = document.documentElement.dataset.initialLanguage;
+    if (LANGUAGE_LOCALES[routeLanguage]) return routeLanguage;
+    try {
+      const savedLanguage = localStorage.getItem(LANGUAGE_KEY);
+      if (LANGUAGE_LOCALES[savedLanguage]) return savedLanguage;
+    } catch {
+      // The language chooser remains available when storage is unavailable.
+    }
+    return '';
+  }
+
+  function initializeWelcomeGate() {
+    const initialLanguage = getInitialLanguage();
+    if (initialLanguage) {
+      const languagePath = SEO_TEXT[initialLanguage]?.path;
+      const routeLanguage = document.documentElement.dataset.initialLanguage;
+      if (!routeLanguage && languagePath && window.location.pathname !== languagePath) {
+        window.location.replace(languagePath);
+        return;
+      }
+      applyLanguage(initialLanguage);
+      if (welcomeGate) welcomeGate.hidden = true;
+      document.body.classList.remove('is-welcome-open');
       void refreshProducts();
-      if (!getCookiePreference()) window.setTimeout(showCookieBanner, 650);
+      scheduleStoryMotion();
       return;
     }
 
-    setDynamicText(welcomeStatus, 'loadingMenu');
-    languageChoices.forEach((button) => (button.disabled = true));
-    await Promise.all([
-      Promise.race([
-        refreshProducts(),
-        new Promise((resolve) => window.setTimeout(resolve, 4500)),
-      ]),
-      new Promise((resolve) => window.setTimeout(resolve, 650)),
-    ]);
+    if (!welcomeGate) {
+      void refreshProducts();
+      return;
+    }
 
-    setDynamicText(welcomeStatus, 'menuReady');
+    welcomeGate.hidden = false;
+    document.body.classList.add('is-welcome-open');
+    setDynamicText(welcomeStatus, 'chooseLanguage');
     welcomeLoader?.classList.add('is-ready');
     languageChoices.forEach((button) => {
       button.disabled = false;
@@ -287,10 +357,25 @@
         once: true,
       });
     });
+    languageChoices[0]?.focus({ preventScroll: true });
+    void refreshProducts();
   }
 
   languageSwitches.forEach((button) => {
-    button.addEventListener('click', () => applyLanguage(button.dataset.languageSwitch));
+    button.addEventListener('click', () => {
+      const language = button.dataset.languageSwitch;
+      const languagePath = SEO_TEXT[language]?.path;
+      if (languagePath && window.location.pathname !== languagePath) {
+        try {
+          localStorage.setItem(LANGUAGE_KEY, language);
+        } catch {
+          // Navigation still applies when storage is unavailable.
+        }
+        window.location.assign(languagePath);
+        return;
+      }
+      applyLanguage(language);
+    });
   });
 
   function normalizeDegrees(value) {
@@ -496,72 +581,9 @@
     }
   }
 
-  function renderReviewStats(stats) {
-    const rating = Number(stats?.rating);
-    const count = Number(stats?.userRatingCount);
-    if (!Number.isFinite(rating) || !Number.isInteger(count) || count < 1) return false;
-
-    const ratingElement = document.querySelector('[data-review-rating]');
-    const countElement = document.querySelector('[data-review-count]');
-    if (ratingElement) ratingElement.textContent = rating.toFixed(1);
-    if (countElement) countElement.textContent = count.toLocaleString('sq-AL');
-
-    const structuredData = document.querySelector('script[type="application/ld+json"]');
-    if (structuredData) {
-      try {
-        const data = JSON.parse(structuredData.textContent);
-        const business = data?.['@graph']?.find((entry) => entry?.['@id']?.endsWith('#business'));
-        if (business) {
-          business.aggregateRating = {
-            '@type': 'AggregateRating',
-            ratingValue: rating.toFixed(1),
-            reviewCount: String(count),
-          };
-          structuredData.textContent = JSON.stringify(data);
-        }
-      } catch {
-        // The visible review total remains available if structured data cannot be updated.
-      }
-    }
-    return true;
-  }
-
-  async function loadGoogleReviewStats() {
-    if (!document.querySelector('[data-review-count]')) return;
-
-    try {
-      const cached = JSON.parse(localStorage.getItem(REVIEW_CACHE_KEY));
-      if (
-        cached?.stats &&
-        Date.now() - Number(cached.savedAt) < REVIEW_CACHE_TTL &&
-        renderReviewStats(cached.stats)
-      ) {
-        return;
-      }
-    } catch {
-      // Continue with the static verified total when storage is unavailable.
-    }
-
-    try {
-      const response = await fetch('/.netlify/functions/google-reviews');
-      if (!response.ok) return;
-      const stats = await response.json();
-      if (!renderReviewStats(stats)) return;
-      try {
-        localStorage.setItem(
-          REVIEW_CACHE_KEY,
-          JSON.stringify({ stats, savedAt: Date.now() })
-        );
-      } catch {
-        // The live values remain visible when storage is unavailable.
-      }
-    } catch {
-      // The static review count is the production fallback.
-    }
-  }
-
   function normalizeProduct(product, index = 0) {
     const image = String(product.image || '');
+    const localCatalogImage = localProductImages[String(product.id || '')];
     return {
       id: String(product.id || `product-${index}`),
       name: String(product.name || '').slice(0, 80),
@@ -571,22 +593,42 @@
         product.price === null || product.price === undefined
           ? ''
           : String(product.price),
-      image: optimizedLocalImages[image] || image,
+      image:
+        (localCatalogImage?.source === image && localCatalogImage.local) ||
+        optimizedLocalImages[image] ||
+        image,
       sortOrder: Number(product.sort_order ?? product.sortOrder ?? index),
+      translations: {
+        it: {
+          name: String(product.name_it ?? product.translations?.it?.name ?? '').slice(0, 80),
+          description: String(
+            product.description_it ?? product.translations?.it?.description ?? ''
+          ).slice(0, 240),
+        },
+        en: {
+          name: String(product.name_en ?? product.translations?.en?.name ?? '').slice(0, 80),
+          description: String(
+            product.description_en ?? product.translations?.en?.description ?? ''
+          ).slice(0, 240),
+        },
+      },
     };
   }
 
   function readCachedProducts() {
     try {
-      const cached = JSON.parse(sessionStorage.getItem(MENU_CACHE_KEY));
+      const cached = JSON.parse(localStorage.getItem(MENU_CACHE_KEY));
       if (
         !cached ||
         !Array.isArray(cached.products) ||
-        Date.now() - Number(cached.savedAt) > MENU_CACHE_TTL
+        Date.now() - Number(cached.savedAt) > MENU_CACHE_MAX_AGE
       ) {
         return null;
       }
-      return cached.products.map(normalizeProduct);
+      return {
+        products: cached.products.map(normalizeProduct),
+        stale: Date.now() - Number(cached.savedAt) > MENU_CACHE_TTL,
+      };
     } catch {
       return null;
     }
@@ -594,7 +636,7 @@
 
   function cacheProducts(products) {
     try {
-      sessionStorage.setItem(
+      localStorage.setItem(
         MENU_CACHE_KEY,
         JSON.stringify({ savedAt: Date.now(), products })
       );
@@ -607,34 +649,48 @@
     if (menuLoadPromise) return menuLoadPromise;
 
     menuLoadPromise = (async () => {
-      const cachedProducts = readCachedProducts();
-      if (cachedProducts?.length) {
-        catalogProducts = cachedProducts;
+      const cached = readCachedProducts();
+      if (cached?.products?.length) {
+        catalogProducts = cached.products;
         if (menuRendered) renderProducts();
         if (menuStatus) {
           menuStatus.textContent = '';
           delete menuStatus.dataset.i18nDynamic;
         }
-        return catalogProducts;
+        if (!cached.stale) return catalogProducts;
       }
 
       if (!supabaseConfig.url || !supabaseConfig.publishableKey) return catalogProducts;
       setDynamicText(menuStatus, 'refreshingMenu');
 
       try {
-        const query = new URLSearchParams({
-          select: 'id,name,category,description,price,image,sort_order,created_at',
-          order: 'sort_order.asc,created_at.asc',
-        });
-        const response = await fetch(
-          `${supabaseConfig.url}/rest/v1/products?${query.toString()}`,
-          {
+        const requestProducts = async (includeTranslations = true) => {
+          const fields = [
+            'id',
+            'name',
+            'category',
+            'description',
+            'price',
+            'image',
+            'sort_order',
+            'created_at',
+          ];
+          if (includeTranslations) {
+            fields.push('name_it', 'name_en', 'description_it', 'description_en');
+          }
+          const query = new URLSearchParams({
+            select: fields.join(','),
+            order: 'sort_order.asc,created_at.asc',
+          });
+          return fetch(`${supabaseConfig.url}/rest/v1/products?${query.toString()}`, {
             headers: {
               apikey: supabaseConfig.publishableKey,
               Authorization: `Bearer ${supabaseConfig.publishableKey}`,
             },
-          }
-        );
+          });
+        };
+        let response = await requestProducts(true);
+        if (response.status === 400) response = await requestProducts(false);
         if (!response.ok) throw new Error(`Menu request failed with ${response.status}`);
 
         const products = (await response.json()).map(normalizeProduct);
@@ -649,10 +705,12 @@
         }
       } catch (error) {
         console.error('Menuja nuk mund te perditesohet.', error);
-        setDynamicText(menuStatus, 'cachedMenu');
+        setDynamicText(menuStatus, cached?.products?.length ? 'cachedMenu' : 'offlineMenu');
       }
       return catalogProducts;
-    })();
+    })().finally(() => {
+      menuLoadPromise = null;
+    });
 
     return menuLoadPromise;
   }
@@ -698,12 +756,23 @@
     card.className = 'product-card';
 
     const image = document.createElement('img');
-    image.src = product.image || 'assets/optimized/ice-cream-cone.webp';
+    image.src =
+      'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+    image.dataset.src = product.image || '/assets/optimized/ice-cream-cone.webp';
     image.alt = productNameFor(product);
     image.loading = 'lazy';
     image.decoding = 'async';
     image.width = 560;
     image.height = 700;
+    image.addEventListener(
+      'error',
+      () => {
+        if (!image.src.endsWith('/assets/optimized/ice-cream-cone.webp')) {
+          image.src = '/assets/optimized/ice-cream-cone.webp';
+        }
+      },
+      { once: true }
+    );
 
     const body = document.createElement('div');
     const title = document.createElement('h4');
@@ -721,6 +790,32 @@
 
     card.append(image, body);
     return card;
+  }
+
+  function observeProductImages() {
+    productImageObserver?.disconnect();
+    const images = [...productGrid.querySelectorAll('img[data-src]')];
+    const loadImage = (image) => {
+      if (!image.dataset.src) return;
+      image.src = image.dataset.src;
+      delete image.dataset.src;
+    };
+    if (!('IntersectionObserver' in window)) {
+      images.forEach(loadImage);
+      return;
+    }
+    const menuPanel = panels.find((panel) => panel.dataset.panel === 'menu') || null;
+    productImageObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          productImageObserver?.unobserve(entry.target);
+          loadImage(entry.target);
+        });
+      },
+      { root: menuPanel, rootMargin: '500px 0px' }
+    );
+    images.forEach((image) => productImageObserver.observe(image));
   }
 
   function renderProducts() {
@@ -759,6 +854,7 @@
       section.append(heading, items);
       productGrid.append(section);
     });
+    observeProductImages();
   }
 
   function setDockActive(name) {
@@ -925,41 +1021,6 @@
     { passive: true }
   );
 
-  function isAtDocumentEnd() {
-    const root = document.documentElement;
-    return window.scrollY >= Math.max(0, root.scrollHeight - window.innerHeight - 1);
-  }
-
-  window.addEventListener(
-    'wheel',
-    (event) => {
-      if (!activePanel && event.deltaY > 0 && isAtDocumentEnd()) event.preventDefault();
-    },
-    { passive: false }
-  );
-
-  window.addEventListener(
-    'touchstart',
-    (event) => {
-      lastTouchY = event.touches[0]?.clientY ?? null;
-    },
-    { passive: true }
-  );
-
-  window.addEventListener(
-    'touchmove',
-    (event) => {
-      const nextTouchY = event.touches[0]?.clientY ?? null;
-      const scrollingPastEnd =
-        lastTouchY !== null && nextTouchY !== null && nextTouchY < lastTouchY;
-      if (!activePanel && scrollingPastEnd && isAtDocumentEnd()) event.preventDefault();
-      lastTouchY = nextTouchY;
-    },
-    { passive: false }
-  );
-
-  window.addEventListener('touchend', () => (lastTouchY = null), { passive: true });
-
   panels.forEach((panel) => {
     panel.addEventListener(
       'scroll',
@@ -1049,10 +1110,11 @@
   }
 
   function createStoryMotion() {
-    if (reducedMotion || !story || !window.gsap || !window.ScrollTrigger) {
+    if (reducedMotion || !story) {
       loadStoryImages();
       return;
     }
+    if (!window.gsap || !window.ScrollTrigger) return;
     const gsap = window.gsap;
     gsap.registerPlugin(window.ScrollTrigger);
 
@@ -1214,14 +1276,77 @@
     window.addEventListener('load', () => window.ScrollTrigger?.refresh(), { once: true });
   }
 
+  function loadScript(source) {
+    return new Promise((resolve, reject) => {
+      const existing = document.querySelector(`script[src="${source}"]`);
+      if (existing) {
+        if (existing.dataset.loaded === 'true') resolve();
+        else {
+          existing.addEventListener('load', resolve, { once: true });
+          existing.addEventListener('error', reject, { once: true });
+        }
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = source;
+      script.defer = true;
+      script.addEventListener('load', () => {
+        script.dataset.loaded = 'true';
+        resolve();
+      }, { once: true });
+      script.addEventListener('error', reject, { once: true });
+      document.head.append(script);
+    });
+  }
+
+  async function loadStoryMotion() {
+    if (reducedMotion) {
+      loadStoryImages();
+      return;
+    }
+    try {
+      await loadScript('assets/vendor/gsap.min.js');
+      await loadScript('assets/vendor/ScrollTrigger.min.js');
+      createStoryMotion();
+    } catch {
+      loadStoryImages();
+    }
+  }
+
+  function runWhenNear(element, callback, rootMargin = '600px 0px') {
+    if (!element || !('IntersectionObserver' in window)) {
+      const run = () => callback();
+      if ('requestIdleCallback' in window) window.requestIdleCallback(run, { timeout: 1800 });
+      else window.setTimeout(run, 700);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        observer.disconnect();
+        callback();
+      },
+      { rootMargin }
+    );
+    observer.observe(element);
+  }
+
+  let storyMotionScheduled = false;
+  function scheduleStoryMotion() {
+    if (storyMotionScheduled) return;
+    storyMotionScheduled = true;
+    window.setTimeout(
+      () => runWhenNear(story, () => void loadStoryMotion(), '700px 0px'),
+      reducedMotion ? 0 : 450
+    );
+  }
+
   setDockActive('home');
   updateSunset();
   window.setInterval(updateSunset, 60 * 1000);
-  loadSpilleWeather();
-  loadGoogleReviewStats();
-  createStoryMotion();
+  runWhenNear(document.querySelector('[data-spille-dashboard]'), loadSpilleWeather, '500px 0px');
   createMarqueeVisibility();
-  void initializeWelcomeGate();
+  initializeWelcomeGate();
   const year = document.querySelector('[data-current-year]');
   if (year) year.textContent = new Date().getFullYear();
 })();

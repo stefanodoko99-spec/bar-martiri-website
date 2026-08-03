@@ -1,0 +1,10 @@
+{
+  "name": "bar-martiri-website",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node scripts/generate-locales.mjs",
+    "check": "node --check script.js && node --check menu-data.js && node --check supabase-config.js && node --check supabase-store.js && node --check admin.js && node scripts/verify.mjs",
+    "optimize:catalog": "node scripts/optimize-existing-images.mjs"
+  }
+}

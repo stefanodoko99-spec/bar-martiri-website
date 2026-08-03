@@ -18,6 +18,20 @@
         },
       })
     : null;
+  const BASE_COLUMNS = 'id,name,category,description,price,image,sort_order';
+  const TRANSLATION_COLUMNS = 'name_it,name_en,description_it,description_en';
+  let translationColumnsSupported = null;
+
+  function isMissingTranslationsError(error) {
+    return (
+      ['42703', 'PGRST204'].includes(error?.code) ||
+      /name_it|name_en|description_it|description_en/i.test(String(error?.message || ''))
+    );
+  }
+
+  function isMissingFunctionError(error) {
+    return ['42883', 'PGRST202'].includes(error?.code);
+  }
 
   function normalizeProduct(product, index = 0) {
     return {
@@ -31,6 +45,20 @@
           : String(product.price),
       image: String(product.image || ''),
       sortOrder: Number(product.sort_order ?? product.sortOrder ?? index),
+      translations: {
+        it: {
+          name: String(product.name_it ?? product.translations?.it?.name ?? '').slice(0, 80),
+          description: String(
+            product.description_it ?? product.translations?.it?.description ?? ''
+          ).slice(0, 240),
+        },
+        en: {
+          name: String(product.name_en ?? product.translations?.en?.name ?? '').slice(0, 80),
+          description: String(
+            product.description_en ?? product.translations?.en?.description ?? ''
+          ).slice(0, 240),
+        },
+      },
     };
   }
 
@@ -49,12 +77,12 @@
     localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
   }
 
-  function toDatabaseProduct(product, index = 0) {
+  function toDatabaseProduct(product, index = 0, includeTranslations = true) {
     const normalized = normalizeProduct(product, index);
     const numericPrice =
       normalized.price.trim() === '' ? null : Number(normalized.price);
 
-    return {
+    const databaseProduct = {
       id: normalized.id,
       name: normalized.name,
       category: normalized.category,
@@ -64,16 +92,31 @@
       sort_order: normalized.sortOrder,
       updated_at: new Date().toISOString(),
     };
+    if (includeTranslations) {
+      databaseProduct.name_it = normalized.translations.it.name || null;
+      databaseProduct.name_en = normalized.translations.en.name || null;
+      databaseProduct.description_it = normalized.translations.it.description || null;
+      databaseProduct.description_en = normalized.translations.en.description || null;
+    }
+    return databaseProduct;
   }
 
   async function listProducts() {
     if (!client) return loadLocalProducts();
 
-    const { data, error } = await client
-      .from('products')
-      .select('id,name,category,description,price,image,sort_order')
-      .order('sort_order', { ascending: true })
-      .order('created_at', { ascending: true });
+    const requestProducts = (includeTranslations) =>
+      client
+        .from('products')
+        .select(`${BASE_COLUMNS}${includeTranslations ? `,${TRANSLATION_COLUMNS}` : ''}`)
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: true });
+    let { data, error } = await requestProducts(translationColumnsSupported !== false);
+    if (error && isMissingTranslationsError(error)) {
+      translationColumnsSupported = false;
+      ({ data, error } = await requestProducts(false));
+    } else if (!error) {
+      translationColumnsSupported = true;
+    }
 
     if (error) throw error;
     return (data || []).map(normalizeProduct);
@@ -90,11 +133,17 @@
       return normalized;
     }
 
-    const { data, error } = await client
-      .from('products')
-      .upsert(toDatabaseProduct(normalized), { onConflict: 'id' })
-      .select('id,name,category,description,price,image,sort_order')
-      .single();
+    const saveRemoteProduct = (includeTranslations) =>
+      client
+        .from('products')
+        .upsert(toDatabaseProduct(normalized, 0, includeTranslations), { onConflict: 'id' })
+        .select(`${BASE_COLUMNS}${includeTranslations ? `,${TRANSLATION_COLUMNS}` : ''}`)
+        .single();
+    let { data, error } = await saveRemoteProduct(translationColumnsSupported !== false);
+    if (error && isMissingTranslationsError(error)) {
+      translationColumnsSupported = false;
+      ({ data, error } = await saveRemoteProduct(false));
+    }
 
     if (error) throw error;
     return normalizeProduct(data);
@@ -117,19 +166,45 @@
       return normalized;
     }
 
-    const { error: deleteError } = await client
-      .from('products')
-      .delete()
-      .neq('id', '');
-    if (deleteError) throw deleteError;
-
-    if (normalized.length) {
-      const { error: insertError } = await client
-        .from('products')
-        .insert(normalized.map(toDatabaseProduct));
-      if (insertError) throw insertError;
+    const includeTranslations = translationColumnsSupported !== false;
+    const payload = normalized.map((product, index) =>
+      toDatabaseProduct(product, index, includeTranslations)
+    );
+    const { error: rpcError } = await client.rpc('replace_products_transactional', {
+      product_payload: payload,
+    });
+    if (!rpcError) return normalized;
+    if (!isMissingFunctionError(rpcError) && !isMissingTranslationsError(rpcError)) {
+      throw rpcError;
     }
 
+    // Safe compatibility path: upsert first, then remove obsolete rows. A failed
+    // upsert never deletes the existing catalog.
+    if (payload.length) {
+      let { error: upsertError } = await client
+        .from('products')
+        .upsert(payload, { onConflict: 'id' });
+      if (upsertError && isMissingTranslationsError(upsertError)) {
+        translationColumnsSupported = false;
+        ({ error: upsertError } = await client
+          .from('products')
+          .upsert(
+            normalized.map((product, index) => toDatabaseProduct(product, index, false)),
+            { onConflict: 'id' }
+          ));
+      }
+      if (upsertError) throw upsertError;
+    }
+    const { data: existing, error: listError } = await client.from('products').select('id');
+    if (listError) throw listError;
+    const importedIds = new Set(normalized.map((product) => product.id));
+    const obsoleteIds = (existing || [])
+      .map((product) => String(product.id))
+      .filter((id) => !importedIds.has(id));
+    if (obsoleteIds.length) {
+      const { error: deleteError } = await client.from('products').delete().in('id', obsoleteIds);
+      if (deleteError) throw deleteError;
+    }
     return normalized;
   }
 
@@ -142,10 +217,25 @@
       return normalized;
     }
 
+    const orderPayload = normalized.map((product) => ({
+      id: product.id,
+      sort_order: product.sortOrder,
+    }));
+    const { error: rpcError } = await client.rpc('update_product_order', {
+      order_payload: orderPayload,
+    });
+    if (!rpcError) return normalized;
+    if (!isMissingFunctionError(rpcError)) throw rpcError;
+
     const { data, error } = await client
       .from('products')
-      .upsert(normalized.map(toDatabaseProduct), { onConflict: 'id' })
-      .select('id,name,category,description,price,image,sort_order');
+      .upsert(
+        normalized.map((product, index) =>
+          toDatabaseProduct(product, index, translationColumnsSupported !== false)
+        ),
+        { onConflict: 'id' }
+      )
+      .select(`${BASE_COLUMNS}${translationColumnsSupported !== false ? `,${TRANSLATION_COLUMNS}` : ''}`);
 
     if (error) throw error;
     return (data?.length ? data : normalized)
@@ -155,6 +245,13 @@
 
   async function uploadImage(file, originalName = 'product.webp') {
     if (!client) return '';
+
+    if (!(file instanceof Blob) || !file.type.startsWith('image/')) {
+      throw new Error('Skedari duhet të jetë një fotografi e vlefshme.');
+    }
+    if (file.size > 500 * 1024) {
+      throw new Error('Fotografia e optimizuar duhet të jetë më e vogël se 500 KB.');
+    }
 
     const extension = String(originalName).split('.').pop()?.toLowerCase() || 'webp';
     const safeExtension = ['png', 'jpg', 'jpeg', 'webp'].includes(extension)
@@ -198,6 +295,7 @@
 
   window.BAR_MARTIRI_STORE = Object.freeze({
     isRemote: () => Boolean(client),
+    hasTranslationColumns: () => translationColumnsSupported,
     listProducts,
     saveProduct,
     deleteProduct,

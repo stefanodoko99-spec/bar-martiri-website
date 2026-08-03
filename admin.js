@@ -1,12 +1,6 @@
 (function startAdmin() {
   'use strict';
 
-  const SESSION_KEY = 'barMartiri.adminSession.v1';
-  const FIXED_AUTH = Object.freeze({
-    salt: 'MzrnCzBtHkehrdhCb9gt4A==',
-    hash: '2tHUgjFh/Au5Zm/lzdyVyNHmOVYI56QahH1AdVaL9f4=',
-    iterations: 30000,
-  });
   const menuData = window.BAR_MARTIRI_MENU || { categories: [], products: [] };
   const store = window.BAR_MARTIRI_STORE;
 
@@ -34,44 +28,6 @@
   let currentImage = '';
   let pendingImage = null;
 
-  function bytesToBase64(bytes) {
-    return btoa(String.fromCharCode(...bytes));
-  }
-
-  function base64ToBytes(value) {
-    return Uint8Array.from(atob(value), (character) => character.charCodeAt(0));
-  }
-
-  async function derivePassword(password, salt, iterations = FIXED_AUTH.iterations) {
-    if (window.crypto?.subtle) {
-      const material = await window.crypto.subtle.importKey(
-        'raw',
-        new TextEncoder().encode(password),
-        'PBKDF2',
-        false,
-        ['deriveBits']
-      );
-      const bits = await window.crypto.subtle.deriveBits(
-        { name: 'PBKDF2', hash: 'SHA-256', salt, iterations },
-        material,
-        256
-      );
-      return bytesToBase64(new Uint8Array(bits));
-    }
-
-    if (!window.CryptoJS) throw new Error('PBKDF2 fallback is unavailable.');
-    const saltWords = window.CryptoJS.lib.WordArray.create(salt);
-    return window.CryptoJS.PBKDF2(password, saltWords, {
-      keySize: 256 / 32,
-      iterations,
-      hasher: window.CryptoJS.algo.SHA256,
-    }).toString(window.CryptoJS.enc.Base64);
-  }
-
-  function getAuth() {
-    return FIXED_AUTH;
-  }
-
   function showAuthView() {
     authShell.hidden = false;
     adminApp.hidden = true;
@@ -79,17 +35,32 @@
     loginView.querySelector('input[name="password"]')?.focus();
   }
 
+  function updateTranslationFields() {
+    const available = store?.hasTranslationColumns?.() !== false;
+    productForm
+      ?.querySelectorAll('[name="name_it"], [name="description_it"], [name="name_en"], [name="description_en"]')
+      .forEach((field) => {
+        field.disabled = !available;
+      });
+    const help = document.querySelector('.translation-fieldset .field-help');
+    if (help) {
+      help.textContent = available
+        ? 'Përkthimet ruhen në Supabase dhe shfaqen sipas gjuhës së zgjedhur.'
+        : 'Apliko supabase/setup.sql për të aktivizuar përkthimet në databazë.';
+    }
+  }
+
   async function showAdmin() {
-    sessionStorage.setItem(SESSION_KEY, 'active');
     authShell.hidden = true;
     adminApp.hidden = false;
     renderProducts();
     resetEditor();
     try {
       products = await store.listProducts();
+      updateTranslationFields();
       renderProducts();
     } catch {
-      productError.textContent = 'Produktet nuk mund te ngarkohen nga Supabase.';
+      productError.textContent = 'Produktet nuk mund të ngarkohen nga Supabase.';
     }
   }
 
@@ -102,39 +73,19 @@
     const password = String(new FormData(loginForm).get('password') || '');
     const error = document.querySelector('[data-login-error]');
 
-    if (store?.isRemote()) {
-      try {
-        const { error: loginError } = await store.signIn(password);
-        if (loginError) throw loginError;
-        loginForm.reset();
-        setError(error, '');
-        await showAdmin();
-      } catch {
-        setError(error, 'Fjalekalimi nuk eshte i sakte.');
-      }
+    if (!store?.isRemote()) {
+      setError(error, 'Paneli nuk mund të hapet pa një lidhje të sigurt me Supabase.');
       return;
     }
-
-    const auth = getAuth();
-    let attempt = '';
     try {
-      attempt = await derivePassword(
-        password,
-        base64ToBytes(auth.salt),
-        auth.iterations
-      );
+      const { error: loginError } = await store.signIn(password);
+      if (loginError) throw loginError;
+      loginForm.reset();
+      setError(error, '');
+      await showAdmin();
     } catch {
-      setError(error, 'Fjalekalimi nuk mund te verifikohet ne kete shfletues.');
-      return;
+      setError(error, 'Fjalëkalimi nuk është i saktë ose shërbimi nuk është i disponueshëm.');
     }
-    if (attempt !== auth.hash) {
-      setError(error, 'Fjalekalimi nuk eshte i sakte.');
-      return;
-    }
-
-    loginForm.reset();
-    setError(error, '');
-    await showAdmin();
   });
 
   function renderCategoryOptions() {
@@ -153,7 +104,7 @@
   }
 
   function formatPrice(price) {
-    return String(price || '').trim() ? `${price} ALL` : 'Pa cmim';
+    return String(price || '').trim() ? `${price} ALL` : 'Pa çmim';
   }
 
   function normalizeSortOrders(items) {
@@ -173,7 +124,7 @@
   }
 
   async function persistProductOrder(nextProducts, successMessage) {
-    if (!store?.saveProductOrder) throw new Error('Ruajtja e renditjes nuk eshte e disponueshme.');
+    if (!store?.saveProductOrder) throw new Error('Ruajtja e renditjes nuk është e disponueshme.');
     if (sortStatus) sortStatus.textContent = 'Po ruhet renditja…';
     if (applySortButton) applySortButton.disabled = true;
     try {
@@ -181,7 +132,7 @@
       renderProducts();
       if (sortStatus) sortStatus.textContent = successMessage;
     } catch (error) {
-      if (sortStatus) sortStatus.textContent = error.message || 'Renditja nuk mund te ruhet.';
+      if (sortStatus) sortStatus.textContent = error.message || 'Renditja nuk mund të ruhet.';
     } finally {
       if (applySortButton) applySortButton.disabled = false;
     }
@@ -211,7 +162,7 @@
     button.disabled = disabled;
     button.setAttribute(
       'aria-label',
-      direction < 0 ? `Leviz ${product.name} lart` : `Leviz ${product.name} poshte`
+      direction < 0 ? `Lëviz ${product.name} lart` : `Lëviz ${product.name} poshtë`
     );
     button.innerHTML =
       direction < 0
@@ -306,6 +257,15 @@
     productForm.elements.category.value = product.category || menuData.categories[0]?.id || '';
     productForm.elements.price.value = product.price || '';
     productForm.elements.description.value = product.description || '';
+    const fallbackTranslations = menuData.productTranslations?.[product.id] || {};
+    productForm.elements.name_it.value =
+      product.translations?.it?.name || fallbackTranslations.it?.name || '';
+    productForm.elements.description_it.value =
+      product.translations?.it?.description || fallbackTranslations.it?.description || '';
+    productForm.elements.name_en.value =
+      product.translations?.en?.name || fallbackTranslations.en?.name || '';
+    productForm.elements.description_en.value =
+      product.translations?.en?.description || fallbackTranslations.en?.description || '';
     editorTitle.textContent = 'Ndrysho produktin';
     deleteButton.hidden = false;
     productError.textContent = '';
@@ -334,12 +294,22 @@
       category: String(data.get('category') || ''),
       price: String(data.get('price') || '').trim(),
       description: String(data.get('description') || '').trim(),
+      translations: {
+        it: {
+          name: String(data.get('name_it') || '').trim(),
+          description: String(data.get('description_it') || '').trim(),
+        },
+        en: {
+          name: String(data.get('name_en') || '').trim(),
+          description: String(data.get('description_en') || '').trim(),
+        },
+      },
       image: currentImage,
       sortOrder: existingProduct?.sortOrder ?? products.length,
     };
 
     if (!product.name || !product.category) {
-      productError.textContent = 'Emri dhe kategoria jane te detyrueshme.';
+      productError.textContent = 'Emri dhe kategoria janë të detyrueshme.';
       return;
     }
 
@@ -358,7 +328,7 @@
       resetEditor();
     } catch (error) {
       productError.textContent =
-        error.message || 'Produkti nuk mund te ruhet.';
+        error.message || 'Produkti nuk mund të ruhet.';
     } finally {
       submitButton.disabled = false;
     }
@@ -368,7 +338,7 @@
     const id = productForm?.elements.id.value;
     const product = products.find((item) => item.id === id);
     if (!product) return;
-    if (!window.confirm(`Te fshihet "${product.name}"?`)) return;
+    if (!window.confirm(`Të fshihet "${product.name}"?`)) return;
     try {
       deleteButton.disabled = true;
       await store.deleteProduct(id);
@@ -376,7 +346,7 @@
       renderProducts();
       resetEditor();
     } catch (error) {
-      productError.textContent = error.message || 'Produkti nuk mund te fshihet.';
+      productError.textContent = error.message || 'Produkti nuk mund të fshihet.';
     } finally {
       deleteButton.disabled = false;
     }
@@ -392,11 +362,11 @@
   }
 
   async function compressImage(file) {
-    if (!file.type.startsWith('image/')) throw new Error('Zgjidh nje skedar fotografie.');
-    if (file.size > 8 * 1024 * 1024) throw new Error('Fotoja duhet te jete me e vogel se 8 MB.');
+    if (!file.type.startsWith('image/')) throw new Error('Zgjidh një skedar fotografie.');
+    if (file.size > 8 * 1024 * 1024) throw new Error('Fotografia duhet të jetë më e vogël se 8 MB.');
 
     const bitmap = await createImageBitmap(file);
-    const maxSide = 1400;
+    const maxSide = 800;
     const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
     const canvas = document.createElement('canvas');
     canvas.width = Math.max(1, Math.round(bitmap.width * scale));
@@ -404,10 +374,13 @@
     const context = canvas.getContext('2d');
     context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
     bitmap.close();
-    const blob = await new Promise((resolve) =>
-      canvas.toBlob(resolve, 'image/webp', 0.82)
-    );
-    if (!blob) throw new Error('Fotoja nuk mund te kompresohet.');
+    let quality = 0.78;
+    let blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', quality));
+    while (blob && blob.size > 180 * 1024 && quality > 0.58) {
+      quality -= 0.08;
+      blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', quality));
+    }
+    if (!blob) throw new Error('Fotografia nuk mund të kompresohet.');
     return {
       blob,
       dataUrl: await blobToDataUrl(blob),
@@ -426,7 +399,7 @@
       };
       showImage(compressed.dataUrl, 'Pamja e fotos se produktit');
     } catch (error) {
-      productError.textContent = error.message || 'Fotoja nuk mund te lexohet.';
+      productError.textContent = error.message || 'Fotografia nuk mund të lexohet.';
     }
   }
 
@@ -459,15 +432,15 @@
     if (!sortStatus) return;
     sortStatus.textContent =
       sortMode.value === 'manual'
-        ? 'Per renditjen manuale perdor shigjetat prane cdo produkti.'
-        : 'Kliko Apliko per ta ruajtur kete renditje.';
+        ? 'Për renditjen manuale përdor shigjetat pranë çdo produkti.'
+        : 'Kliko Apliko për ta ruajtur këtë renditje.';
   });
 
   applySortButton?.addEventListener('click', async () => {
     const mode = sortMode?.value || 'manual';
     if (mode === 'manual') {
       if (sortStatus) {
-        sortStatus.textContent = 'Perdor shigjetat lart dhe poshte prane produkteve.';
+        sortStatus.textContent = 'Përdor shigjetat lart dhe poshtë pranë produkteve.';
       }
       return;
     }
@@ -494,7 +467,7 @@
       reordered,
       mode === 'alphabetical'
         ? 'Renditja alfabetike u ruajt.'
-        : 'Renditja sipas cmimit u ruajt.'
+        : 'Renditja sipas çmimit u ruajt.'
     );
   });
 
@@ -502,7 +475,7 @@
     const button = event.currentTarget;
     if (
       !window.confirm(
-        'Te plotesohen pershkrimet bosh dhe te korrigjohen kategorite e shenuara ne draft?'
+        'Të plotësohen përshkrimet bosh dhe të korrigjohen kategoritë e shënuara në draft?'
       )
     ) {
       return;
@@ -510,11 +483,11 @@
 
     try {
       button.disabled = true;
-      if (sortStatus) sortStatus.textContent = 'Po aplikohen pershkrimet draft…';
+      if (sortStatus) sortStatus.textContent = 'Po aplikohen përshkrimet draft…';
       const response = await fetch('backup/product-description-drafts-2026-08-03.json', {
         cache: 'no-store',
       });
-      if (!response.ok) throw new Error('Skedari i pershkrimeve nuk u gjet.');
+      if (!response.ok) throw new Error('Skedari i përshkrimeve nuk u gjet.');
       const drafts = await response.json();
       const draftsById = new Map(drafts.map((draft) => [String(draft.id), draft]));
       let changed = 0;
@@ -535,11 +508,11 @@
       renderProducts();
       resetEditor();
       if (sortStatus) {
-        sortStatus.textContent = `${changed} produkte u perditesuan. Kontrolloji nga formulari.`;
+        sortStatus.textContent = `${changed} produkte u përditësuan. Kontrolloji nga formulari.`;
       }
     } catch (error) {
       if (sortStatus) {
-        sortStatus.textContent = error.message || 'Pershkrimet nuk mund te aplikohen.';
+        sortStatus.textContent = error.message || 'Përshkrimet nuk mund të aplikohen.';
       }
     } finally {
       button.disabled = false;
@@ -562,23 +535,40 @@
     try {
       const imported = JSON.parse(await file.text());
       if (!Array.isArray(imported)) throw new Error();
-      products = imported
+      const importedProducts = imported
         .filter((item) => item && typeof item === 'object')
         .map((item, index) => ({
           id: String(item.id || createId()),
           name: String(item.name || '').slice(0, 80),
           category: String(item.category || menuData.categories[0]?.id || ''),
           description: String(item.description || '').slice(0, 240),
+          translations: {
+            it: {
+              name: String(item.name_it ?? item.translations?.it?.name ?? '').slice(0, 80),
+              description: String(
+                item.description_it ?? item.translations?.it?.description ?? ''
+              ).slice(0, 240),
+            },
+            en: {
+              name: String(item.name_en ?? item.translations?.en?.name ?? '').slice(0, 80),
+              description: String(
+                item.description_en ?? item.translations?.en?.description ?? ''
+              ).slice(0, 240),
+            },
+          },
           price: String(item.price || ''),
           image: String(item.image || ''),
           sortOrder: Number(item.sortOrder ?? item.sort_order ?? index),
         }))
         .filter((item) => item.name);
-      products = await store.replaceProducts(products);
+      if (!window.confirm(`Të zëvendësohen produktet aktuale me ${importedProducts.length} produkte?`)) {
+        return;
+      }
+      products = await store.replaceProducts(importedProducts);
       renderProducts();
       resetEditor();
     } catch {
-      window.alert('Skedari JSON nuk eshte i vlefshem.');
+      window.alert('Skedari JSON nuk është i vlefshëm.');
     } finally {
       event.target.value = '';
     }
@@ -590,7 +580,6 @@
     } catch {
       // The local session is still cleared below.
     }
-    sessionStorage.removeItem(SESSION_KEY);
     showAuthView();
   });
 
@@ -603,7 +592,7 @@
       if (storageNotice) {
         storageNotice.querySelector('strong').textContent = 'Sinkronizim online';
         storageNotice.querySelector('p').textContent =
-          'Ndryshimet ruhen ne Supabase dhe shfaqen ne te gjitha pajisjet.';
+          'Ndryshimet ruhen në Supabase dhe shfaqen në të gjitha pajisjet.';
       }
       try {
         const session = await store.getSession();
@@ -615,11 +604,17 @@
       return;
     }
 
-    if (sessionStorage.getItem(SESSION_KEY) === 'active' && getAuth()) {
-      await showAdmin();
-    } else {
-      showAuthView();
+    if (storageStatus) storageStatus.lastChild.textContent = ' Supabase i padisponueshëm';
+    if (storageNotice) {
+      storageNotice.querySelector('strong').textContent = 'Paneli është i bllokuar';
+      storageNotice.querySelector('p').textContent =
+        'Konfiguro lidhjen e sigurt me Supabase për të menaxhuar produktet.';
     }
+    showAuthView();
+    setError(
+      document.querySelector('[data-login-error]'),
+      'Paneli nuk mund të përdoret pa Supabase.'
+    );
   }
 
   void initializeAdmin();
