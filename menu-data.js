@@ -1,7 +1,7 @@
 (function defineMenuData() {
   const categories = [
     { id: 'icecreams', label: 'Akullore' },
-    { id: 'sodas', label: 'Pije freskuese' },
+    { id: 'sodas', label: 'Pije Freskuese' },
     { id: 'coffee', label: 'Kafe' },
     { id: 'beers', label: 'Birra' },
     { id: 'cocktails', label: 'Kokteje' },
