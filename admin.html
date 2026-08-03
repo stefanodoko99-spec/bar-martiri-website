@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="sq">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f4f0e8">
+    <link rel="icon" href="assets/icecream-gallery/ice-cream-cone-transparent.png">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <title>Admin | Bar Martiri</title>
+    <link rel="stylesheet" href="admin.css?v=20260729-2">
+  </head>
+  <body>
+    <header class="admin-header">
+      <a class='admin-brand' href='/'>
+        <span>Bar</span>
+        <strong>Martiri</strong>
+      </a>
+      <div class="storage-status" data-storage-status>
+        <span aria-hidden="true"></span>
+        Ruajtje lokale
+      </div>
+    </header>
+
+    <main class="auth-shell" data-auth-shell>
+      <section class="auth-card" data-login-view hidden aria-labelledby="login-title">
+        <p class="eyebrow">Administrimi</p>
+        <h1 id="login-title">Mire se u ktheve</h1>
+        <p class="auth-intro">Hyr per te menaxhuar produktet e menuse.</p>
+        <form data-login-form>
+          <label>
+            Fjalekalimi
+            <input name="password" type="password" autocomplete="current-password" required>
+          </label>
+          <p class="form-error" data-login-error role="alert"></p>
+          <button class="primary-button" type="submit">Hyr ne panel</button>
+        </form>
+      </section>
+    </main>
+
+    <main class="admin-app" data-admin-app hidden>
+      <aside class="admin-sidebar">
+        <div>
+          <p class="eyebrow">Paneli</p>
+          <h1>Menuja</h1>
+        </div>
+        <nav aria-label="Navigimi i panelit">
+          <button class="sidebar-action is-active" type="button">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M4 6h16M4 12h16M4 18h10"></path>
+            </svg>
+            Produktet
+          </button>
+        </nav>
+        <div class="sidebar-footer">
+          <a href='/'>Shiko faqen <span aria-hidden="true">↗</span></a>
+          <button type="button" data-logout>Dil</button>
+        </div>
+      </aside>
+
+      <section class="admin-workspace">
+        <header class="workspace-header">
+          <div>
+            <p class="eyebrow">Katalogu</p>
+            <h2>Produktet</h2>
+          </div>
+          <button class="primary-button primary-button--small" type="button" data-new-product>
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+            Produkt i ri
+          </button>
+        </header>
+
+        <div class="admin-notice" data-storage-notice>
+          <strong>Vetem ne kete pajisje</strong>
+          <p>Ndryshimet ruhen ne shfletues. Eksporto nje kopje para se te pastrosh te dhenat.</p>
+        </div>
+
+        <div class="admin-layout">
+          <section class="product-list-panel" aria-labelledby="product-list-title">
+            <div class="section-toolbar">
+              <h3 id="product-list-title">Te gjitha produktet</h3>
+              <span data-product-count>0</span>
+            </div>
+            <div class="admin-product-list" data-admin-product-list></div>
+            <div class="data-actions">
+              <button class="secondary-button" type="button" data-export>
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M12 3v12M7 10l5 5 5-5M5 21h14"></path>
+                </svg>
+                Eksporto JSON
+              </button>
+              <label class="secondary-button" for="import-file">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M12 15V3M7 8l5-5 5 5M5 21h14"></path>
+                </svg>
+                Importo JSON
+              </label>
+              <input id="import-file" data-import type="file" accept="application/json" hidden>
+            </div>
+          </section>
+
+          <section class="product-editor" aria-labelledby="editor-title">
+            <header class="editor-header">
+              <div>
+                <p class="eyebrow">Detajet</p>
+                <h3 id="editor-title" data-editor-title>Shto produkt</h3>
+              </div>
+              <button class="icon-button" type="button" data-cancel-edit aria-label="Pastro formularin">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M18 6 6 18M6 6l12 12"></path>
+                </svg>
+              </button>
+            </header>
+
+            <form class="product-form" data-product-form>
+              <input name="id" type="hidden">
+              <label>
+                Emri
+                <input name="name" type="text" maxlength="80" required>
+              </label>
+
+              <div class="form-row">
+                <label>
+                  Kategoria
+                  <select name="category" data-category-select required></select>
+                </label>
+                <label>
+                  Cmimi (ALL)
+                  <input name="price" type="number" min="0" step="10" inputmode="numeric">
+                </label>
+              </div>
+
+              <label>
+                Pershkrimi
+                <textarea name="description" rows="4" maxlength="240"></textarea>
+              </label>
+
+              <fieldset class="image-fieldset">
+                <legend>Fotoja</legend>
+                <label class="drop-zone" data-drop-zone for="product-image">
+                  <img data-image-preview alt="" hidden>
+                  <span class="drop-zone-copy" data-drop-copy>
+                    <svg aria-hidden="true" viewBox="0 0 24 24">
+                      <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                      <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                      <path d="m21 15-5-5L5 21"></path>
+                    </svg>
+                    <strong>Terhiq foton ketu</strong>
+                    <small>ose kliko per ta zgjedhur</small>
+                  </span>
+                </label>
+                <input id="product-image" data-image-input type="file" accept="image/png,image/jpeg,image/webp" hidden>
+              </fieldset>
+
+              <p class="form-error" data-product-error role="alert"></p>
+
+              <div class="form-actions">
+                <button class="primary-button" type="submit">Ruaj produktin</button>
+                <button class="danger-button" type="button" data-delete-product hidden>Fshi</button>
+              </div>
+            </form>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script src="assets/vendor/crypto-js.min.js"></script>
+    <script src="assets/vendor/supabase.min.js"></script>
+    <script src="supabase-config.js?v=20260729-2"></script>
+    <script src="menu-data.js?v=20260729-2"></script>
+    <script src="supabase-store.js?v=20260729-1"></script>
+    <script src="admin.js?v=20260729-6"></script>
+  </body>
+</html>
