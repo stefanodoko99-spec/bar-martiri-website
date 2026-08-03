@@ -1,0 +1,272 @@
+[
+  {
+    "id": "8984d444-d94a-4ce0-9c10-db89815594ab",
+    "name": "B52",
+    "description": "Pije energjike me kafeinë, taurinë dhe vitamina të grupit B; shërbehet e ftohtë.",
+    "source": "https://b52energydrink.de/"
+  },
+  {
+    "id": "69e09cd5-3eaa-4d95-89d9-f2c6dfd837a0",
+    "name": "Red Bull",
+    "description": "Pije energjike me kafeinë, taurinë dhe vitamina të grupit B; shërbehet e ftohtë.",
+    "source": "https://www.redbull.com/us-en/energydrink/products/red-bull-energy-drink"
+  },
+  {
+    "id": "be59db76-80a5-42c4-904d-a7d2f1d73610",
+    "name": "Coca Cola",
+    "description": "Pije e gazuar me shijen klasike Coca-Cola, e freskët dhe e servirur e ftohtë.",
+    "source": "https://www.coca-cola.com/us/en/brands/coca-cola/products"
+  },
+  {
+    "id": "8dfa7625-38c2-422f-9a4a-7457784247ab",
+    "name": "Coca Cola Lime",
+    "description": "Pije e gazuar Coca-Cola me një prekje lime; shërbehet e ftohtë.",
+    "source": "https://www.coca-cola.com/gb/en/brands/coca-cola-zero-sugar"
+  },
+  {
+    "id": "407892f8-1be4-4e7a-978d-17e860c4f516",
+    "name": "Coca Cola Zero Sheqer",
+    "description": "Shija karakteristike Coca-Cola në variant pa sheqer; shërbehet e ftohtë.",
+    "source": "https://www.coca-cola.com/us/en/brands/coca-cola/products"
+  },
+  {
+    "id": "dd705e52-6835-41fc-8c69-2057faac19f3",
+    "name": "Fanta Exotic",
+    "description": "Pije e gazuar me profil frutash ekzotike dhe shije të ëmbël e freskuese.",
+    "source": "https://www.coca-cola.com/us/en/brands/fanta/products"
+  },
+  {
+    "id": "35769819-fd82-4dc8-8746-c064ef9398f5",
+    "name": "Fanta Portokall",
+    "description": "Pije e gazuar me shije portokalli, e freskët dhe frutore.",
+    "source": "https://www.coca-cola.com/us/en/brands/fanta/products"
+  },
+  {
+    "id": "0d056963-d63d-4703-941c-ce006eb757f1",
+    "name": "Shweps",
+    "description": "Pije e gazuar Schweppes me shije të freskët dhe flluska të imëta.",
+    "source": "https://www.schweppes.eu/"
+  },
+  {
+    "id": "1e05d030-bb16-4ed1-9177-9d2c427d2db4",
+    "name": "Lemon Soda",
+    "description": "Limonatë italiane e gazuar me shije të dallueshme limoni; shërbehet e ftohtë.",
+    "source": "https://lemonsoda.it/"
+  },
+  {
+    "id": "e1266386-e4aa-4e04-b2ab-bc62a8e27d0c",
+    "name": "Oran Soda",
+    "description": "Pije italiane e gazuar me portokall dhe shije të plotë agrumesh.",
+    "source": "https://lemonsoda.it/oransoda/"
+  },
+  {
+    "id": "2421ed75-4cba-4212-8940-1590e998286f",
+    "name": "Bravo Pjeshke",
+    "description": "Pije frutore Bravo me shije të ëmbël pjeshke; shërbehet e ftohtë.",
+    "source": "https://www.rauch.cc/brands/bravo/bravo-campaign"
+  },
+  {
+    "id": "8cf18af1-272c-4634-b2d4-06b671771973",
+    "name": "Bravo Molle",
+    "description": "Pije frutore Bravo me shije të freskët molle.",
+    "source": "https://www.rauch.cc/brands/bravo/bravo-campaign"
+  },
+  {
+    "id": "21181f19-bbec-49d1-8c26-4086b79720bf",
+    "name": "Bravo Rrushi",
+    "description": "Pije frutore Bravo me shije rrushi, e përshtatshme për t’u servirur e ftohtë.",
+    "source": "https://www.rauch.cc/brands/bravo"
+  },
+  {
+    "id": "0962de52-0061-4195-bed7-883c0bc3ab59",
+    "name": "Bravo Qershie",
+    "description": "Pije frutore Bravo me shije qershie dhe profil të ëmbël-frutor.",
+    "source": "https://www.rauch.cc/brands/bravo/bravo-campaign"
+  },
+  {
+    "id": "d3639671-07b6-4f44-ad7d-a02f79c458a7",
+    "name": "Bravo Luleshtrydhe",
+    "description": "Pije frutore Bravo me shije luleshtrydheje; shërbehet e ftohtë.",
+    "source": "https://www.rauch.cc/bs/brands/bravo/bravo-strawberry-42170a"
+  },
+  {
+    "id": "f435b9ca-75e4-45a5-b80f-1a6473f995da",
+    "name": "Lipton Pjeshke",
+    "description": "Çaj i ftohtë Lipton me shije pjeshke, i lehtë dhe freskues.",
+    "source": "https://www.liptonicedtea.com/en-gb/our-ice-teas"
+  },
+  {
+    "id": "f69b3ed8-8235-43e8-a558-333d9b137a12",
+    "name": "Lipton Limon",
+    "description": "Çaj i ftohtë Lipton me shije limoni, i freskët dhe agrumor.",
+    "source": "https://www.liptonicedtea.com/en-gb/our-ice-teas"
+  },
+  {
+    "id": "8a2bc2a2-a7fa-468f-a856-a87acd7a3ba0",
+    "name": "Ivi Limon",
+    "description": "Pije e gazuar me shije limoni dhe profil të freskët agrumor.",
+    "source": "https://www.pepsico.com/brands/product-information"
+  },
+  {
+    "id": "e261500f-0619-402d-bdf2-85c9de3b00c7",
+    "name": "Kafe AMA",
+    "description": "Kafe espresso AMA me aromë të plotë dhe shtresë të hollë kremi.",
+    "source": "https://amacaffe.com/about-us/"
+  },
+  {
+    "id": "be293d73-12f0-433b-b072-55ba93098e28",
+    "name": "Makaiato AMA",
+    "description": "Espresso AMA me një prekje qumështi të shkumëzuar.",
+    "source": "https://coffeeassoc.com/coffee-101/styles-of-coffee/"
+  },
+  {
+    "id": "1ba1c140-d768-44c4-afdb-5dfc0711ebbb",
+    "name": "Uje Natyral",
+    "description": "Ujë natyral pa gaz, i servirur i ftohtë.",
+    "source": "https://www.who.int/news-room/fact-sheets/detail/drinking-water"
+  },
+  {
+    "id": "e9abc34b-8821-449b-914b-75e7bfecdfd4",
+    "name": "Uje I Gazuar",
+    "description": "Ujë i gazuar me flluska, i servirur i ftohtë.",
+    "source": "https://www.britannica.com/science/carbonated-water"
+  },
+  {
+    "id": "52df4424-06fa-4eb1-92e2-d7fbeed3ca29",
+    "name": "Freddo Espresso",
+    "description": "Espresso i ftohtë i tundur me akull për një shije intensive dhe shtresë të lehtë shkume.",
+    "source": "https://www.nescafe.com/id/en-id/coffee-culture/coffee-knowledge/greek-freddo-coffee"
+  },
+  {
+    "id": "6aabc70d-3563-4a69-ba8f-6e835a81db49",
+    "name": "Makiato Freddo",
+    "description": "Kafe freddo e ftohtë me një prekje qumështi të shkumëzuar.",
+    "source": "https://www.nescafe.com/id/en-id/coffee-culture/coffee-knowledge/greek-freddo-coffee"
+  },
+  {
+    "id": "0b94ffdf-0bd9-4755-8f95-a59e0ade8a6f",
+    "name": "Freddo Cappuccino",
+    "description": "Espresso i ftohtë me akull, i plotësuar me qumësht të ftohtë të shkumëzuar.",
+    "source": "https://www.nescafe.com/id/en-id/coffee-culture/coffee-knowledge/greek-freddo-coffee"
+  },
+  {
+    "id": "de0a86bb-95c9-4e10-8a59-28f2f51748b5",
+    "name": "Frappe",
+    "description": "Kafe e ftohtë e tundur me ujë dhe akull deri sa të krijojë shkumë të dendur.",
+    "source": "https://www.nescafe.com/it/cultura-del-caffe/conoscere-il-caffe/frappe"
+  },
+  {
+    "id": "60e56284-5b66-4cc4-9941-25574a48daa7",
+    "name": "Frappe Me Akullore",
+    "description": "Frappe i ftohtë me akullore, për një shije më kremoze dhe të ëmbël.",
+    "source": "https://www.nescafe.com/it/cultura-del-caffe/conoscere-il-caffe/frappe"
+  },
+  {
+    "id": "d4084eca-364a-47e7-8862-f28a346e21dd",
+    "name": "Kafe Latte",
+    "description": "Espresso me qumësht të ngrohtë dhe një shtresë të lehtë shkume.",
+    "source": "https://coffeeassoc.com/coffee-101/styles-of-coffee/"
+  },
+  {
+    "id": "33133700-b949-4872-8c35-96ed93654773",
+    "name": "Kafe Me Akullore",
+    "description": "Kafe e shoqëruar me akullore vaniljeje, një kombinim i ngrohtë dhe kremoz.",
+    "source": "https://www.nescafe.com/it/cultura-del-caffe/conoscere-il-caffe/frappe"
+  },
+  {
+    "id": "48a6012b-f978-429b-a455-00c22000bf08",
+    "name": "Decaffeinato",
+    "description": "Kafe espresso pa kafeinë, me profil aromatik të butë.",
+    "source": "https://storees.lavazza.com/content/dam/lavazza-athena/b2c/lavazza-world/london-1-caffetteria/Menu-Digital_Complete-Jun22.pdf"
+  },
+  {
+    "id": "103e6d55-bb22-47b4-ae5a-898e3f3cbb6d",
+    "name": "Cokollat e Ftoht",
+    "description": "Pije e ftohtë me çokollatë, me shije të ëmbël dhe strukturë kremoze.",
+    "source": "https://www.nescafe.com/it/caffe-freddo"
+  },
+  {
+    "id": "ad7b2f0c-960e-40bc-b284-658f95c421c7",
+    "name": "Ama Ice Coffee",
+    "description": "Kafe e ftohtë AMA, e krijuar për t’u shijuar e freskët dhe praktike.",
+    "source": "https://amacaffe.com/sq/ama-iced-coffee/"
+  },
+  {
+    "id": "4237dc02-491a-4c87-bc57-3be413e90e91",
+    "name": "Caffe Mio",
+    "description": "Kafe e ftohtë kremoze me qumësht, e përshtatshme për t’u shijuar në lëvizje.",
+    "source": "https://www.rauch.cc/brands/cafemio"
+  },
+  {
+    "id": "dcd72bfc-0a9a-4001-afe5-6388baacb0f2",
+    "name": "Paulaner i Turbullt",
+    "description": "Birrë gruri natyralisht e turbullt, me nota të buta frutore dhe maja të dallueshme.",
+    "source": "https://www.paulaner.com/us/our-products/hefe-weizen/"
+  },
+  {
+    "id": "f9e3ecf4-e830-4362-b99c-10439cf45702",
+    "name": "Corona Extra",
+    "description": "Lager e pastër dhe e ekuilibruar, me profil të lehtë malti dhe lupuli.",
+    "source": "https://www.coronausa.com/pages/corona-extra"
+  },
+  {
+    "id": "5b7ec5a2-9934-4320-9842-d70677c29557",
+    "name": "Heineken",
+    "description": "Lager e freskët me trup të ekuilibruar dhe nota të lehta frutore.",
+    "source": "https://www.heineken.com/us/en/our-beers/heineken-original"
+  },
+  {
+    "id": "64b37384-0d00-4113-afe3-7a24d807a591",
+    "name": "Birra Peja",
+    "description": "Birrë lager nga Peja, e lehtë dhe freskuese; shërbehet e ftohtë.",
+    "source": "https://birrapeja.com/produktet/"
+  },
+  {
+    "id": "c6e5ede5-2bbb-4873-a8f0-a8705744fc3a",
+    "name": "Heineken 0 Alcohol",
+    "description": "Lager pa alkool, me nota frutore dhe trup të butë malti.",
+    "source": "https://www.heineken.com/in/en/our-products/heineken-0-0/"
+  },
+  {
+    "id": "7958cec0-546a-4413-85be-b64823bb7c44",
+    "name": "Birra Elbar",
+    "description": "Birrë lager e lehtë dhe freskuese, e përshtatshme për t’u servirur e ftohtë.",
+    "source": "https://www.ratebeer.com/beer/elbar/"
+  },
+  {
+    "id": "e690a2df-f9c0-4cea-add7-317ae44298f6",
+    "name": "Gin Tonic / Lemon",
+    "description": "Gin i servirur me tonic ose pije limoni, akull dhe një prekje agrumesh.",
+    "source": "https://www.gordonsgin.com/en-gb/cocktails/"
+  },
+  {
+    "id": "f85d71a3-a33f-4de1-b855-c5ce95a8249b",
+    "name": "Aperol Spritz",
+    "description": "Koktej italian me Prosecco, Aperol dhe sodë, i servirur me akull dhe portokall.",
+    "source": "https://www.aperol.com/en-us/aperol-spritz-cocktail/"
+  },
+  {
+    "id": "baff7dc6-e07a-41b3-9285-6d7ea1c55265",
+    "name": "Campari Spritz",
+    "description": "Koktej me Campari, Prosecco dhe sodë, i freskët dhe lehtësisht i hidhur.",
+    "source": "https://www.campari.com/en-us/our-cocktails/campari-spritz/"
+  },
+  {
+    "id": "b87e074e-005b-4e0c-aaab-29fd76d7a6a8",
+    "name": "Limoncello Spritz",
+    "description": "Spritz agrumor me limoncello, verë të gazuar dhe sodë, i servirur me akull.",
+    "source": "https://www.prosecco.wine/en/recipe/limoncello-spritz/"
+  },
+  {
+    "id": "f71cccf3-3ced-475c-b57d-53782a50ab74",
+    "name": "Ouzo 12",
+    "category": "alcohol",
+    "source": "https://www.ouzo12.com/"
+  },
+  {
+    "id": "0963df7b-ed4d-48c0-90b1-01c9232e3e80",
+    "name": "Label 5 Scotch",
+    "category": "alcohol",
+    "source": "https://www.label-5.com/"
+  }
+]
