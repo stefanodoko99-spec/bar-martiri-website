@@ -29,7 +29,7 @@ const locales = {
 };
 
 for (const [language, locale] of Object.entries(locales)) {
-  const canonical = `https://barmartiri.netlify.app${locale.path}`;
+  const canonical = `https://bar-martiri.vercel.app${locale.path}`;
   let page = source
     .replace('<html lang="sq-AL">', `<html lang="${locale.htmlLanguage}" data-initial-language="${language}">`)
     .replace('<head>', '<head>\n    <base href="/">')
@@ -39,7 +39,7 @@ for (const [language, locale] of Object.entries(locales)) {
       `content="${locale.description}"`
     )
     .replace(
-      '<link rel="canonical" href="https://barmartiri.netlify.app/">',
+      '<link rel="canonical" href="https://bar-martiri.vercel.app/">',
       `<link rel="canonical" href="${canonical}">`
     )
     .replace('content="sq_AL"', `content="${locale.ogLocale}"`)
@@ -52,7 +52,7 @@ for (const [language, locale] of Object.entries(locales)) {
       'content="Shezlongje, parkim falas, akullore, kafe dhe pije pranë detit në Spille."',
       `content="${locale.socialDescription}"`
     )
-    .replace('content="https://barmartiri.netlify.app/"', `content="${canonical}"`)
+    .replace('content="https://bar-martiri.vercel.app/"', `content="${canonical}"`)
     .replace('<title>Bar Martiri Spille | Shezlongje pranë Detit</title>', `<title>${locale.title}</title>`)
     .replaceAll('"inLanguage": "sq-AL"', `"inLanguage": "${locale.htmlLanguage}"`);
 

@@ -79,6 +79,7 @@
     'Akullore e plote me luleshtrydhe': { sq: 'Akullore e plotë me luleshtrydhe', it: 'Gelato interamente alla fragola', en: 'Full strawberry ice cream' },
     '5 nga 5': { sq: '5 nga 5', it: '5 su 5', en: '5 out of 5' },
     'BAR MARTIRI · SPILLE · AKULLORE · KAFE · DET ·': { sq: 'BAR MARTIRI · SPILLE · AKULLORE · KAFE · DET ·', it: 'BAR MARTIRI · SPILLE · GELATO · CAFFÈ · MARE ·', en: 'BAR MARTIRI · SPILLE · ICE CREAM · COFFEE · SEA ·' },
+    'Bar · Akullore · Spille': { sq: 'Bar · Akullore · Spille', it: 'Bar · Gelateria · Spille', en: 'Bar · Ice Cream · Spille' },
     'Hap menune': { sq: 'Hap menunë', it: 'Apri il menu', en: 'Open menu' },
     'Mbyll menune': { sq: 'Mbyll menunë', it: 'Chiudi il menu', en: 'Close menu' },
     'Hap vendndodhjen': { sq: 'Hap vendndodhjen', it: 'Apri la posizione', en: 'Open location' },
@@ -97,7 +98,7 @@
     'E bere me qumesht': { sq: 'E bërë me qumësht', it: 'Preparato con latte', en: 'Made with milk' },
     'E lemuar, e fresket dhe e pergatitur per momentin tend prane detit.': { sq: 'E lëmuar, e freskët dhe e përgatitur për momentin tënd pranë detit.', it: 'Cremoso, fresco e preparato per il tuo momento vicino al mare.', en: 'Smooth, fresh and made for your moment by the sea.' },
     'Kaushi': { sq: 'Kaushi', it: 'Il cono', en: 'The cone' },
-    'Vafer krokante': { sq: 'Vafer krokante', it: 'Cialda croccante', en: 'Crisp wafer' },
+    'Kaush krokant': { sq: 'Kaush krokant', it: 'Cono croccante', en: 'Crisp cone' },
     'Nje fund i lehte dhe krokant per cdo spirale akulloreje.': { sq: 'Një bazë e lehtë dhe krokante për çdo spirale akulloreje.', it: 'Una base leggera e croccante per ogni spirale di gelato.', en: 'A light, crisp base for every swirl of ice cream.' },
     'Rreshqit per ta krijuar': { sq: 'Rrëshqit për ta krijuar', it: 'Scorri per crearlo', en: 'Scroll to build it' },
     'Bar në Spille': { sq: 'Bar në Spille', it: 'Bar a Spille', en: 'Bar in Spille' },
@@ -118,7 +119,7 @@
     'Cdo dite': { sq: 'Çdo ditë', it: 'Tutti i giorni', en: 'Every day' },
     'Hap ne harte': { sq: 'Hap në hartë', it: 'Apri la mappa', en: 'Open map' },
     'Google Reviews': { sq: 'Vlerësime në Google', it: 'Recensioni Google', en: 'Google Reviews' },
-    'Vlerësimi i fundit i verifikuar më 3 gusht 2026, nga': { sq: 'Vlerësimi i fundit i verifikuar më 3 gusht 2026, nga', it: 'Ultima valutazione verificata il 3 agosto 2026, da', en: 'Latest rating verified on 3 August 2026, from' },
+    'Vlerësimi, i verifikuar për herë të fundit më 3 gusht 2026, bazohet në': { sq: 'Vlerësimi, i verifikuar për herë të fundit më 3 gusht 2026, bazohet në', it: 'La valutazione, verificata l’ultima volta il 3 agosto 2026, si basa su', en: 'The rating, last verified on 3 August 2026, is based on' },
     'vlerësime në Google.': { sq: 'vlerësime në Google.', it: 'recensioni su Google.', en: 'Google reviews.' },
     'Vleresimi aktual nga': { sq: 'Vlerësimi aktual nga', it: 'Valutazione attuale da', en: 'Current rating from' },
     'pershtypje te publikuara ne Google.': { sq: 'vlerësime të publikuara në Google.', it: 'recensioni pubblicate su Google.', en: 'reviews published on Google.' },
@@ -240,8 +241,11 @@
         if (!element.hasAttribute(name)) return;
         const sourceKey = `i18nSource${name.replace(/(^|-)(\w)/g, (_, dash, letter) => letter.toUpperCase())}`;
         const current = element.getAttribute(name);
-        if (!element.dataset[sourceKey] && UI_TEXT[current]) {
-          element.dataset[sourceKey] = current;
+        if (!element.dataset[sourceKey]) {
+          const source = UI_TEXT[current]
+            ? current
+            : Object.keys(UI_TEXT).find((key) => UI_TEXT[key]?.sq === current);
+          if (source) element.dataset[sourceKey] = source;
         }
         const source = element.dataset[sourceKey];
         const translated = source && UI_TEXT[source]?.[currentLanguage];
@@ -255,10 +259,11 @@
   }
 
   function productTranslationFor(product) {
-    if (currentLanguage === 'sq') return null;
+    const localTranslation = menuData.productTranslations?.[product?.id]?.[currentLanguage];
+    if (currentLanguage === 'sq') return localTranslation || null;
     const databaseTranslation = product?.translations?.[currentLanguage];
     if (databaseTranslation?.name || databaseTranslation?.description) return databaseTranslation;
-    return menuData.productTranslations?.[product?.id]?.[currentLanguage] || null;
+    return localTranslation || null;
   }
 
   function updateDocumentMetadata() {
@@ -279,8 +284,7 @@
   }
 
   function productDescriptionFor(product) {
-    if (!String(product?.description || '').trim()) return '';
-    return productTranslationFor(product)?.description || product.description;
+    return productTranslationFor(product)?.description || product.description || '';
   }
 
   function applyLanguage(language) {
@@ -586,9 +590,9 @@
         // Weather remains visible when storage is unavailable.
       }
     } catch (error) {
-      console.error('Moti per Spillen nuk mund te perditesohet.', error);
+      console.error('Moti për Spillen nuk mund të përditësohet.', error);
       const summary = document.querySelector('[data-weather-summary]');
-      if (summary) summary.textContent = 'Moti nuk u perditesua. Provo perseri pas pak.';
+      if (summary) summary.textContent = 'Moti nuk u përditësua. Provo përsëri pas pak.';
     }
   }
 
@@ -715,7 +719,7 @@
           delete menuStatus.dataset.i18nDynamic;
         }
       } catch (error) {
-        console.error('Menuja nuk mund te perditesohet.', error);
+        console.error('Menuja nuk mund të përditësohet.', error);
         setDynamicText(menuStatus, cached?.products?.length ? 'cachedMenu' : 'offlineMenu');
       }
       return catalogProducts;

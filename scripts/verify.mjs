@@ -22,8 +22,11 @@ await Promise.all(requiredFiles.map((file) => access(resolve(projectRoot, file))
 
 const publicHtml = await readFile(resolve(projectRoot, 'index.html'), 'utf8');
 const publicScript = await readFile(resolve(projectRoot, 'script.js'), 'utf8');
+const menuData = await readFile(resolve(projectRoot, 'menu-data.js'), 'utf8');
 const adminHtml = await readFile(resolve(projectRoot, 'admin.html'), 'utf8');
 const adminScript = await readFile(resolve(projectRoot, 'admin.js'), 'utf8');
+const italianHtml = await readFile(resolve(projectRoot, 'it/index.html'), 'utf8');
+const englishHtml = await readFile(resolve(projectRoot, 'en/index.html'), 'utf8');
 const productImageMap = await readFile(resolve(projectRoot, 'product-image-map.js'), 'utf8');
 const backupProducts = JSON.parse(
   await readFile(resolve(projectRoot, 'backup/products-2026-08-03.json'), 'utf8')
@@ -35,6 +38,23 @@ const assertions = [
   [!adminHtml.includes('crypto-js.min.js'), 'Production admin must not load local password fallback'],
   [!adminScript.includes('FIXED_AUTH'), 'Production admin must fail closed without Supabase'],
   [publicHtml.includes('hreflang="it-IT"') && publicHtml.includes('hreflang="en-GB"'), 'Localized hreflang links are required'],
+  [
+    !['Kalo te permbajtja', 'Cdo dite', 'cokollate', 'Privatesia'].some((text) =>
+      publicHtml.includes(text)
+    ),
+    'Visible Albanian source text must use standard diacritics',
+  ],
+  [
+    ['Çokollatë', 'Ujë Natyral', 'Joalkoolik', 'Jägermeister', 'Disaronno'].every((text) =>
+      menuData.includes(text)
+    ),
+    'Corrected Albanian product names must remain in the menu overrides',
+  ],
+  [
+    italianHtml.includes('rel="canonical" href="https://bar-martiri.vercel.app/it/"') &&
+      englishHtml.includes('rel="canonical" href="https://bar-martiri.vercel.app/en/"'),
+    'Localized canonical links must use the Vercel production domain',
+  ],
 ];
 
 for (const [passed, message] of assertions) {

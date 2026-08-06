@@ -10,22 +10,27 @@
 
   const productTranslations = Object.freeze({
     'vanilla-soft-serve': {
+      sq: { name: 'Vanilje', description: 'Akullore e butë me shije vaniljeje dhe kaush krokant.' },
       it: { name: 'Vaniglia', description: 'Gelato soft alla vaniglia con cono croccante.' },
       en: { name: 'Vanilla', description: 'Soft vanilla ice cream in a crisp cone.' },
     },
     'vanilla-chocolate': {
+      sq: { name: 'Vanilje + Çokollatë', description: 'Dy shije të bashkuara në një spirale.' },
       it: { name: 'Vaniglia + Cioccolato', description: 'Due gusti uniti in un’unica spirale.' },
       en: { name: 'Vanilla + Chocolate', description: 'Two flavours combined in one swirl.' },
     },
     'chocolate-soft-serve': {
+      sq: { name: 'Çokollatë', description: 'Akullore e butë me shije të plotë çokollate.' },
       it: { name: 'Cioccolato', description: 'Gelato soft dal gusto pieno di cioccolato.' },
       en: { name: 'Chocolate', description: 'Soft ice cream with a full chocolate flavour.' },
     },
     'vanilla-pink': {
+      sq: { name: 'Vanilje + Fruta Pylli', description: 'Përzierje e freskët me vanilje dhe fruta pylli.' },
       it: { name: 'Vaniglia + Frutti di Bosco', description: 'Un fresco mix di vaniglia e frutti di bosco.' },
       en: { name: 'Vanilla + Mixed Berries', description: 'A refreshing mix of vanilla and mixed berries.' },
     },
     'pink-soft-serve': {
+      sq: { name: 'Fruta Pylli', description: 'Akullore e butë me shije frutash pylli.' },
       it: { name: 'Frutti di Bosco', description: 'Gelato soft al gusto di frutti di bosco.' },
       en: { name: 'Mixed Berries', description: 'Soft ice cream with a mixed-berry flavour.' },
     },
@@ -38,14 +43,17 @@
       en: { description: 'Energy drink with caffeine, taurine and B-group vitamins; served cold.' },
     },
     'be59db76-80a5-42c4-904d-a7d2f1d73610': {
+      sq: { name: 'Coca-Cola' },
       it: { description: 'Bibita gassata dal gusto classico Coca-Cola, fresca e servita fredda.' },
       en: { description: 'Sparkling soft drink with the classic Coca-Cola taste, served chilled.' },
     },
     '8dfa7625-38c2-422f-9a4a-7457784247ab': {
+      sq: { name: 'Coca-Cola Lime', description: 'Pije e gazuar Coca-Cola me një prekje limete; shërbehet e ftohtë.' },
       it: { description: 'Coca-Cola gassata con un tocco di lime; servita fredda.' },
       en: { description: 'Sparkling Coca-Cola with a hint of lime; served chilled.' },
     },
     '407892f8-1be4-4e7a-978d-17e860c4f516': {
+      sq: { name: 'Coca-Cola Pa Sheqer' },
       it: { name: 'Coca-Cola Zero Zuccheri', description: 'Il gusto caratteristico di Coca-Cola nella versione senza zucchero; servita fredda.' },
       en: { name: 'Coca-Cola Zero Sugar', description: 'The signature Coca-Cola taste in a sugar-free version; served chilled.' },
     },
@@ -58,22 +66,27 @@
       en: { name: 'Fanta Orange', description: 'Sparkling orange-flavoured soft drink with a fresh, fruity taste.' },
     },
     '0d056963-d63d-4703-941c-ce006eb757f1': {
+      sq: { name: 'Schweppes' },
       it: { name: 'Schweppes', description: 'Bibita gassata Schweppes dal gusto fresco e con bollicine fini.' },
       en: { name: 'Schweppes', description: 'Schweppes sparkling drink with a refreshing taste and fine bubbles.' },
     },
     '1e05d030-bb16-4ed1-9177-9d2c427d2db4': {
+      sq: { name: 'Lemonsoda' },
       it: { name: 'Lemonsoda', description: 'Limonata italiana gassata dal deciso gusto di limone; servita fredda.' },
       en: { name: 'Lemonsoda', description: 'Italian sparkling lemonade with a distinctive lemon taste; served chilled.' },
     },
     'e1266386-e4aa-4e04-b2ab-bc62a8e27d0c': {
+      sq: { name: 'Oransoda' },
       it: { name: 'Oransoda', description: 'Bibita italiana gassata all’arancia dal pieno gusto agrumato.' },
       en: { name: 'Oransoda', description: 'Italian sparkling orange drink with a full citrus flavour.' },
     },
     '2421ed75-4cba-4212-8940-1590e998286f': {
+      sq: { name: 'Bravo Pjeshkë' },
       it: { name: 'Bravo Pesca', description: 'Bevanda alla frutta Bravo dal dolce gusto di pesca; servita fredda.' },
       en: { name: 'Bravo Peach', description: 'Bravo fruit drink with a sweet peach flavour; served chilled.' },
     },
     '8cf18af1-272c-4634-b2d4-06b671771973': {
+      sq: { name: 'Bravo Mollë' },
       it: { name: 'Bravo Mela', description: 'Bevanda alla frutta Bravo dal fresco gusto di mela.' },
       en: { name: 'Bravo Apple', description: 'Bravo fruit drink with a fresh apple flavour.' },
     },
@@ -90,6 +103,7 @@
       en: { name: 'Bravo Strawberry', description: 'Bravo fruit drink with a strawberry flavour; served chilled.' },
     },
     'f435b9ca-75e4-45a5-b80f-1a6473f995da': {
+      sq: { name: 'Lipton Pjeshkë' },
       it: { name: 'Lipton Pesca', description: 'Tè freddo Lipton al gusto di pesca, leggero e rinfrescante.' },
       en: { name: 'Lipton Peach', description: 'Light and refreshing Lipton iced tea with a peach flavour.' },
     },
@@ -106,14 +120,17 @@
       en: { name: 'AMA Coffee', description: 'AMA espresso with a full aroma and a fine layer of crema.' },
     },
     'be293d73-12f0-433b-b072-55ba93098e28': {
+      sq: { name: 'Makiato AMA' },
       it: { name: 'Macchiato AMA', description: 'Espresso AMA con un tocco di latte montato.' },
       en: { name: 'AMA Macchiato', description: 'AMA espresso with a touch of foamed milk.' },
     },
     '1ba1c140-d768-44c4-afdb-5dfc0711ebbb': {
+      sq: { name: 'Ujë Natyral' },
       it: { name: 'Acqua Naturale', description: 'Acqua naturale non gassata, servita fredda.' },
       en: { name: 'Still Water', description: 'Still natural water, served chilled.' },
     },
     'e9abc34b-8821-449b-914b-75e7bfecdfd4': {
+      sq: { name: 'Ujë I Gazuar' },
       it: { name: 'Acqua Frizzante', description: 'Acqua gassata con bollicine, servita fredda.' },
       en: { name: 'Sparkling Water', description: 'Sparkling water with bubbles, served chilled.' },
     },
@@ -122,6 +139,7 @@
       en: { description: 'Chilled espresso shaken with ice for an intense flavour and a light layer of foam.' },
     },
     '6aabc70d-3563-4a69-ba8f-6e835a81db49': {
+      sq: { name: 'Makiato Freddo' },
       it: { name: 'Freddo Macchiato', description: 'Caffè freddo con un tocco di latte montato.' },
       en: { name: 'Freddo Macchiato', description: 'Chilled freddo coffee with a touch of foamed milk.' },
     },
@@ -130,10 +148,12 @@
       en: { description: 'Chilled espresso over ice, topped with cold foamed milk.' },
     },
     'de0a86bb-95c9-4e10-8a59-28f2f51748b5': {
+      sq: { name: 'Frappé', description: 'Kafe e ftohtë e tundur me ujë dhe akull derisa të krijojë shkumë të dendur.' },
       it: { name: 'Frappè', description: 'Caffè freddo shakerato con acqua e ghiaccio fino a ottenere una schiuma densa.' },
       en: { name: 'Frappé', description: 'Chilled coffee shaken with water and ice until thickly foamed.' },
     },
     '60e56284-5b66-4cc4-9941-25574a48daa7': {
+      sq: { name: 'Frappé Me Akullore', description: 'Frappé i ftohtë me akullore, për një shije më kremoze dhe më të ëmbël.' },
       it: { name: 'Frappè con Gelato', description: 'Frappè freddo con gelato, per un gusto più cremoso e dolce.' },
       en: { name: 'Frappé with Ice Cream', description: 'Chilled frappé with ice cream for a creamier, sweeter taste.' },
     },
@@ -146,18 +166,22 @@
       en: { name: 'Coffee with Ice Cream', description: 'Coffee served with vanilla ice cream for a warm, creamy combination.' },
     },
     '48a6012b-f978-429b-a455-00c22000bf08': {
+      sq: { name: 'Kafe Pa Kafeinë' },
       it: { name: 'Espresso Decaffeinato', description: 'Espresso decaffeinato dal profilo aromatico delicato.' },
       en: { name: 'Decaf Espresso', description: 'Decaffeinated espresso with a smooth aromatic profile.' },
     },
     '103e6d55-bb22-47b4-ae5a-898e3f3cbb6d': {
+      sq: { name: 'Çokollatë E Ftohtë' },
       it: { name: 'Cioccolata Fredda', description: 'Bevanda fredda al cioccolato, dolce e cremosa.' },
       en: { name: 'Iced Chocolate', description: 'A sweet and creamy chilled chocolate drink.' },
     },
     'ad7b2f0c-960e-40bc-b284-658f95c421c7': {
+      sq: { name: 'AMA Ice Coffee' },
       it: { description: 'Caffè freddo AMA, pensato per essere gustato fresco e in modo pratico.' },
       en: { description: 'AMA iced coffee made to be enjoyed chilled and conveniently.' },
     },
     '4237dc02-491a-4c87-bc57-3be413e90e91': {
+      sq: { name: 'Caffè Mio' },
       it: { name: 'Caffè Mio', description: 'Caffè freddo cremoso con latte, ideale da gustare in movimento.' },
       en: { description: 'Creamy iced coffee with milk, convenient to enjoy on the go.' },
     },
@@ -178,6 +202,7 @@
       en: { name: 'Peja Beer', description: 'Light, refreshing lager from Peja; served chilled.' },
     },
     'c6e5ede5-2bbb-4873-a8f0-a8705744fc3a': {
+      sq: { name: 'Heineken 0.0 Pa Alkool' },
       it: { name: 'Heineken 0.0 Analcolica', description: 'Lager analcolica con note fruttate e un morbido corpo maltato.' },
       en: { name: 'Heineken 0.0 Alcohol-Free', description: 'Alcohol-free lager with fruity notes and a smooth malt body.' },
     },
@@ -186,18 +211,22 @@
       en: { name: 'Elbar Beer', description: 'Light and refreshing lager, best served chilled.' },
     },
     'c2573937-65b4-44a6-8d5e-9138296e0ceb': {
+      sq: { description: 'E madhe: 400 ALL / e vogël: 300 ALL' },
       it: { description: 'Grande 400 ALL / Piccola 300 ALL' },
       en: { description: 'Large 400 ALL / Small 300 ALL' },
     },
     '47f839e4-8800-4c20-b1f9-676ae629dbd0': {
+      sq: { description: 'E madhe / e vogël: 200 ALL / 250 ALL' },
       it: { name: 'Peja alla Spina', description: 'Grande / Piccola · 250 ALL / 200 ALL' },
       en: { name: 'Draught Peja', description: 'Large / Small · 250 ALL / 200 ALL' },
     },
     'e690a2df-f9c0-4cea-add7-317ae44298f6': {
+      sq: { name: 'Xhin Tonik / Limon', description: 'Xhin i shërbyer me tonik ose pije limoni, akull dhe një prekje agrumesh.' },
       it: { name: 'Gin Tonic / Limone', description: 'Gin servito con tonica o bibita al limone, ghiaccio e un tocco di agrumi.' },
       en: { description: 'Gin served with tonic or lemon soda, ice and a touch of citrus.' },
     },
     '350403e2-af5a-4012-a03b-1b7eac43cec4': {
+      sq: { name: 'Joalkoolik', description: 'I ëmbël / i athët' },
       it: { name: 'Analcolico', description: 'Dolce / Aspro' },
       en: { name: 'Non-Alcoholic', description: 'Sweet / Sour' },
     },
@@ -214,20 +243,36 @@
       en: { description: 'Citrusy spritz with limoncello, sparkling wine and soda, served over ice.' },
     },
     '823064c6-5e98-4bd4-9a7b-7d4c029189b1': {
+      sq: { name: 'Hendrick’s Gin' },
       it: { name: 'Gin Hendrick’s' },
       en: { name: 'Hendrick’s Gin' },
     },
     'c5891891-5ac7-4a2d-9fdd-d89f12ec32f1': {
+      sq: { name: 'Gordon’s Gin' },
       it: { name: 'Gin Gordon’s' },
       en: { name: 'Gordon’s Gin' },
     },
     '8bff6869-20ee-4b5d-a378-e2593ef4d879': {
+      sq: { name: 'Shot Tekila' },
       it: { name: 'Shot di Tequila' },
       en: { name: 'Tequila Shots' },
     },
     'a33ac9ac-d1a6-47c5-b923-ffaa50104511': {
+      sq: { name: 'Raki Rrushi' },
       it: { name: 'Raki d’Uva' },
       en: { name: 'Grape Raki' },
+    },
+    '4407426d-26c2-4acf-aa23-1acdba2468b0': {
+      sq: { name: 'Jack Daniel’s' },
+    },
+    '003ed2e4-231d-4ee8-9256-b42295bf3316': {
+      sq: { name: 'Vecchia Romagna' },
+    },
+    'fe455313-2e60-4379-840a-d106b264bcd6': {
+      sq: { name: 'Jägermeister' },
+    },
+    '82ee247b-94fc-4dbe-823f-fb800a9b7d2d': {
+      sq: { name: 'Disaronno' },
     },
   });
 
@@ -241,23 +286,23 @@
       id: 'vanilla-soft-serve',
       name: 'Vanilje',
       category: 'icecreams',
-      description: 'Akullore e bute me shije vaniljeje dhe kaush krokant.',
+      description: 'Akullore e butë me shije vaniljeje dhe kaush krokant.',
       price: '',
       image: 'assets/optimized/ice-cream-cone.webp',
     },
     {
       id: 'vanilla-chocolate',
-      name: 'Vanilje + cokollate',
+      name: 'Vanilje + Çokollatë',
       category: 'icecreams',
-      description: 'Dy shije te bashkuara ne nje spirale.',
+      description: 'Dy shije të bashkuara në një spirale.',
       price: '',
       image: 'assets/optimized/vanilla-chocolate-cone.webp',
     },
     {
       id: 'chocolate-soft-serve',
-      name: 'Cokollate',
+      name: 'Çokollatë',
       category: 'icecreams',
-      description: 'Akullore e bute me shije te plote cokollate.',
+      description: 'Akullore e butë me shije të plotë çokollate.',
       price: '',
       image: 'assets/optimized/chocolate-cone.webp',
     },
@@ -265,7 +310,7 @@
       id: 'vanilla-pink',
       name: 'Vanilje + Fruta Pylli',
       category: 'icecreams',
-      description: 'Perzierje e fresket vaniljeje dhe fruta pylli.',
+      description: 'Përzierje e freskët me vanilje dhe fruta pylli.',
       price: '',
       image: 'assets/optimized/vanilla-pink-cone.webp',
     },
@@ -273,7 +318,7 @@
       id: 'pink-soft-serve',
       name: 'Fruta Pylli',
       category: 'icecreams',
-      description: 'Akullore e bute me shije fruta pylli.',
+      description: 'Akullore e butë me shije frutash pylli.',
       price: '',
       image: 'assets/optimized/pink-cone.webp',
     },
