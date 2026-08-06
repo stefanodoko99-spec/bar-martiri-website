@@ -4,6 +4,7 @@
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/it", "destination": "/it/index.html" },
     { "source": "/en", "destination": "/en/index.html" }
   ],

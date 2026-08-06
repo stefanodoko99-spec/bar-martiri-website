@@ -1,11 +1,9 @@
-import { execFile } from 'node:child_process';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
-import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
+import sharp from 'sharp';
 
-const execute = promisify(execFile);
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const outputDirectory = resolve(projectRoot, 'assets/products');
 const temporaryDirectory = await mkdtemp(join(tmpdir(), 'bar-martiri-images-'));
@@ -26,27 +24,19 @@ async function optimizeNext() {
     const product = queue.shift();
     const safeId = String(product.id).replace(/[^a-zA-Z0-9_-]/g, '-');
     const source = resolve(temporaryDirectory, `${safeId}.source`);
-    const output = resolve(outputDirectory, `${safeId}.jpg`);
+    const output = resolve(outputDirectory, `${safeId}.webp`);
     try {
       const response = await fetch(product.image);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       await writeFile(source, Buffer.from(await response.arrayBuffer()));
-      await execute('/usr/bin/sips', [
-        '-Z',
-        '800',
-        '-s',
-        'format',
-        'jpeg',
-        '-s',
-        'formatOptions',
-        '72',
-        source,
-        '--out',
-        output,
-      ]);
+      await sharp(source)
+        .rotate()
+        .resize({ width: 640, height: 700, fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 72, effort: 6, smartSubsample: true })
+        .toFile(output);
       optimizedImages.set(String(product.id), {
         source: String(product.image),
-        local: `/assets/products/${safeId}.jpg`,
+        local: `/assets/products/${safeId}.webp`,
       });
       completed += 1;
     } catch (error) {

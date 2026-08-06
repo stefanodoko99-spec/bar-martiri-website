@@ -4,3 +4,4 @@ Disallow: /admin
 Disallow: /admin.html
 
 Sitemap: https://bar-martiri.vercel.app/sitemap.xml
+Sitemap: https://bar-martiri.vercel.app/image-sitemap.xml

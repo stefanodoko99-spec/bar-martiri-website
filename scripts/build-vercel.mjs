@@ -1,4 +1,4 @@
-import { cp, mkdir, rm } from 'node:fs/promises';
+import { cp, mkdir, readdir, rm } from 'node:fs/promises';
 
 const outputDirectory = new URL('../dist/', import.meta.url);
 const projectRoot = new URL('../', import.meta.url);
@@ -16,6 +16,8 @@ const publicFiles = [
   'supabase-store.js',
   'robots.txt',
   'sitemap.xml',
+  'image-sitemap.xml',
+  'privacy.html',
 ];
 
 const publicDirectories = ['assets', 'en', 'it'];
@@ -33,5 +35,14 @@ await Promise.all([
     })
   ),
 ]);
+
+const productDirectory = new URL('assets/products/', outputDirectory);
+const productFiles = await readdir(productDirectory);
+const webpNames = new Set(productFiles.filter((file) => file.endsWith('.webp')).map((file) => file.replace(/\.webp$/, '')));
+await Promise.all(
+  productFiles
+    .filter((file) => file.endsWith('.jpg') && webpNames.has(file.replace(/\.jpg$/, '')))
+    .map((file) => rm(new URL(file, productDirectory)))
+);
 
 console.log('Prepared the Vercel static output in dist/.');

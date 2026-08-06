@@ -8,6 +8,8 @@ const requiredFiles = [
   'it/index.html',
   'en/index.html',
   'admin.html',
+  'privacy.html',
+  'image-sitemap.xml',
   'styles.css',
   'admin.css',
   'script.js',
@@ -28,6 +30,8 @@ const adminScript = await readFile(resolve(projectRoot, 'admin.js'), 'utf8');
 const italianHtml = await readFile(resolve(projectRoot, 'it/index.html'), 'utf8');
 const englishHtml = await readFile(resolve(projectRoot, 'en/index.html'), 'utf8');
 const productImageMap = await readFile(resolve(projectRoot, 'product-image-map.js'), 'utf8');
+const privacyHtml = await readFile(resolve(projectRoot, 'privacy.html'), 'utf8');
+const imageSitemap = await readFile(resolve(projectRoot, 'image-sitemap.xml'), 'utf8');
 const backupProducts = JSON.parse(
   await readFile(resolve(projectRoot, 'backup/products-2026-08-03.json'), 'utf8')
 );
@@ -38,6 +42,11 @@ const assertions = [
   [!adminHtml.includes('crypto-js.min.js'), 'Production admin must not load local password fallback'],
   [!adminScript.includes('FIXED_AUTH'), 'Production admin must fail closed without Supabase'],
   [publicHtml.includes('hreflang="it-IT"') && publicHtml.includes('hreflang="en-GB"'), 'Localized hreflang links are required'],
+  [publicHtml.includes('"@type": "WebPage"') && publicHtml.includes('"menu": "https://bar-martiri.vercel.app/#menu"'), 'WebPage and menu structured data are required'],
+  [publicHtml.includes('data-cookie-choice="essential"') && publicHtml.includes('data-cookie-choice="all"'), 'Cookie consent must offer accept and reject controls'],
+  [publicScript.includes("if (!getCookiePreference()) showCookieBanner();"), 'Cookie consent must appear on the first visit'],
+  [privacyHtml.includes('bar_martiri_language') && privacyHtml.includes('bar_martiri_cookie_pref'), 'The privacy page must document first-party cookies'],
+  [imageSitemap.includes('/assets/products/') && imageSitemap.includes('<image:image>'), 'The image sitemap must list catalog images'],
   [
     !['Kalo te permbajtja', 'Cdo dite', 'cokollate', 'Privatesia'].some((text) =>
       publicHtml.includes(text)
@@ -55,6 +64,7 @@ const assertions = [
       englishHtml.includes('rel="canonical" href="https://bar-martiri.vercel.app/en/"'),
     'Localized canonical links must use the Vercel production domain',
   ],
+  [italianHtml.includes("L'estate al mare inizia da Martiri.") && englishHtml.includes('Summer by the sea starts at Martiri.'), 'Localized pages must contain crawlable translated body copy'],
 ];
 
 for (const [passed, message] of assertions) {
@@ -69,7 +79,7 @@ for (const pageName of ['index.html', 'admin.html']) {
 }
 
 const optimizedDirectory = resolve(projectRoot, 'assets/products');
-const optimizedFiles = (await readdir(optimizedDirectory)).filter((file) => file.endsWith('.jpg'));
+const optimizedFiles = (await readdir(optimizedDirectory)).filter((file) => file.endsWith('.webp'));
 const remoteProducts = backupProducts.filter((product) => String(product.image || '').startsWith('http'));
 if (optimizedFiles.length !== remoteProducts.length) {
   throw new Error(`Expected ${remoteProducts.length} optimized catalog images, found ${optimizedFiles.length}`);
@@ -82,10 +92,10 @@ for (const product of remoteProducts) {
 const oversizedImages = [];
 for (const file of optimizedFiles) {
   const details = await stat(resolve(optimizedDirectory, file));
-  if (details.size > 150 * 1024) oversizedImages.push(file);
+  if (details.size > 110 * 1024) oversizedImages.push(file);
 }
 if (oversizedImages.length) {
-  throw new Error(`Optimized images over 150 KB: ${oversizedImages.join(', ')}`);
+  throw new Error(`Optimized WebP images over 110 KB: ${oversizedImages.join(', ')}`);
 }
 
 console.log('Static verification passed.');

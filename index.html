@@ -4,7 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f4f0e8">
+    <meta name="color-scheme" content="light">
     <link rel="icon" href="assets/optimized/favicon-64.png" type="image/png">
+    <link rel="preconnect" href="https://uctomzwdnfldhoipzepp.supabase.co" crossorigin>
+    <link rel="dns-prefetch" href="//uctomzwdnfldhoipzepp.supabase.co">
     <meta
       name="description"
       content="Bar Martiri në Spille, Shqipëri: shezlongje, parkim falas, akullore, kafe dhe pije pranë detit për pushimet tuaja verore."
@@ -23,6 +26,8 @@
 
     <meta property="og:type" content="website">
     <meta property="og:locale" content="sq_AL">
+    <meta property="og:locale:alternate" content="it_IT">
+    <meta property="og:locale:alternate" content="en_GB">
     <meta property="og:site_name" content="Bar Martiri">
     <meta property="og:title" content="Bar Martiri Spille | Shezlongje pranë Detit">
     <meta
@@ -59,6 +64,22 @@
             }
           },
           {
+            "@type": "WebPage",
+            "@id": "https://bar-martiri.vercel.app/#webpage",
+            "url": "https://bar-martiri.vercel.app/",
+            "name": "Bar Martiri Spille | Shezlongje pranë Detit",
+            "description": "Bar Martiri në Spille me shezlongje, parkim falas, akullore, kafe dhe pije pranë detit.",
+            "inLanguage": "sq-AL",
+            "isPartOf": { "@id": "https://bar-martiri.vercel.app/#website" },
+            "about": { "@id": "https://bar-martiri.vercel.app/#business" },
+            "primaryImageOfPage": {
+              "@type": "ImageObject",
+              "url": "https://bar-martiri.vercel.app/assets/optimized/bar-martiri-spille-social.jpg",
+              "width": 1200,
+              "height": 630
+            }
+          },
+          {
             "@type": ["BarOrPub", "IceCreamShop"],
             "@id": "https://bar-martiri.vercel.app/#business",
             "name": "Bar Martiri",
@@ -66,6 +87,10 @@
             "url": "https://bar-martiri.vercel.app/",
             "description": "Bar pranë detit në Spille me shezlongje, parkim falas, akullore, kafe dhe pije të freskëta.",
             "telephone": "+355696116063",
+            "menu": "https://bar-martiri.vercel.app/#menu",
+            "priceRange": "80–700 ALL",
+            "currenciesAccepted": "ALL",
+            "servesCuisine": ["Akullore", "Kafe", "Pije"],
             "image": [
               "https://bar-martiri.vercel.app/assets/optimized/bar-martiri-spille-social.jpg",
               "https://bar-martiri.vercel.app/assets/optimized/ice-cream-cone.webp"
@@ -134,7 +159,7 @@
     </script>
     <link rel="preload" href="assets/optimized/waffle-cone.webp" as="image" type="image/webp">
     <link rel="preload" href="assets/optimized/vanilla-soft-serve.webp" as="image" type="image/webp">
-    <link rel="stylesheet" href="styles.css?v=20260804-1">
+    <link rel="stylesheet" href="styles.css?v=20260806-2">
   </head>
   <body>
     <section
@@ -488,6 +513,8 @@
         <p>© <span data-current-year></span> Bar Martiri</p>
         <nav class="footer-links" aria-label="Lidhje të tjera">
           <a href="https://www.instagram.com/barmartiri/" target="_blank" rel="noreferrer">Instagram</a>
+          <a href="/privacy">Privatësia dhe cookies</a>
+          <button type="button" data-cookie-settings>Menaxho cookies</button>
           <a href='/admin'>Admin</a>
         </nav>
       </div>
@@ -496,6 +523,7 @@
     <div class="panel-layer" data-panel-layer hidden>
       <section
         class="dock-panel dock-panel--menu"
+        id="menu"
         data-panel="menu"
         role="dialog"
         aria-modal="true"
@@ -640,16 +668,32 @@
       </section>
     </div>
 
-    <aside class="cookie-banner" data-cookie-banner role="dialog" aria-labelledby="cookie-title" hidden>
+    <aside
+      class="cookie-banner"
+      data-cookie-banner
+      role="dialog"
+      aria-labelledby="cookie-title"
+      aria-describedby="cookie-description cookie-details"
+      hidden
+    >
       <div>
-        <p class="eyebrow" id="cookie-title">Privatësia</p>
-        <p>Ruajmë vetëm preferencën tënde. Google Maps ngarkohet vetëm pasi ta pranosh.</p>
+        <p class="eyebrow" id="cookie-title">Preferencat e cookies</p>
+        <p id="cookie-description">
+          Përdorim cookies të domosdoshme për gjuhën dhe zgjedhjen tënde. Google Maps
+          aktivizohet vetëm me pëlqimin tënd.
+        </p>
+        <details class="cookie-details" id="cookie-details">
+          <summary>Shiko hollësitë</summary>
+          <p><strong>Të domosdoshme:</strong> ruajnë gjuhën dhe preferencën për 6 muaj.</p>
+          <p><strong>Opsionale:</strong> lejojnë përmbajtjen e Google Maps. Nuk përdorim cookies reklamimi ose analitike.</p>
+          <a href="/privacy">Lexo politikën e privatësisë</a>
+        </details>
       </div>
       <div class="cookie-actions">
         <button class="cookie-button cookie-button--quiet" type="button" data-cookie-choice="essential">
-          Vetëm të nevojshmet
+          Refuzo opsionalet
         </button>
-        <button class="cookie-button" type="button" data-cookie-choice="all">Prano</button>
+        <button class="cookie-button" type="button" data-cookie-choice="all">Prano Google Maps</button>
       </div>
     </aside>
 
@@ -712,8 +756,8 @@
     </nav>
 
     <script defer src="supabase-config.js?v=20260804-1"></script>
-    <script defer src="product-image-map.js?v=20260804-1"></script>
+    <script defer src="product-image-map.js?v=20260806-2"></script>
     <script defer src="menu-data.js?v=20260806-1"></script>
-    <script defer src="script.js?v=20260806-1"></script>
+    <script defer src="script.js?v=20260806-2"></script>
   </body>
 </html>

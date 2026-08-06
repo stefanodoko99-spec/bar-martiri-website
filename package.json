@@ -3,9 +3,13 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "build": "node scripts/generate-locales.mjs",
+    "build": "node scripts/generate-locales.mjs && node scripts/generate-image-sitemap.mjs",
     "build:vercel": "npm run build && node scripts/build-vercel.mjs",
     "check": "node --check script.js && node --check menu-data.js && node --check supabase-config.js && node --check supabase-store.js && node --check admin.js && node scripts/verify.mjs",
-    "optimize:catalog": "node scripts/optimize-existing-images.mjs"
+    "optimize:catalog": "node scripts/optimize-existing-images.mjs",
+    "optimize:catalog-local": "node scripts/convert-catalog-images.mjs"
+  },
+  "devDependencies": {
+    "sharp": "0.35.3"
   }
 }

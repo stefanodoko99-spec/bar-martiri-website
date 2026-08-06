@@ -34,6 +34,8 @@
   const WEATHER_CACHE_TTL = 60 * 60 * 1000;
   const SPILLE_COORDS = { latitude: 41.0966, longitude: 19.4583 };
   const COOKIE_NAME = 'bar_martiri_cookie_pref';
+  const LANGUAGE_COOKIE_NAME = 'bar_martiri_language';
+  const COOKIE_MAX_AGE = 180 * 24 * 60 * 60;
   const LANGUAGE_KEY = 'barMartiri.language.v1';
 
   const LANGUAGE_LOCALES = Object.freeze({
@@ -147,10 +149,17 @@
     'Rezervo me telefon': { sq: 'Rezervo me telefon', it: 'Prenota per telefono', en: 'Book by phone' },
     'Telefono tani': { sq: 'Telefono tani', it: 'Chiama ora', en: 'Call now' },
     'Preferencat e cookies': { sq: 'Preferencat e cookies', it: 'Preferenze cookie', en: 'Cookie preferences' },
-    'Privatesia': { sq: 'Privatësia', it: 'Privacy', en: 'Privacy' },
-    'Ruajme vetem preferencen tende. Google Maps ngarkohet vetem pasi ta pranosh.': { sq: 'Ruajmë vetëm preferencën tënde. Google Maps ngarkohet vetëm pasi ta pranosh.', it: 'Salviamo solo la tua preferenza. Google Maps si carica solo dopo il consenso.', en: 'We only save your preference. Google Maps loads only after you consent.' },
-    'Vetem te nevojshmet': { sq: 'Vetëm të nevojshmet', it: 'Solo necessari', en: 'Essential only' },
-    'Prano': { sq: 'Prano', it: 'Accetta', en: 'Accept' },
+    'Privatësia dhe cookies': { sq: 'Privatësia dhe cookies', it: 'Privacy e cookie', en: 'Privacy and cookies' },
+    'Menaxho cookies': { sq: 'Menaxho cookies', it: 'Gestisci i cookie', en: 'Manage cookies' },
+    'Përdorim cookies të domosdoshme për gjuhën dhe zgjedhjen tënde. Google Maps aktivizohet vetëm me pëlqimin tënd.': { sq: 'Përdorim cookies të domosdoshme për gjuhën dhe zgjedhjen tënde. Google Maps aktivizohet vetëm me pëlqimin tënd.', it: 'Usiamo cookie necessari per la lingua e la tua scelta. Google Maps si attiva solo con il tuo consenso.', en: 'We use necessary cookies for your language and choice. Google Maps is enabled only with your consent.' },
+    'Shiko hollësitë': { sq: 'Shiko hollësitë', it: 'Vedi i dettagli', en: 'View details' },
+    'Të domosdoshme:': { sq: 'Të domosdoshme:', it: 'Necessari:', en: 'Necessary:' },
+    'ruajnë gjuhën dhe preferencën për 6 muaj.': { sq: 'ruajnë gjuhën dhe preferencën për 6 muaj.', it: 'salvano la lingua e la preferenza per 6 mesi.', en: 'save your language and preference for 6 months.' },
+    'Opsionale:': { sq: 'Opsionale:', it: 'Opzionali:', en: 'Optional:' },
+    'lejojnë përmbajtjen e Google Maps. Nuk përdorim cookies reklamimi ose analitike.': { sq: 'lejojnë përmbajtjen e Google Maps. Nuk përdorim cookies reklamimi ose analitike.', it: 'consentono i contenuti di Google Maps. Non usiamo cookie pubblicitari o analitici.', en: 'allow Google Maps content. We do not use advertising or analytics cookies.' },
+    'Lexo politikën e privatësisë': { sq: 'Lexo politikën e privatësisë', it: 'Leggi l’informativa sulla privacy', en: 'Read the privacy policy' },
+    'Refuzo opsionalet': { sq: 'Refuzo opsionalet', it: 'Rifiuta gli opzionali', en: 'Reject optional cookies' },
+    'Prano Google Maps': { sq: 'Prano Google Maps', it: 'Accetta Google Maps', en: 'Accept Google Maps' },
     'Home': { sq: 'Kryefaqja', it: 'Home', en: 'Home' },
     'Kryefaqja': { sq: 'Kryefaqja', it: 'Home', en: 'Home' },
     'Location': { sq: 'Vendndodhja', it: 'Posizione', en: 'Location' },
@@ -218,7 +227,9 @@
           if (!node.__barMartiriSourceText) {
             node.__barMartiriSourceText = UI_TEXT[normalized]
               ? normalized
-              : Object.keys(UI_TEXT).find((key) => UI_TEXT[key]?.sq === normalized);
+              : Object.keys(UI_TEXT).find((key) =>
+                  Object.values(UI_TEXT[key] || {}).includes(normalized)
+                );
           }
           const source = node.__barMartiriSourceText;
           const translated = source && UI_TEXT[source]?.[currentLanguage];
@@ -244,7 +255,9 @@
         if (!element.dataset[sourceKey]) {
           const source = UI_TEXT[current]
             ? current
-            : Object.keys(UI_TEXT).find((key) => UI_TEXT[key]?.sq === current);
+            : Object.keys(UI_TEXT).find((key) =>
+                Object.values(UI_TEXT[key] || {}).includes(current)
+              );
           if (source) element.dataset[sourceKey] = source;
         }
         const source = element.dataset[sourceKey];
@@ -296,6 +309,7 @@
     } catch {
       // The selected language still applies for this visit.
     }
+    writeCookie(LANGUAGE_COOKIE_NAME, currentLanguage);
 
     translateTextNodes(document.body);
     translateAttributes(document.body);
@@ -331,6 +345,8 @@
   function getInitialLanguage() {
     const routeLanguage = document.documentElement.dataset.initialLanguage;
     if (LANGUAGE_LOCALES[routeLanguage]) return routeLanguage;
+    const cookieLanguage = readCookie(LANGUAGE_COOKIE_NAME);
+    if (LANGUAGE_LOCALES[cookieLanguage]) return cookieLanguage;
     try {
       const savedLanguage = localStorage.getItem(LANGUAGE_KEY);
       if (LANGUAGE_LOCALES[savedLanguage]) return savedLanguage;
@@ -386,6 +402,7 @@
         } catch {
           // Navigation still applies when storage is unavailable.
         }
+        writeCookie(LANGUAGE_COOKIE_NAME, language);
         window.location.assign(languagePath);
         return;
       }
@@ -766,19 +783,23 @@
     });
   }
 
-  function createProductCard(product) {
+  function createProductCard(product, priority = false) {
     const card = document.createElement('article');
     card.className = 'product-card';
 
     const image = document.createElement('img');
-    image.src =
-      'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
-    image.dataset.src = product.image || '/assets/optimized/ice-cream-cone.webp';
+    const source = product.image || '/assets/optimized/ice-cream-cone.webp';
+    image.src = priority
+      ? source
+      : 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+    if (!priority) image.dataset.src = source;
     image.alt = productNameFor(product);
-    image.loading = 'lazy';
+    image.loading = priority ? 'eager' : 'lazy';
+    image.fetchPriority = priority ? 'high' : 'low';
     image.decoding = 'async';
     image.width = 560;
     image.height = 700;
+    image.addEventListener('load', () => card.classList.add('is-image-ready'));
     image.addEventListener(
       'error',
       () => {
@@ -828,7 +849,7 @@
           loadImage(entry.target);
         });
       },
-      { root: menuPanel, rootMargin: '500px 0px' }
+      { root: menuPanel, rootMargin: '180px 0px' }
     );
     images.forEach((image) => productImageObserver.observe(image));
   }
@@ -858,7 +879,9 @@
       const items = document.createElement('div');
       items.className = 'product-grid';
       if (products.length) {
-        products.forEach((product) => items.append(createProductCard(product)));
+        products.forEach((product, index) =>
+          items.append(createProductCard(product, category.id === menuData.categories[0]?.id && index < 3))
+        );
       } else {
         const empty = document.createElement('p');
         empty.className = 'empty-category';
@@ -1046,16 +1069,24 @@
     );
   });
 
-  function getCookiePreference() {
+  function readCookie(name) {
     const cookie = document.cookie
       .split('; ')
-      .find((entry) => entry.startsWith(`${COOKIE_NAME}=`));
+      .find((entry) => entry.startsWith(`${name}=`));
     return cookie ? decodeURIComponent(cookie.split('=').slice(1).join('=')) : '';
   }
 
-  function saveCookiePreference(value) {
+  function writeCookie(name, value) {
     const secure = location.protocol === 'https:' ? '; Secure' : '';
-    document.cookie = `${COOKIE_NAME}=${encodeURIComponent(value)}; Max-Age=31536000; Path=/; SameSite=Lax${secure}`;
+    document.cookie = `${name}=${encodeURIComponent(value)}; Max-Age=${COOKIE_MAX_AGE}; Path=/; SameSite=Lax${secure}`;
+  }
+
+  function getCookiePreference() {
+    return readCookie(COOKIE_NAME);
+  }
+
+  function saveCookiePreference(value) {
+    writeCookie(COOKIE_NAME, value);
     hideCookieBanner();
   }
 
@@ -1080,11 +1111,19 @@
     if (mapPlaceholder) mapPlaceholder.hidden = true;
   }
 
+  function unloadMap() {
+    if (!mapFrame?.src) return;
+    mapFrame.removeAttribute('src');
+    mapFrame.hidden = true;
+    if (mapPlaceholder) mapPlaceholder.hidden = false;
+  }
+
   document.querySelectorAll('[data-cookie-choice]').forEach((button) => {
     button.addEventListener('click', () => {
       const choice = button.dataset.cookieChoice === 'all' ? 'all' : 'essential';
       saveCookiePreference(choice);
       if (choice === 'all' && activePanel === 'location') loadMap();
+      if (choice === 'essential') unloadMap();
     });
   });
 
@@ -1093,9 +1132,12 @@
     loadMap();
   });
 
-  document.querySelector('[data-cookie-settings]')?.addEventListener('click', () => {
-    document.cookie = `${COOKIE_NAME}=; Max-Age=0; Path=/; SameSite=Lax`;
-    showCookieBanner();
+  document.querySelectorAll('[data-cookie-settings]').forEach((button) => {
+    button.addEventListener('click', () => {
+      document.cookie = `${COOKIE_NAME}=; Max-Age=0; Path=/; SameSite=Lax`;
+      showCookieBanner();
+      cookieBanner?.querySelector('[data-cookie-choice="essential"]')?.focus();
+    });
   });
 
   function createMarqueeVisibility() {
@@ -1361,6 +1403,7 @@
   window.setInterval(updateSunset, 60 * 1000);
   runWhenNear(document.querySelector('[data-spille-dashboard]'), loadSpilleWeather, '500px 0px');
   createMarqueeVisibility();
+  if (!getCookiePreference()) showCookieBanner();
   initializeWelcomeGate();
   const year = document.querySelector('[data-current-year]');
   if (year) year.textContent = new Date().getFullYear();
