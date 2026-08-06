@@ -160,7 +160,7 @@
     </script>
     <link rel="preload" href="assets/optimized/waffle-cone.webp" as="image" type="image/webp">
     <link rel="preload" href="assets/optimized/vanilla-soft-serve.webp" as="image" type="image/webp">
-    <link rel="stylesheet" href="styles.css?v=20260806-2">
+    <link rel="stylesheet" href="styles.css?v=20260806-3">
   </head>
   <body>
     <section
@@ -203,21 +203,38 @@
     </header>
 
     <main id="main">
-      <section class="assembly-story" id="home" aria-labelledby="story-title">
-        <div class="assembly-stage">
-          <div class="stage-grid" aria-hidden="true"></div>
-
-          <div class="story-copy story-copy--intro" data-story-panel="intro">
-            <p class="eyebrow">Morbido. Fresco. Tuo.</p>
-            <h1 id="story-title">Bar Martiri</h1>
-            <p class="story-lede">Il gelato che inizia dal cono.</p>
+      <section class="hero-section" id="home" aria-labelledby="story-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Gelato al Bar Martiri</p>
+          <h1 id="story-title">Gelato fresco vicino al mare.</h1>
+          <p class="hero-lede">
+            Vaniglia fresca servita in un cono croccante, per una dolce pausa nelle giornate estive a Spille.
+          </p>
+          <div class="hero-details" aria-label="Informazioni sul gelato">
+            <span>Servito fresco</span>
+            <span>Cono croccante</span>
           </div>
+          <button class="hero-menu-link" type="button" data-hero-menu>
+            Vedi il menu <span aria-hidden="true">↗</span>
+          </button>
+        </div>
 
-          <figure class="cone-build" aria-label="Gelato alla vaniglia servito nel cono">
+        <figure
+          class="hero-product"
+          data-hero-drag
+          tabindex="0"
+          role="slider"
+          aria-orientation="horizontal"
+          aria-valuemin="-100"
+          aria-valuemax="100"
+          aria-valuenow="0"
+          aria-label="Gelato alla vaniglia nel cono; spostalo a sinistra o a destra"
+          aria-describedby="hero-drag-hint"
+        >
+          <div class="hero-product-visual" data-hero-drag-visual>
             <span class="cone-shadow" aria-hidden="true"></span>
             <img
               class="cone-piece cone-piece--wafer"
-              data-cone-piece="wafer"
               src="assets/optimized/waffle-cone.webp"
               alt=""
               width="451"
@@ -227,7 +244,6 @@
             >
             <img
               class="cone-piece cone-piece--serve"
-              data-cone-piece="serve"
               src="assets/optimized/vanilla-soft-serve.webp"
               alt=""
               width="724"
@@ -235,93 +251,15 @@
               decoding="async"
               fetchpriority="high"
             >
-          </figure>
-
-          <div class="story-flavor-group" aria-label="Gusti del gelato">
-            <div class="story-flavor-slot story-flavor-slot--outer-left">
-              <figure class="story-flavor-card" data-story-flavor="left">
-                <img
-                  src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
-                  data-story-src="assets/optimized/chocolate-cone.webp"
-                  alt="Gelato interamente al cioccolato"
-                  width="560"
-                  height="700"
-                  decoding="async"
-                  fetchpriority="low"
-                >
-              </figure>
-            </div>
-            <div class="story-flavor-slot story-flavor-slot--inner-left">
-              <figure class="story-flavor-card" data-story-flavor="left">
-                <img
-                  src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
-                  data-story-src="assets/optimized/vanilla-chocolate-cone.webp"
-                  alt="Gelato metà vaniglia e metà cioccolato"
-                  width="560"
-                  height="700"
-                  decoding="async"
-                  fetchpriority="low"
-                >
-              </figure>
-            </div>
-            <div class="story-flavor-slot story-flavor-slot--inner-right">
-              <figure class="story-flavor-card" data-story-flavor="right">
-                <img
-                  src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
-                  data-story-src="assets/optimized/vanilla-pink-cone.webp"
-                  alt="Gelato metà vaniglia e metà fragola"
-                  width="560"
-                  height="700"
-                  decoding="async"
-                  fetchpriority="low"
-                >
-              </figure>
-            </div>
-            <div class="story-flavor-slot story-flavor-slot--outer-right">
-              <figure class="story-flavor-card" data-story-flavor="right">
-                <img
-                  src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
-                  data-story-src="assets/optimized/pink-cone.webp"
-                  alt="Gelato interamente alla fragola"
-                  width="560"
-                  height="700"
-                  decoding="async"
-                  fetchpriority="low"
-                >
-              </figure>
-            </div>
           </div>
-
-          <div class="story-finale" data-story-panel="finale">
-            <p class="eyebrow">Cinque gusti</p>
-            <p>Un Martiri.</p>
-          </div>
-
-          <article class="story-fact story-fact--milk" data-story-panel="milk">
-            <span class="fact-number">01</span>
-            <p class="eyebrow">La base</p>
-            <h2>Preparato con latte</h2>
-            <p>Cremoso, fresco e preparato per il tuo momento vicino al mare.</p>
-          </article>
-
-          <article class="story-fact story-fact--wafer" data-story-panel="wafer">
-            <span class="fact-number">02</span>
-            <p class="eyebrow">Il cono</p>
-            <h2>Cono croccante</h2>
-            <p>Una base leggera e croccante per ogni spirale di gelato.</p>
-          </article>
-
-          <div class="story-progress" aria-hidden="true">
-            <span data-progress-bar></span>
-          </div>
-          <p class="scroll-cue" aria-hidden="true">Scorri per crearlo</p>
-        </div>
+          <figcaption id="hero-drag-hint">Sposta il gelato a sinistra o a destra.</figcaption>
+        </figure>
       </section>
 
       <section class="search-intro" aria-labelledby="search-intro-title">
         <div class="search-intro-copy">
           <p class="eyebrow">Bar a Spille</p>
-          <h2 id="search-intro-title">L'estate al mare inizia da Martiri.</h2>
+          <h2 id="search-intro-title">L'estate inizia al Bar Martiri.</h2>
           <p>
             Bar Martiri a Spille, Albania, è una sosta vicino alla spiaggia per lettini, gelato, caffè e bibite. Il parcheggio gratuito e il facile accesso rendono più semplice la giornata al mare.
           </p>
@@ -498,7 +436,7 @@
 
       <section class="closing-section" id="information" aria-labelledby="closing-title">
         <p class="eyebrow">Bar · Gelateria · Spille</p>
-        <h2 id="closing-title">Ci vediamo<br>da Martiri.</h2>
+        <h2 id="closing-title">Ci vediamo al<br>Bar Martiri.</h2>
         <p class="closing-note">Gelato, caffè e bibite, tutti i giorni dalle 06:00 alle 23:00.</p>
       </section>
     </main>
@@ -533,13 +471,36 @@
           <div class="panel-title">
             <h2 id="menu-title">MENU</h2>
           </div>
-          <button class="icon-button" type="button" data-panel-close aria-label="Chiudi il menu">
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="M18 6 6 18M6 6l12 12"></path>
-            </svg>
-          </button>
+          <div class="panel-tools">
+            <div class="language-switcher panel-language-switcher" data-language-switcher aria-label="Cambia lingua">
+              <button type="button" data-language-switch="sq" aria-pressed="true">SQ</button>
+              <button type="button" data-language-switch="it" aria-pressed="false">IT</button>
+              <button type="button" data-language-switch="en" aria-pressed="false">EN</button>
+            </div>
+            <button class="icon-button" type="button" data-panel-close aria-label="Chiudi il menu">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M18 6 6 18M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
         </header>
-        <nav class="category-tabs" aria-label="Categorie del menu" data-category-tabs></nav>
+        <div class="menu-controls">
+          <div class="menu-toolbar">
+            <div>
+              <p class="eyebrow">Menu di Bar Martiri</p>
+              <p>Scegli una categoria o cerca un prodotto.</p>
+            </div>
+            <label class="menu-search">
+              <span class="sr-only">Cerca nel menu</span>
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="7"></circle>
+                <path d="m16 16 5 5"></path>
+              </svg>
+              <input type="search" data-menu-search autocomplete="off" placeholder="Cerca un prodotto">
+            </label>
+          </div>
+          <nav class="category-tabs" aria-label="Mini menu delle categorie" data-category-tabs></nav>
+        </div>
         <div class="menu-catalog" id="menu-product-grid" data-product-grid aria-live="polite"></div>
         <p class="menu-status" data-menu-status role="status"></p>
       </section>
@@ -557,11 +518,18 @@
             <p class="eyebrow">Spille</p>
             <h2 id="location-panel-title">Ci trovi qui</h2>
           </div>
-          <button class="icon-button" type="button" data-panel-close aria-label="Chiudi la posizione">
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="M18 6 6 18M6 6l12 12"></path>
-            </svg>
-          </button>
+          <div class="panel-tools">
+            <div class="language-switcher panel-language-switcher" data-language-switcher aria-label="Cambia lingua">
+              <button type="button" data-language-switch="sq" aria-pressed="true">SQ</button>
+              <button type="button" data-language-switch="it" aria-pressed="false">IT</button>
+              <button type="button" data-language-switch="en" aria-pressed="false">EN</button>
+            </div>
+            <button class="icon-button" type="button" data-panel-close aria-label="Chiudi la posizione">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M18 6 6 18M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
         </header>
         <div class="location-panel-body">
           <div class="map-embed" data-map-shell>
@@ -610,11 +578,18 @@
             <p class="eyebrow">Informazioni</p>
             <h2 id="info-panel-title">Bar Martiri</h2>
           </div>
-          <button class="icon-button" type="button" data-panel-close aria-label="Chiudi le informazioni">
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="M18 6 6 18M6 6l12 12"></path>
-            </svg>
-          </button>
+          <div class="panel-tools">
+            <div class="language-switcher panel-language-switcher" data-language-switcher aria-label="Cambia lingua">
+              <button type="button" data-language-switch="sq" aria-pressed="true">SQ</button>
+              <button type="button" data-language-switch="it" aria-pressed="false">IT</button>
+              <button type="button" data-language-switch="en" aria-pressed="false">EN</button>
+            </div>
+            <button class="icon-button" type="button" data-panel-close aria-label="Chiudi le informazioni">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M18 6 6 18M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
         </header>
         <div class="info-page">
           <div class="info-intro">
@@ -755,6 +730,6 @@
     <script defer src="supabase-config.js?v=20260804-1"></script>
     <script defer src="product-image-map.js?v=20260806-2"></script>
     <script defer src="menu-data.js?v=20260806-1"></script>
-    <script defer src="script.js?v=20260806-2"></script>
+    <script defer src="script.js?v=20260806-3"></script>
   </body>
 </html>

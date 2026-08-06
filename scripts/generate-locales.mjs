@@ -63,7 +63,7 @@ for (const [language, locale] of Object.entries(locales)) {
     .replace('<head>', '<head>\n    <base href="/">')
     .replaceAll('href="#', `href="${locale.path}#`)
     .replace(
-      'content="Bar Martiri në Spille, Shqipëri: shezlongje, parkim falas, akullore, kafe dhe pije pranë detit për pushimet tuaja verore."',
+      'content="Bar Martiri në Spille, Shqipëri: shezlone, parkim falas, akullore, kafe dhe pije pranë detit për pushimet tuaja verore."',
       `content="${locale.description}"`
     )
     .replace(
@@ -71,24 +71,24 @@ for (const [language, locale] of Object.entries(locales)) {
       `<link rel="canonical" href="${canonical}">`
     )
     .replace('content="sq_AL"', `content="${locale.ogLocale}"`)
-    .replaceAll('content="Bar Martiri Spille | Shezlongje pranë Detit"', `content="${locale.title}"`)
+    .replaceAll('content="Bar Martiri Spille | Shezlone dhe Akullore"', `content="${locale.title}"`)
     .replaceAll(
-      'content="Shezlongje, parkim falas, akullore, kafe dhe pije pranë detit në Spille, Shqipëri."',
+      'content="Shezlone, parkim falas, akullore, kafe dhe pije pranë detit në Spille, Shqipëri."',
       `content="${locale.socialDescription}"`
     )
     .replace(
-      'content="Shezlongje, parkim falas, akullore, kafe dhe pije pranë detit në Spille."',
+      'content="Shezlone, parkim falas, akullore, kafe dhe pije pranë detit në Spille."',
       `content="${locale.socialDescription}"`
     )
     .replace('content="https://bar-martiri.vercel.app/"', `content="${canonical}"`)
-    .replace('<title>Bar Martiri Spille | Shezlongje pranë Detit</title>', `<title>${locale.title}</title>`)
-    .replaceAll('Bar Martiri Spille | Shezlongje pranë Detit', locale.title)
+    .replace('<title>Bar Martiri Spille | Shezlone dhe Akullore</title>', `<title>${locale.title}</title>`)
+    .replaceAll('Bar Martiri Spille | Shezlone dhe Akullore', locale.title)
     .replace(
-      'Bar Martiri në Spille me shezlongje, parkim falas, akullore, kafe dhe pije pranë detit.',
+      'Bar Martiri në Spille me shezlone, parkim falas, akullore, kafe dhe pije pranë detit.',
       locale.description
     )
     .replace(
-      'Bar pranë detit në Spille me shezlongje, parkim falas, akullore, kafe dhe pije të freskëta.',
+      'Bar pranë detit në Spille me shezlone, parkim falas, akullore, kafe dhe pije të freskëta.',
       locale.businessDescription
     )
     .replace(

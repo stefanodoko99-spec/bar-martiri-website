@@ -160,7 +160,7 @@
     </script>
     <link rel="preload" href="assets/optimized/waffle-cone.webp" as="image" type="image/webp">
     <link rel="preload" href="assets/optimized/vanilla-soft-serve.webp" as="image" type="image/webp">
-    <link rel="stylesheet" href="styles.css?v=20260806-2">
+    <link rel="stylesheet" href="styles.css?v=20260806-3">
   </head>
   <body>
     <section
@@ -203,21 +203,38 @@
     </header>
 
     <main id="main">
-      <section class="assembly-story" id="home" aria-labelledby="story-title">
-        <div class="assembly-stage">
-          <div class="stage-grid" aria-hidden="true"></div>
-
-          <div class="story-copy story-copy--intro" data-story-panel="intro">
-            <p class="eyebrow">Soft. Fresh. Yours.</p>
-            <h1 id="story-title">Bar Martiri</h1>
-            <p class="story-lede">The ice cream that starts with the cone.</p>
+      <section class="hero-section" id="home" aria-labelledby="story-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Ice cream at Bar Martiri</p>
+          <h1 id="story-title">Fresh ice cream by the sea.</h1>
+          <p class="hero-lede">
+            Fresh vanilla served in a crisp cone for a sweet break during summer days in Spille.
+          </p>
+          <div class="hero-details" aria-label="Ice cream information">
+            <span>Served fresh</span>
+            <span>Crisp cone</span>
           </div>
+          <button class="hero-menu-link" type="button" data-hero-menu>
+            View the menu <span aria-hidden="true">↗</span>
+          </button>
+        </div>
 
-          <figure class="cone-build" aria-label="Vanilla ice cream placed in a cone">
+        <figure
+          class="hero-product"
+          data-hero-drag
+          tabindex="0"
+          role="slider"
+          aria-orientation="horizontal"
+          aria-valuemin="-100"
+          aria-valuemax="100"
+          aria-valuenow="0"
+          aria-label="Vanilla ice cream in a cone; move it left or right"
+          aria-describedby="hero-drag-hint"
+        >
+          <div class="hero-product-visual" data-hero-drag-visual>
             <span class="cone-shadow" aria-hidden="true"></span>
             <img
               class="cone-piece cone-piece--wafer"
-              data-cone-piece="wafer"
               src="assets/optimized/waffle-cone.webp"
               alt=""
               width="451"
@@ -227,7 +244,6 @@
             >
             <img
               class="cone-piece cone-piece--serve"
-              data-cone-piece="serve"
               src="assets/optimized/vanilla-soft-serve.webp"
               alt=""
               width="724"
@@ -235,93 +251,15 @@
               decoding="async"
               fetchpriority="high"
             >
-          </figure>
-
-          <div class="story-flavor-group" aria-label="Ice cream flavours">
-            <div class="story-flavor-slot story-flavor-slot--outer-left">
-              <figure class="story-flavor-card" data-story-flavor="left">
-                <img
-                  src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
-                  data-story-src="assets/optimized/chocolate-cone.webp"
-                  alt="Full chocolate ice cream"
-                  width="560"
-                  height="700"
-                  decoding="async"
-                  fetchpriority="low"
-                >
-              </figure>
-            </div>
-            <div class="story-flavor-slot story-flavor-slot--inner-left">
-              <figure class="story-flavor-card" data-story-flavor="left">
-                <img
-                  src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
-                  data-story-src="assets/optimized/vanilla-chocolate-cone.webp"
-                  alt="Half vanilla and half chocolate ice cream"
-                  width="560"
-                  height="700"
-                  decoding="async"
-                  fetchpriority="low"
-                >
-              </figure>
-            </div>
-            <div class="story-flavor-slot story-flavor-slot--inner-right">
-              <figure class="story-flavor-card" data-story-flavor="right">
-                <img
-                  src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
-                  data-story-src="assets/optimized/vanilla-pink-cone.webp"
-                  alt="Half vanilla and half strawberry ice cream"
-                  width="560"
-                  height="700"
-                  decoding="async"
-                  fetchpriority="low"
-                >
-              </figure>
-            </div>
-            <div class="story-flavor-slot story-flavor-slot--outer-right">
-              <figure class="story-flavor-card" data-story-flavor="right">
-                <img
-                  src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
-                  data-story-src="assets/optimized/pink-cone.webp"
-                  alt="Full strawberry ice cream"
-                  width="560"
-                  height="700"
-                  decoding="async"
-                  fetchpriority="low"
-                >
-              </figure>
-            </div>
           </div>
-
-          <div class="story-finale" data-story-panel="finale">
-            <p class="eyebrow">Five flavours</p>
-            <p>One Martiri.</p>
-          </div>
-
-          <article class="story-fact story-fact--milk" data-story-panel="milk">
-            <span class="fact-number">01</span>
-            <p class="eyebrow">The base</p>
-            <h2>Made with milk</h2>
-            <p>Smooth, fresh and made for your moment by the sea.</p>
-          </article>
-
-          <article class="story-fact story-fact--wafer" data-story-panel="wafer">
-            <span class="fact-number">02</span>
-            <p class="eyebrow">The cone</p>
-            <h2>Crisp cone</h2>
-            <p>A light, crisp base for every swirl of ice cream.</p>
-          </article>
-
-          <div class="story-progress" aria-hidden="true">
-            <span data-progress-bar></span>
-          </div>
-          <p class="scroll-cue" aria-hidden="true">Scroll to build it</p>
-        </div>
+          <figcaption id="hero-drag-hint">Move the ice cream left or right.</figcaption>
+        </figure>
       </section>
 
       <section class="search-intro" aria-labelledby="search-intro-title">
         <div class="search-intro-copy">
           <p class="eyebrow">Bar in Spille</p>
-          <h2 id="search-intro-title">Summer by the sea starts at Martiri.</h2>
+          <h2 id="search-intro-title">Summer starts at Bar Martiri.</h2>
           <p>
             Bar Martiri in Spille, Albania, is a beachside stop for sunbeds, ice cream, coffee and cold drinks. Free parking and easy access make a day by the sea simpler.
           </p>
@@ -498,7 +436,7 @@
 
       <section class="closing-section" id="information" aria-labelledby="closing-title">
         <p class="eyebrow">Bar · Ice Cream · Spille</p>
-        <h2 id="closing-title">See you<br>at Martiri.</h2>
+        <h2 id="closing-title">See you at<br>Bar Martiri.</h2>
         <p class="closing-note">Ice cream, coffee and cold drinks, every day from 06:00 to 23:00.</p>
       </section>
     </main>
@@ -533,13 +471,36 @@
           <div class="panel-title">
             <h2 id="menu-title">MENU</h2>
           </div>
-          <button class="icon-button" type="button" data-panel-close aria-label="Close menu">
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="M18 6 6 18M6 6l12 12"></path>
-            </svg>
-          </button>
+          <div class="panel-tools">
+            <div class="language-switcher panel-language-switcher" data-language-switcher aria-label="Change language">
+              <button type="button" data-language-switch="sq" aria-pressed="true">SQ</button>
+              <button type="button" data-language-switch="it" aria-pressed="false">IT</button>
+              <button type="button" data-language-switch="en" aria-pressed="false">EN</button>
+            </div>
+            <button class="icon-button" type="button" data-panel-close aria-label="Close menu">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M18 6 6 18M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
         </header>
-        <nav class="category-tabs" aria-label="Menu categories" data-category-tabs></nav>
+        <div class="menu-controls">
+          <div class="menu-toolbar">
+            <div>
+              <p class="eyebrow">Bar Martiri menu</p>
+              <p>Choose a category or search for a product.</p>
+            </div>
+            <label class="menu-search">
+              <span class="sr-only">Search the menu</span>
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="7"></circle>
+                <path d="m16 16 5 5"></path>
+              </svg>
+              <input type="search" data-menu-search autocomplete="off" placeholder="Search for a product">
+            </label>
+          </div>
+          <nav class="category-tabs" aria-label="Category mini menu" data-category-tabs></nav>
+        </div>
         <div class="menu-catalog" id="menu-product-grid" data-product-grid aria-live="polite"></div>
         <p class="menu-status" data-menu-status role="status"></p>
       </section>
@@ -557,11 +518,18 @@
             <p class="eyebrow">Spille</p>
             <h2 id="location-panel-title">Find us here</h2>
           </div>
-          <button class="icon-button" type="button" data-panel-close aria-label="Close location">
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="M18 6 6 18M6 6l12 12"></path>
-            </svg>
-          </button>
+          <div class="panel-tools">
+            <div class="language-switcher panel-language-switcher" data-language-switcher aria-label="Change language">
+              <button type="button" data-language-switch="sq" aria-pressed="true">SQ</button>
+              <button type="button" data-language-switch="it" aria-pressed="false">IT</button>
+              <button type="button" data-language-switch="en" aria-pressed="false">EN</button>
+            </div>
+            <button class="icon-button" type="button" data-panel-close aria-label="Close location">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M18 6 6 18M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
         </header>
         <div class="location-panel-body">
           <div class="map-embed" data-map-shell>
@@ -610,11 +578,18 @@
             <p class="eyebrow">Information</p>
             <h2 id="info-panel-title">Bar Martiri</h2>
           </div>
-          <button class="icon-button" type="button" data-panel-close aria-label="Close information">
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="M18 6 6 18M6 6l12 12"></path>
-            </svg>
-          </button>
+          <div class="panel-tools">
+            <div class="language-switcher panel-language-switcher" data-language-switcher aria-label="Change language">
+              <button type="button" data-language-switch="sq" aria-pressed="true">SQ</button>
+              <button type="button" data-language-switch="it" aria-pressed="false">IT</button>
+              <button type="button" data-language-switch="en" aria-pressed="false">EN</button>
+            </div>
+            <button class="icon-button" type="button" data-panel-close aria-label="Close information">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M18 6 6 18M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
         </header>
         <div class="info-page">
           <div class="info-intro">
@@ -755,6 +730,6 @@
     <script defer src="supabase-config.js?v=20260804-1"></script>
     <script defer src="product-image-map.js?v=20260806-2"></script>
     <script defer src="menu-data.js?v=20260806-1"></script>
-    <script defer src="script.js?v=20260806-2"></script>
+    <script defer src="script.js?v=20260806-3"></script>
   </body>
 </html>

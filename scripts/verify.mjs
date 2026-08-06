@@ -64,7 +64,32 @@ const assertions = [
       englishHtml.includes('rel="canonical" href="https://bar-martiri.vercel.app/en/"'),
     'Localized canonical links must use the Vercel production domain',
   ],
-  [italianHtml.includes("L'estate al mare inizia da Martiri.") && englishHtml.includes('Summer by the sea starts at Martiri.'), 'Localized pages must contain crawlable translated body copy'],
+  [
+    italianHtml.includes("L'estate inizia al Bar Martiri.") &&
+      englishHtml.includes('Summer starts at Bar Martiri.'),
+    'Localized pages must contain crawlable translated body copy',
+  ],
+  [
+    publicHtml.includes('Shezlone') &&
+      !publicHtml.includes('Shezlongje') &&
+      !publicHtml.includes('Prenoto'),
+    'Albanian service copy must use the approved Shezlone and Rezervo wording',
+  ],
+  [
+    (publicHtml.match(/data-language-switcher/g) || []).length === 4,
+    'Language controls must be available in the header and all three panels',
+  ],
+  [
+    publicHtml.includes('data-hero-drag') &&
+      publicHtml.includes('data-menu-search') &&
+      publicHtml.includes('data-category-tabs'),
+    'The draggable hero and compact searchable menu controls are required',
+  ],
+  [
+    !publicScript.includes('ScrollTrigger') &&
+      !publicScript.includes('ScrollTrigger.min.js'),
+    'The hero must not depend on the former scroll assembly runtime',
+  ],
 ];
 
 for (const [passed, message] of assertions) {

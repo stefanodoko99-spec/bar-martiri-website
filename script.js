@@ -10,7 +10,7 @@
   };
   const supabaseConfig = window.BAR_MARTIRI_SUPABASE || {};
   const localProductImages = window.BAR_MARTIRI_LOCAL_PRODUCT_IMAGES || {};
-  const story = document.querySelector('.assembly-story');
+  const story = document.querySelector('.hero-section');
   const dock = document.querySelector('[data-bottom-dock]');
   const dockActions = [...document.querySelectorAll('[data-dock-action]')];
   const panelLayer = document.querySelector('[data-panel-layer]');
@@ -19,6 +19,7 @@
   const categoryTabs = document.querySelector('[data-category-tabs]');
   const productGrid = document.querySelector('[data-product-grid]');
   const menuStatus = document.querySelector('[data-menu-status]');
+  const menuSearchInput = document.querySelector('[data-menu-search]');
   const cookieBanner = document.querySelector('[data-cookie-banner]');
   const welcomeGate = document.querySelector('[data-welcome-gate]');
   const welcomeStatus = document.querySelector('[data-welcome-status]');
@@ -46,9 +47,9 @@
 
   const SEO_TEXT = Object.freeze({
     sq: {
-      title: 'Bar Martiri Spille | Shezlongje pranë Detit',
+      title: 'Bar Martiri Spille | Shezlone dhe Akullore',
       description:
-        'Bar Martiri në Spille, Shqipëri: shezlongje, parkim falas, akullore, kafe dhe pije pranë detit për pushimet tuaja verore.',
+        'Bar Martiri në Spille, Shqipëri: shezlone, parkim falas, akullore, kafe dhe pije pranë detit për pushimet tuaja verore.',
       path: '/',
     },
     it: {
@@ -92,22 +93,20 @@
     'Lidhje te tjera': { sq: 'Lidhje të tjera', it: 'Altri collegamenti', en: 'Other links' },
     'Sherbimet e Bar Martiri': { sq: 'Shërbimet e Bar Martiri', it: 'Servizi di Bar Martiri', en: 'Bar Martiri services' },
     'Spille · Shqipëri': { sq: 'Spille · Shqipëri', it: 'Spille · Albania', en: 'Spille · Albania' },
-    'E bute. E fresket. E jotja.': { sq: 'E butë. E freskët. E jotja.', it: 'Morbido. Fresco. Tuo.', en: 'Soft. Fresh. Yours.' },
-    'Akullorja qe nis me kaushin.': { sq: 'Akullorja që nis me kaushin.', it: 'Il gelato che inizia dal cono.', en: 'The ice cream that starts with the cone.' },
-    'Pese shije': { sq: 'Pesë shije', it: 'Cinque gusti', en: 'Five flavours' },
-    'Nje Martiri.': { sq: 'Një Martiri.', it: 'Un Martiri.', en: 'One Martiri.' },
-    'Baza': { sq: 'Baza', it: 'La base', en: 'The base' },
-    'E bere me qumesht': { sq: 'E bërë me qumësht', it: 'Preparato con latte', en: 'Made with milk' },
-    'E lemuar, e fresket dhe e pergatitur per momentin tend prane detit.': { sq: 'E lëmuar, e freskët dhe e përgatitur për momentin tënd pranë detit.', it: 'Cremoso, fresco e preparato per il tuo momento vicino al mare.', en: 'Smooth, fresh and made for your moment by the sea.' },
-    'Kaushi': { sq: 'Kaushi', it: 'Il cono', en: 'The cone' },
+    'Akullore në Bar Martiri': { sq: 'Akullore në Bar Martiri', it: 'Gelato al Bar Martiri', en: 'Ice cream at Bar Martiri' },
+    'Akullore e freskët pranë detit.': { sq: 'Akullore e freskët pranë detit.', it: 'Gelato fresco vicino al mare.', en: 'Fresh ice cream by the sea.' },
+    'Vanilje e freskët, e servirur në kaush krokant për një pushim të ëmbël gjatë ditëve të verës në Spille.': { sq: 'Vanilje e freskët, e servirur në kaush krokant për një pushim të ëmbël gjatë ditëve të verës në Spille.', it: 'Vaniglia fresca servita in un cono croccante, per una dolce pausa nelle giornate estive a Spille.', en: 'Fresh vanilla served in a crisp cone for a sweet break during summer days in Spille.' },
+    'Informacion për akulloren': { sq: 'Informacion për akulloren', it: 'Informazioni sul gelato', en: 'Ice cream information' },
+    'Shërbehet e freskët': { sq: 'Shërbehet e freskët', it: 'Servito fresco', en: 'Served fresh' },
+    'Shiko menunë': { sq: 'Shiko menunë', it: 'Vedi il menu', en: 'View the menu' },
+    'Lëvize akulloren majtas ose djathtas.': { sq: 'Lëvize akulloren majtas ose djathtas.', it: 'Sposta il gelato a sinistra o a destra.', en: 'Move the ice cream left or right.' },
+    'Akullore vanilje në kaush; lëvize majtas ose djathtas': { sq: 'Akullore vanilje në kaush; lëvize majtas ose djathtas', it: 'Gelato alla vaniglia nel cono; spostalo a sinistra o a destra', en: 'Vanilla ice cream in a cone; move it left or right' },
     'Kaush krokant': { sq: 'Kaush krokant', it: 'Cono croccante', en: 'Crisp cone' },
-    'Nje fund i lehte dhe krokant per cdo spirale akulloreje.': { sq: 'Një bazë e lehtë dhe krokante për çdo spirale akulloreje.', it: 'Una base leggera e croccante per ogni spirale di gelato.', en: 'A light, crisp base for every swirl of ice cream.' },
-    'Rreshqit per ta krijuar': { sq: 'Rrëshqit për ta krijuar', it: 'Scorri per crearlo', en: 'Scroll to build it' },
     'Bar në Spille': { sq: 'Bar në Spille', it: 'Bar a Spille', en: 'Bar in Spille' },
-    'Vera pranë detit nis te Martiri.': { sq: 'Vera pranë detit nis te Martiri.', it: "L'estate al mare inizia da Martiri.", en: 'Summer by the sea starts at Martiri.' },
-    'Bar Martiri në Spille, Shqipëri, është ndalesa pranë plazhit për shezlongje, akullore, kafe dhe pije të freskëta. Parkimi falas dhe aksesi i thjeshtë e bëjnë ditën në det më të lehtë.': { sq: 'Bar Martiri në Spille, Shqipëri, është ndalesa pranë plazhit për shezlongje, akullore, kafe dhe pije të freskëta. Parkimi falas dhe aksesi i thjeshtë e bëjnë ditën në det më të lehtë.', it: 'Bar Martiri a Spille, Albania, è una sosta vicino alla spiaggia per lettini, gelato, caffè e bibite. Il parcheggio gratuito e il facile accesso rendono più semplice la giornata al mare.', en: 'Bar Martiri in Spille, Albania, is a beachside stop for sunbeds, ice cream, coffee and cold drinks. Free parking and easy access make a day by the sea simpler.' },
-    'Shezlongje pranë detit': { sq: 'Shezlongje pranë detit', it: 'Lettini vicino al mare', en: 'Sunbeds by the sea' },
-    'Prenoto vendin tënd për një ditë pushimi në Spille.': { sq: 'Prenoto vendin tënd për një ditë pushimi në Spille.', it: 'Prenota il tuo posto per una giornata di relax a Spille.', en: 'Book your spot for a relaxing day in Spille.' },
+    'Vera nis tek Bar Martiri.': { sq: 'Vera nis tek Bar Martiri.', it: "L'estate inizia al Bar Martiri.", en: 'Summer starts at Bar Martiri.' },
+    'Bar Martiri në Spille, Shqipëri, është ndalesa pranë plazhit për shezlone, akullore, kafe dhe pije të freskëta. Parkimi falas dhe aksesi i thjeshtë e bëjnë ditën në det më të lehtë.': { sq: 'Bar Martiri në Spille, Shqipëri, është ndalesa pranë plazhit për shezlone, akullore, kafe dhe pije të freskëta. Parkimi falas dhe aksesi i thjeshtë e bëjnë ditën në det më të lehtë.', it: 'Bar Martiri a Spille, Albania, è una sosta vicino alla spiaggia per lettini, gelato, caffè e bibite. Il parcheggio gratuito e il facile accesso rendono più semplice la giornata al mare.', en: 'Bar Martiri in Spille, Albania, is a beachside stop for sunbeds, ice cream, coffee and cold drinks. Free parking and easy access make a day by the sea simpler.' },
+    'Shezlone pranë detit': { sq: 'Shezlone pranë detit', it: 'Lettini vicino al mare', en: 'Sunbeds by the sea' },
+    'Rezervo vendin tënd për një ditë pushimi në Spille.': { sq: 'Rezervo vendin tënd për një ditë pushimi në Spille.', it: 'Prenota il tuo posto per una giornata di relax a Spille.', en: 'Book your spot for a relaxing day in Spille.' },
     'Parkim falas': { sq: 'Parkim falas', it: 'Parcheggio gratuito', en: 'Free parking' },
     'Parkim pa pagesë për klientët e Bar Martiri.': { sq: 'Parkim pa pagesë për klientët e Bar Martiri.', it: 'Parcheggio gratuito per i clienti di Bar Martiri.', en: 'Free parking for Bar Martiri customers.' },
     'Shije verore': { sq: 'Shije verore', it: "Sapori d'estate", en: 'Summer flavours' },
@@ -126,8 +125,8 @@
     'Vleresimi aktual nga': { sq: 'Vlerësimi aktual nga', it: 'Valutazione attuale da', en: 'Current rating from' },
     'pershtypje te publikuara ne Google.': { sq: 'vlerësime të publikuara në Google.', it: 'recensioni pubblicate su Google.', en: 'reviews published on Google.' },
     'Shiko te gjitha ne Google': { sq: 'Shiko të gjitha në Google', it: 'Vedi tutte su Google', en: 'See all on Google' },
-    'Shihemi': { sq: 'Shihemi', it: 'Ci vediamo', en: 'See you' },
-    'te Martiri.': { sq: 'te Martiri.', it: 'da Martiri.', en: 'at Martiri.' },
+    'Shihemi tek': { sq: 'Shihemi tek', it: 'Ci vediamo al', en: 'See you at' },
+    'Bar Martiri.': { sq: 'Bar Martiri.', it: 'Bar Martiri.', en: 'Bar Martiri.' },
     'Akullore, kafe dhe pije te fresketa, cdo dite nga 06:00 deri ne 23:00.': { sq: 'Akullore, kafe dhe pije të freskëta, çdo ditë nga 06:00 deri në 23:00.', it: 'Gelato, caffè e bibite, tutti i giorni dalle 06:00 alle 23:00.', en: 'Ice cream, coffee and cold drinks, every day from 06:00 to 23:00.' },
     'Na gjen ketu': { sq: 'Na gjen këtu', it: 'Ci trovi qui', en: 'Find us here' },
     'Harta ngarkohet vetem kur e kerkon ti.': { sq: 'Harta ngarkohet vetëm kur e kërkon ti.', it: 'La mappa si carica solo quando lo richiedi.', en: 'The map loads only when you request it.' },
@@ -138,16 +137,21 @@
     'Pushimi yt ne Spille': { sq: 'Pushimi yt në Spille', it: 'La tua vacanza a Spille', en: 'Your break in Spille' },
     'Deti, hija dhe gjithcka qe te duhet per nje dite te qete.': { sq: 'Deti, hija dhe gjithçka që të duhet për një ditë të qetë.', it: 'Il mare, l’ombra e tutto ciò che serve per una giornata tranquilla.', en: 'The sea, shade and everything you need for a relaxed day.' },
     'Bar Martiri eshte prane plazhit, me sherbim te thjeshte dhe hapesire per te kaluar diten me familjen ose miqte.': { sq: 'Bar Martiri është pranë plazhit, me shërbim të thjeshtë dhe hapësirë për të kaluar ditën me familjen ose miqtë.', it: 'Bar Martiri è vicino alla spiaggia, con un servizio semplice e spazio per trascorrere la giornata con la famiglia o gli amici.', en: 'Bar Martiri is by the beach, with simple service and space to spend the day with family or friends.' },
-    'Shezlongje': { sq: 'Shezlongje', it: 'Lettini', en: 'Sunbeds' },
-    'Prenoto vendin tend prane detit me nje telefonate.': { sq: 'Prenoto vendin tënd pranë detit me një telefonatë.', it: 'Prenota il tuo posto vicino al mare con una telefonata.', en: 'Book your place by the sea with one phone call.' },
+    'Shezlone': { sq: 'Shezlone', it: 'Lettini', en: 'Sunbeds' },
+    'Rezervo vendin tënd pranë detit me një telefonatë.': { sq: 'Rezervo vendin tënd pranë detit me një telefonatë.', it: 'Prenota il tuo posto vicino al mare con una telefonata.', en: 'Book your place by the sea with one phone call.' },
     'Parkim pa pagese per klientet e Bar Martiri.': { sq: 'Parkim pa pagesë për klientët e Bar Martiri.', it: 'Parcheggio gratuito per i clienti di Bar Martiri.', en: 'Free parking for Bar Martiri customers.' },
     'Akses i thjeshte': { sq: 'Akses i thjeshtë', it: 'Accesso facile', en: 'Easy access' },
     'Na gjen lehte nga Rruga e Pishave ne Spille.': { sq: 'Na gjen lehtë nga Rruga e Pishave në Spille.', it: 'Ci trovi facilmente da Rruga e Pishave a Spille.', en: 'Find us easily from Rruga e Pishave in Spille.' },
     'Hapur cdo dite': { sq: 'Hapur çdo ditë', it: 'Aperto ogni giorno', en: 'Open every day' },
     'Te presim nga ora 06:00 deri ne 23:00.': { sq: 'Të presim nga ora 06:00 deri në 23:00.', it: 'Ti aspettiamo dalle 06:00 alle 23:00.', en: 'We welcome you from 06:00 to 23:00.' },
-    'Prenotime shezlongjesh': { sq: 'Prenotime shezlongjesh', it: 'Prenotazione lettini', en: 'Sunbed reservations' },
+    'Rezervime shezlonesh': { sq: 'Rezervime shezlonesh', it: 'Prenotazione lettini', en: 'Sunbed reservations' },
     'Rezervo me telefon': { sq: 'Rezervo me telefon', it: 'Prenota per telefono', en: 'Book by phone' },
     'Telefono tani': { sq: 'Telefono tani', it: 'Chiama ora', en: 'Call now' },
+    'Menuja e Bar Martiri': { sq: 'Menuja e Bar Martiri', it: 'Menu di Bar Martiri', en: 'Bar Martiri menu' },
+    'Zgjidh kategorinë ose kërko produktin.': { sq: 'Zgjidh kategorinë ose kërko produktin.', it: 'Scegli una categoria o cerca un prodotto.', en: 'Choose a category or search for a product.' },
+    'Mini menuja e kategorive': { sq: 'Mini menuja e kategorive', it: 'Mini menu delle categorie', en: 'Category mini menu' },
+    'Kërko në menu': { sq: 'Kërko në menu', it: 'Cerca nel menu', en: 'Search the menu' },
+    'Kërko produktin': { sq: 'Kërko produktin', it: 'Cerca un prodotto', en: 'Search for a product' },
     'Preferencat e cookies': { sq: 'Preferencat e cookies', it: 'Preferenze cookie', en: 'Cookie preferences' },
     'Privatësia dhe cookies': { sq: 'Privatësia dhe cookies', it: 'Privacy e cookie', en: 'Privacy and cookies' },
     'Menaxho cookies': { sq: 'Menaxho cookies', it: 'Gestisci i cookie', en: 'Manage cookies' },
@@ -174,6 +178,7 @@
     products: { sq: 'produkte', it: 'prodotti', en: 'products' },
     comingSoon: { sq: 'Së shpejti', it: 'Prossimamente', en: 'Coming soon' },
     emptyCategory: { sq: 'Produktet e kësaj kategorie do të shtohen së shpejti.', it: 'I prodotti di questa categoria saranno aggiunti presto.', en: 'Products in this category will be added soon.' },
+    noResults: { sq: 'Nuk u gjet asnjë produkt. Provo një emër tjetër.', it: 'Nessun prodotto trovato. Prova un altro nome.', en: 'No products found. Try another name.' },
     unnamedProduct: { sq: 'Pa emër', it: 'Senza nome', en: 'Unnamed' },
   });
 
@@ -196,13 +201,13 @@
   let closeTimer = 0;
   let menuRendered = false;
   let catalogProducts = menuData.products.map(normalizeProduct);
-  let storyImagesLoaded = false;
   let lastScrollY = window.scrollY;
   let lastPanelScrollY = 0;
   let scrollFrame = 0;
   let currentLanguage = 'sq';
   let menuLoadPromise = null;
   let productImageObserver = null;
+  let menuSearchQuery = '';
 
   function dynamicText(key) {
     return DYNAMIC_TEXT[key]?.[currentLanguage] || DYNAMIC_TEXT[key]?.sq || '';
@@ -758,17 +763,30 @@
     });
   }
 
+  function productMatchesSearch(product) {
+    if (!menuSearchQuery) return true;
+    const searchable = `${productNameFor(product)} ${productDescriptionFor(product)}`
+      .toLocaleLowerCase(LANGUAGE_LOCALES[currentLanguage])
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+    return searchable.includes(menuSearchQuery);
+  }
+
   function renderCategories() {
     if (!categoryTabs) return;
     categoryTabs.replaceChildren();
 
     menuData.categories.forEach((category) => {
+      const matchingProducts = catalogProducts.filter(
+        (product) => product.category === category.id && productMatchesSearch(product)
+      );
       const button = document.createElement('button');
       button.className = 'category-tab';
       button.type = 'button';
       button.dataset.category = category.id;
       button.textContent = capitalizeWords(categoryLabelFor(category));
       button.setAttribute('aria-controls', `menu-category-${category.id}`);
+      button.disabled = Boolean(menuSearchQuery && !matchingProducts.length);
       button.classList.toggle('is-active', category.id === activeCategory);
       button.addEventListener('click', () => {
         activeCategory = category.id;
@@ -859,12 +877,17 @@
     menuRendered = true;
     productGrid.replaceChildren();
 
+    let visibleProductCount = 0;
     menuData.categories.forEach((category) => {
-      const products = catalogProducts.filter((product) => product.category === category.id);
+      const products = catalogProducts.filter(
+        (product) => product.category === category.id && productMatchesSearch(product)
+      );
       const section = document.createElement('section');
       section.className = 'menu-category';
       section.id = `menu-category-${category.id}`;
       section.setAttribute('aria-labelledby', `menu-category-title-${category.id}`);
+      if (menuSearchQuery && !products.length) section.hidden = true;
+      visibleProductCount += products.length;
 
       const heading = document.createElement('header');
       const title = document.createElement('h3');
@@ -892,8 +915,24 @@
       section.append(heading, items);
       productGrid.append(section);
     });
+    if (menuSearchQuery && !visibleProductCount) {
+      const empty = document.createElement('p');
+      empty.className = 'menu-search-empty';
+      empty.textContent = dynamicText('noResults');
+      productGrid.append(empty);
+    }
     observeProductImages();
   }
+
+  menuSearchInput?.addEventListener('input', () => {
+    menuSearchQuery = menuSearchInput.value
+      .trim()
+      .toLocaleLowerCase(LANGUAGE_LOCALES[currentLanguage])
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+    renderCategories();
+    renderProducts();
+  });
 
   function setDockActive(name) {
     dockActions.forEach((action) => {
@@ -1009,6 +1048,10 @@
       }
       handleDockAction(action);
     });
+  });
+
+  document.querySelector('[data-hero-menu]')?.addEventListener('click', (event) => {
+    openPanel('menu', event.currentTarget);
   });
 
   closeButtons.forEach((button) => {
@@ -1157,180 +1200,110 @@
     });
   }
 
-  function loadStoryImages() {
-    if (storyImagesLoaded) return;
-    storyImagesLoaded = true;
-    document.querySelectorAll('[data-story-src]').forEach((image) => {
-      image.src = image.dataset.storySrc;
-      image.removeAttribute('data-story-src');
+  function createHeroDrag() {
+    const dragTarget = document.querySelector('[data-hero-drag]');
+    const visual = document.querySelector('[data-hero-drag-visual]');
+    if (!dragTarget || !visual) return;
+
+    let currentX = 0;
+    let startX = 0;
+    let startDragX = 0;
+    let pointerId = null;
+    let animationFrame = 0;
+
+    const dragLimit = () => Math.min(190, Math.max(72, window.innerWidth * 0.22));
+    const renderPosition = (nextX, animate = false) => {
+      const limit = dragLimit();
+      currentX = Math.min(limit, Math.max(-limit, nextX));
+      const rotation = currentX / 22;
+      const percentage = Math.round((currentX / limit) * 100);
+      dragTarget.setAttribute('aria-valuenow', String(percentage));
+      if (animate && window.gsap && !reducedMotion) {
+        window.gsap.to(visual, {
+          x: currentX,
+          rotation,
+          duration: 0.28,
+          ease: 'power2.out',
+          overwrite: 'auto',
+        });
+      } else {
+        visual.style.transform = `translate3d(${currentX}px, 0, 0) rotate(${rotation}deg)`;
+      }
+    };
+
+    const endDrag = (event) => {
+      if (pointerId === null || (event.pointerId !== undefined && event.pointerId !== pointerId)) return;
+      dragTarget.classList.remove('is-dragging');
+      if (dragTarget.hasPointerCapture?.(pointerId)) dragTarget.releasePointerCapture(pointerId);
+      pointerId = null;
+    };
+
+    dragTarget.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      pointerId = event.pointerId;
+      startX = event.clientX;
+      startDragX = currentX;
+      dragTarget.setPointerCapture(pointerId);
+      dragTarget.classList.add('is-dragging');
     });
+    dragTarget.addEventListener('pointermove', (event) => {
+      if (event.pointerId !== pointerId) return;
+      const nextX = startDragX + event.clientX - startX;
+      cancelAnimationFrame(animationFrame);
+      animationFrame = requestAnimationFrame(() => renderPosition(nextX));
+    });
+    dragTarget.addEventListener('pointerup', endDrag);
+    dragTarget.addEventListener('pointercancel', endDrag);
+    dragTarget.addEventListener('lostpointercapture', () => {
+      pointerId = null;
+      dragTarget.classList.remove('is-dragging');
+    });
+    dragTarget.addEventListener('keydown', (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home'].includes(event.key)) return;
+      event.preventDefault();
+      const nextX = event.key === 'Home' ? 0 : currentX + (event.key === 'ArrowLeft' ? -28 : 28);
+      renderPosition(nextX, true);
+    });
+    window.addEventListener('resize', () => renderPosition(currentX), { passive: true });
   }
 
   function createStoryMotion() {
-    if (reducedMotion || !story) {
-      loadStoryImages();
-      return;
-    }
-    if (!window.gsap || !window.ScrollTrigger) return;
+    if (reducedMotion || !story || !window.gsap) return;
     const gsap = window.gsap;
-    gsap.registerPlugin(window.ScrollTrigger);
-
-    const wafer = document.querySelector('[data-cone-piece="wafer"]');
-    const serve = document.querySelector('[data-cone-piece="serve"]');
-    const shadow = document.querySelector('.cone-shadow');
-    const intro = document.querySelector('[data-story-panel="intro"]');
-    const milk = document.querySelector('[data-story-panel="milk"]');
-    const waferFact = document.querySelector('[data-story-panel="wafer"]');
-    const finale = document.querySelector('[data-story-panel="finale"]');
-    const leftFlavors = [...document.querySelectorAll('[data-story-flavor="left"]')];
-    const rightFlavors = [...document.querySelectorAll('[data-story-flavor="right"]')];
-    const scrollCue = document.querySelector('.scroll-cue');
-    const progress = document.querySelector('[data-progress-bar]');
-    const compactStory = window.matchMedia('(max-width: 640px)').matches;
-
-    gsap.set(wafer, {
-      autoAlpha: 1,
-      xPercent: -50,
-      y: 42,
-      rotation: -3,
+    gsap.from('.hero-copy > *', {
+      autoAlpha: 0,
+      y: 22,
+      duration: 0.65,
+      stagger: 0.08,
+      ease: 'power2.out',
+      clearProps: 'opacity,visibility,transform',
+    });
+    gsap.from('.hero-product', {
+      autoAlpha: 0,
+      y: 24,
       scale: 0.96,
-      transformOrigin: '50% 0%',
+      duration: 0.8,
+      ease: 'power3.out',
+      clearProps: 'opacity,visibility,transform',
     });
-    gsap.set(serve, {
-      autoAlpha: 0,
-      xPercent: -50,
-      y: -270,
-      rotation: 5,
-      scale: 0.92,
-      transformOrigin: '50% 100%',
-    });
-    gsap.set(shadow, { autoAlpha: 0, scaleX: 0.4, xPercent: -50 });
-    gsap.set([milk, waferFact], { autoAlpha: 0, y: 28 });
-    gsap.set(finale, { autoAlpha: 0, y: 16, xPercent: -50 });
-    gsap.set(leftFlavors, {
-      autoAlpha: 0,
-      x: compactStory ? -150 : -360,
-      y: 72,
-      scale: 0.78,
-    });
-    gsap.set(rightFlavors, {
-      autoAlpha: 0,
-      x: compactStory ? 150 : 360,
-      y: 72,
-      scale: 0.78,
-    });
-
-    const timeline = gsap.timeline({
-      defaults: { ease: 'none' },
-      scrollTrigger: {
-        id: 'bar-martiri-cone-story',
-        trigger: story,
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 0.18,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          gsap.set(progress, { scaleX: self.progress });
-          if (self.progress > 0.55) loadStoryImages();
-        },
-      },
-    });
-
-    timeline
-      .addLabel('intro', 0)
-      .to(wafer, { y: 0, rotation: 0, scale: 1, duration: 1.25, ease: 'back.out(1.25)' }, 0.35)
-      .to(shadow, { autoAlpha: 1, scaleX: 1, duration: 0.8, ease: 'power2.out' }, 0.7)
-      .to(intro, { autoAlpha: 0, y: -36, duration: 0.7 }, 1.25)
-      .to(scrollCue, { autoAlpha: 0, y: 12, duration: 0.4 }, 1.1)
-      .addLabel('softServe', 2)
-      .to(
-        serve,
-        {
-          autoAlpha: 1,
-          y: 0,
-          rotation: 0,
-          scale: 1,
-          duration: 1.55,
-          ease: 'power3.out',
-        },
-        2
-      )
-      .to(
-        [wafer, serve],
-        {
-          y: compactStory ? -112 : 0,
-          scale: compactStory ? 0.82 : 1,
-          duration: 0.8,
-          ease: 'power2.inOut',
-        },
-        3.55
-      )
-      .addLabel('milkFact', 4)
-      .to(milk, { autoAlpha: 1, y: 0, duration: 0.65, ease: 'power2.out' }, 4)
-      .to(milk, { autoAlpha: 0, y: -22, duration: 0.5 }, 5.35)
-      .addLabel('waferFact', 5.7)
-      .to(waferFact, { autoAlpha: 1, y: 0, duration: 0.65, ease: 'power2.out' }, 5.7)
-      .to(waferFact, { autoAlpha: 0, y: -22, duration: 0.55 }, 7.15)
-      .to(
-        [wafer, serve],
-        {
-          scale: compactStory ? 0.68 : 0.82,
-          y: compactStory ? -116 : -20,
-          duration: 1.1,
-          ease: 'power2.inOut',
-        },
-        7.25
-      )
-      .addLabel('flavorJoin', 8)
-      .to(
-        leftFlavors,
-        {
-          autoAlpha: 1,
-          x: 0,
-          y: 0,
-          scale: 1,
-          stagger: 0.16,
-          duration: 1.15,
-          ease: 'power3.out',
-        },
-        8
-      )
-      .to(
-        rightFlavors,
-        {
-          autoAlpha: 1,
-          x: 0,
-          y: 0,
-          scale: 1,
-          stagger: 0.16,
-          duration: 1.15,
-          ease: 'power3.out',
-        },
-        8
-      )
-      .to(finale, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 9.05)
-      .to({}, { duration: 0.9 });
 
     [
       ['.visit-copy > *', '.visit-section'],
       ['.visit-details > *', '.visit-section'],
       ['.closing-section > *', '.closing-section'],
-    ].forEach(([targets, trigger]) => {
-      gsap.from(targets, {
-        autoAlpha: 0,
-        y: 28,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger,
-          start: 'top 82%',
-          once: true,
-        },
-      });
+    ].forEach(([targets, triggerSelector]) => {
+      const trigger = document.querySelector(triggerSelector);
+      runWhenNear(trigger, () => {
+        gsap.from(targets, {
+          autoAlpha: 0,
+          y: 24,
+          duration: 0.7,
+          stagger: 0.08,
+          ease: 'power2.out',
+          clearProps: 'opacity,visibility,transform',
+        });
+      }, '0px 0px -12%');
     });
-
-    window.addEventListener('load', () => window.ScrollTrigger?.refresh(), { once: true });
   }
 
   function loadScript(source) {
@@ -1357,16 +1330,12 @@
   }
 
   async function loadStoryMotion() {
-    if (reducedMotion) {
-      loadStoryImages();
-      return;
-    }
+    if (reducedMotion) return;
     try {
       await loadScript('assets/vendor/gsap.min.js');
-      await loadScript('assets/vendor/ScrollTrigger.min.js');
       createStoryMotion();
     } catch {
-      loadStoryImages();
+      // The page remains fully usable when the optional entrance motion cannot load.
     }
   }
 
@@ -1394,7 +1363,7 @@
     storyMotionScheduled = true;
     window.setTimeout(
       () => runWhenNear(story, () => void loadStoryMotion(), '700px 0px'),
-      reducedMotion ? 0 : 450
+      reducedMotion ? 0 : 120
     );
   }
 
@@ -1403,6 +1372,7 @@
   window.setInterval(updateSunset, 60 * 1000);
   runWhenNear(document.querySelector('[data-spille-dashboard]'), loadSpilleWeather, '500px 0px');
   createMarqueeVisibility();
+  createHeroDrag();
   if (!getCookiePreference()) showCookieBanner();
   initializeWelcomeGate();
   const year = document.querySelector('[data-current-year]');
