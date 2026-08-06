@@ -1,0 +1,5 @@
+.netlify/
+.vercel/
+dist/
+node_modules/
+.vercel

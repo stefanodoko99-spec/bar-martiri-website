@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /admin.html
 
-Sitemap: https://barmartiri.netlify.app/sitemap.xml
+Sitemap: https://bar-martiri.vercel.app/sitemap.xml

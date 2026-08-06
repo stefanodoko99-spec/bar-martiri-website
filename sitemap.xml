@@ -4,23 +4,23 @@
   xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
 >
   <url>
-    <loc>https://barmartiri.netlify.app/</loc>
+    <loc>https://bar-martiri.vercel.app/</loc>
     <lastmod>2026-08-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://barmartiri.netlify.app/assets/optimized/bar-martiri-spille-social.jpg</image:loc>
+      <image:loc>https://bar-martiri.vercel.app/assets/optimized/bar-martiri-spille-social.jpg</image:loc>
       <image:title>Bar Martiri në Spille, Shqipëri</image:title>
     </image:image>
   </url>
   <url>
-    <loc>https://barmartiri.netlify.app/it/</loc>
+    <loc>https://bar-martiri.vercel.app/it/</loc>
     <lastmod>2026-08-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://barmartiri.netlify.app/en/</loc>
+    <loc>https://bar-martiri.vercel.app/en/</loc>
     <lastmod>2026-08-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

@@ -1,0 +1,9 @@
+.git
+.netlify
+.vercel
+dist
+node_modules
+backup
+supabase
+*.zip
+products-2026-08-03.json

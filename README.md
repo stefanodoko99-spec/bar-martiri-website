@@ -2,7 +2,7 @@
 
 Repository privat me kopjen e codebase-it publik të faqes:
 
-- Production: https://barmartiri.netlify.app/
+- Production: https://bar-martiri.vercel.app/
 - Burimi i kopjes: deployment-i live në Netlify
 - Data e kopjes: 3 gusht 2026
 - Përditësimi i fundit: hapje pa bllokim nga databaza, cache i menusë,
@@ -15,7 +15,8 @@ Repository privat me kopjen e codebase-it publik të faqes:
 - Menuja: `menu-data.js`, `supabase-config.js`, `supabase-store.js`
 - Paneli: `admin.html`, `admin.css`, `admin.js`
 - SEO: `robots.txt`, `sitemap.xml`
-- Konfigurimi Netlify dhe security/cache headers: `netlify.toml`
+- Konfigurimi Vercel dhe security/cache headers: `vercel.json`
+- Konfigurimi i vjetër Netlify ruhet për rollback: `netlify.toml`
 - Migrimi i databazës, RLS, Storage dhe RPC transaksionale: `supabase/setup.sql`
 - Gjenerimi i faqeve `/it/` dhe `/en/`: `scripts/generate-locales.mjs`
 - 66 kopje të optimizuara të fotografive ekzistuese: `assets/products/`
