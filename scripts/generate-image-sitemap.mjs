@@ -1,18 +1,13 @@
-import { access, readFile, writeFile } from 'node:fs/promises';
+import { readdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const products = JSON.parse(
-  await readFile(resolve(projectRoot, 'backup/products-2026-08-03.json'), 'utf8')
-);
-const productIds = products
-  .filter((product) => String(product.image || '').startsWith('http'))
-  .map((product) => String(product.id).replace(/[^a-zA-Z0-9_-]/g, '-'));
-
-await Promise.all(
-  productIds.map((id) => access(resolve(projectRoot, `assets/products/${id}.webp`)))
-);
+const productIds = (await readdir(resolve(projectRoot, 'assets/products')))
+  .filter((file) => file.endsWith('.webp'))
+  .map((file) => file.replace(/\.webp$/, ''))
+  .sort();
+if (!productIds.length) throw new Error('No optimized catalog images were found.');
 
 const imageLocations = [
   'assets/optimized/bar-martiri-spille-social.jpg',
