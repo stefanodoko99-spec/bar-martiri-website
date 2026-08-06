@@ -619,10 +619,16 @@
   }
 
   function normalizeProduct(product, index = 0) {
+    const productId = String(product.id || `product-${index}`);
     const image = String(product.image || '');
-    const localCatalogImage = localProductImages[String(product.id || '')];
+    const localCatalogImage = localProductImages[productId];
+    const localProductPrefix = `/assets/products/${productId}.`;
+    const isLegacyLocalImage =
+      image.startsWith(localProductPrefix) ||
+      image.startsWith(localProductPrefix.slice(1)) ||
+      image.startsWith(`${window.location.origin}${localProductPrefix}`);
     return {
-      id: String(product.id || `product-${index}`),
+      id: productId,
       name: String(product.name || '').slice(0, 80),
       category: menuData.categoryOverrides?.[String(product.id || '')] || String(product.category || ''),
       description: String(product.description || '').slice(0, 240),
@@ -631,7 +637,10 @@
           ? ''
           : String(product.price),
       image:
-        (localCatalogImage?.source === image && localCatalogImage.local) ||
+        ((localCatalogImage?.source === image ||
+          localCatalogImage?.local === image ||
+          isLegacyLocalImage) &&
+          localCatalogImage?.local) ||
         optimizedLocalImages[image] ||
         image,
       sortOrder: Number(product.sort_order ?? product.sortOrder ?? index),
