@@ -86,9 +86,14 @@ const assertions = [
     'The draggable hero and compact searchable menu controls are required',
   ],
   [
-    !publicScript.includes('ScrollTrigger') &&
-      !publicScript.includes('ScrollTrigger.min.js'),
-    'The hero must not depend on the former scroll assembly runtime',
+    publicScript.includes("loadScript('assets/vendor/ScrollTrigger.min.js')") &&
+      publicScript.includes("id: 'bar-martiri-flavors'"),
+    'The five-flavour story must retain its scroll-driven runtime',
+  ],
+  [
+    (publicHtml.match(/data-flavor-card/g) || []).length === 5 &&
+      publicHtml.includes('Vazhdo poshtë për të parë të pesë shijet.'),
+    'The public page must expose all five ice creams in the scroll story',
   ],
 ];
 

@@ -160,7 +160,7 @@
     </script>
     <link rel="preload" href="assets/optimized/waffle-cone.webp" as="image" type="image/webp">
     <link rel="preload" href="assets/optimized/vanilla-soft-serve.webp" as="image" type="image/webp">
-    <link rel="stylesheet" href="styles.css?v=20260806-3">
+    <link rel="stylesheet" href="styles.css?v=20260807-1">
   </head>
   <body>
     <section
@@ -254,6 +254,79 @@
           </div>
           <figcaption id="hero-drag-hint">Sposta il gelato a sinistra o a destra.</figcaption>
         </figure>
+      </section>
+
+      <section class="flavor-story" aria-labelledby="flavor-story-title">
+        <div class="flavor-stage">
+          <header class="flavor-intro">
+            <p class="eyebrow">Cinque gelati</p>
+            <h2 id="flavor-story-title">Scegli il tuo gusto.</h2>
+            <p>Continua a scorrere per vedere tutti e cinque i gusti.</p>
+          </header>
+
+          <div class="flavor-lineup" aria-label="Gusti del gelato">
+            <figure class="flavor-card" data-flavor-card>
+              <img
+                src="assets/optimized/ice-cream-cone.webp"
+                alt="Gelato alla vaniglia servito nel cono"
+                width="560"
+                height="700"
+                loading="lazy"
+                decoding="async"
+              >
+              <figcaption>Vaniglia</figcaption>
+            </figure>
+            <figure class="flavor-card" data-flavor-card>
+              <img
+                src="assets/optimized/vanilla-chocolate-cone.webp"
+                alt="Gelato metà vaniglia e metà cioccolato"
+                width="560"
+                height="700"
+                loading="lazy"
+                decoding="async"
+              >
+              <figcaption>Vaniglia e cioccolato</figcaption>
+            </figure>
+            <figure class="flavor-card" data-flavor-card>
+              <img
+                src="assets/optimized/chocolate-cone.webp"
+                alt="Gelato interamente al cioccolato"
+                width="560"
+                height="700"
+                loading="lazy"
+                decoding="async"
+              >
+              <figcaption>Cioccolato</figcaption>
+            </figure>
+            <figure class="flavor-card" data-flavor-card>
+              <img
+                src="assets/optimized/vanilla-pink-cone.webp"
+                alt="Gelato metà vaniglia e metà fragola"
+                width="560"
+                height="700"
+                loading="lazy"
+                decoding="async"
+              >
+              <figcaption>Vaniglia e fragola</figcaption>
+            </figure>
+            <figure class="flavor-card" data-flavor-card>
+              <img
+                src="assets/optimized/pink-cone.webp"
+                alt="Gelato interamente alla fragola"
+                width="560"
+                height="700"
+                loading="lazy"
+                decoding="async"
+              >
+              <figcaption>Fragola</figcaption>
+            </figure>
+          </div>
+
+          <div class="flavor-progress" aria-hidden="true">
+            <span data-flavor-progress></span>
+          </div>
+          <p class="flavor-cue" aria-hidden="true">Continua a scorrere</p>
+        </div>
       </section>
 
       <section class="search-intro" aria-labelledby="search-intro-title">
@@ -730,6 +803,6 @@
     <script defer src="supabase-config.js?v=20260804-1"></script>
     <script defer src="product-image-map.js?v=20260806-2"></script>
     <script defer src="menu-data.js?v=20260806-1"></script>
-    <script defer src="script.js?v=20260806-4"></script>
+    <script defer src="script.js?v=20260807-1"></script>
   </body>
 </html>

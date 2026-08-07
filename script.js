@@ -10,7 +10,7 @@
   };
   const supabaseConfig = window.BAR_MARTIRI_SUPABASE || {};
   const localProductImages = window.BAR_MARTIRI_LOCAL_PRODUCT_IMAGES || {};
-  const story = document.querySelector('.hero-section');
+  const story = document.querySelector('.flavor-story');
   const dock = document.querySelector('[data-bottom-dock]');
   const dockActions = [...document.querySelectorAll('[data-dock-action]')];
   const panelLayer = document.querySelector('[data-panel-layer]');
@@ -102,6 +102,15 @@
     'Lëvize akulloren majtas ose djathtas.': { sq: 'Lëvize akulloren majtas ose djathtas.', it: 'Sposta il gelato a sinistra o a destra.', en: 'Move the ice cream left or right.' },
     'Akullore vanilje në kaush; lëvize majtas ose djathtas': { sq: 'Akullore vanilje në kaush; lëvize majtas ose djathtas', it: 'Gelato alla vaniglia nel cono; spostalo a sinistra o a destra', en: 'Vanilla ice cream in a cone; move it left or right' },
     'Kaush krokant': { sq: 'Kaush krokant', it: 'Cono croccante', en: 'Crisp cone' },
+    'Pesë akullore': { sq: 'Pesë akullore', it: 'Cinque gelati', en: 'Five ice creams' },
+    'Zgjidh shijen tënde.': { sq: 'Zgjidh shijen tënde.', it: 'Scegli il tuo gusto.', en: 'Choose your flavour.' },
+    'Vazhdo poshtë për të parë të pesë shijet.': { sq: 'Vazhdo poshtë për të parë të pesë shijet.', it: 'Continua a scorrere per vedere tutti e cinque i gusti.', en: 'Keep scrolling to see all five flavours.' },
+    'Vazhdo poshtë': { sq: 'Vazhdo poshtë', it: 'Continua a scorrere', en: 'Keep scrolling' },
+    'Vanilje': { sq: 'Vanilje', it: 'Vaniglia', en: 'Vanilla' },
+    'Vanilje dhe çokollatë': { sq: 'Vanilje dhe çokollatë', it: 'Vaniglia e cioccolato', en: 'Vanilla and chocolate' },
+    'Çokollatë': { sq: 'Çokollatë', it: 'Cioccolato', en: 'Chocolate' },
+    'Vanilje dhe luleshtrydhe': { sq: 'Vanilje dhe luleshtrydhe', it: 'Vaniglia e fragola', en: 'Vanilla and strawberry' },
+    'Luleshtrydhe': { sq: 'Luleshtrydhe', it: 'Fragola', en: 'Strawberry' },
     'Bar në Spille': { sq: 'Bar në Spille', it: 'Bar a Spille', en: 'Bar in Spille' },
     'Vera nis tek Bar Martiri.': { sq: 'Vera nis tek Bar Martiri.', it: "L'estate inizia al Bar Martiri.", en: 'Summer starts at Bar Martiri.' },
     'Bar Martiri në Spille, Shqipëri, është ndalesa pranë plazhit për shezlone, akullore, kafe dhe pije të freskëta. Parkimi falas dhe aksesi i thjeshtë e bëjnë ditën në det më të lehtë.': { sq: 'Bar Martiri në Spille, Shqipëri, është ndalesa pranë plazhit për shezlone, akullore, kafe dhe pije të freskëta. Parkimi falas dhe aksesi i thjeshtë e bëjnë ditën në det më të lehtë.', it: 'Bar Martiri a Spille, Albania, è una sosta vicino alla spiaggia per lettini, gelato, caffè e bibite. Il parcheggio gratuito e il facile accesso rendono più semplice la giornata al mare.', en: 'Bar Martiri in Spille, Albania, is a beachside stop for sunbeds, ice cream, coffee and cold drinks. Free parking and easy access make a day by the sea simpler.' },
@@ -1277,8 +1286,16 @@
   }
 
   function createStoryMotion() {
-    if (reducedMotion || !story || !window.gsap) return;
+    if (reducedMotion || !story || !window.gsap || !window.ScrollTrigger) return;
     const gsap = window.gsap;
+    gsap.registerPlugin(window.ScrollTrigger);
+
+    const flavorCards = [...document.querySelectorAll('[data-flavor-card]')];
+    const flavorIntro = document.querySelector('.flavor-intro');
+    const flavorCue = document.querySelector('.flavor-cue');
+    const flavorProgress = document.querySelector('[data-flavor-progress]');
+    const compactStory = window.matchMedia('(max-width: 640px)').matches;
+
     gsap.from('.hero-copy > *', {
       autoAlpha: 0,
       y: 22,
@@ -1295,6 +1312,80 @@
       ease: 'power3.out',
       clearProps: 'opacity,visibility,transform',
     });
+
+    if (flavorCards.length === 5) {
+      const spacing = () =>
+        compactStory
+          ? Math.min(74, window.innerWidth * 0.18)
+          : Math.min(180, window.innerWidth * 0.15);
+      const slotOrder = [0, -1, -2, 1, 2];
+      const rotations = [0, -5, -10, 5, 10];
+      const yOffsets = [0, 0, compactStory ? 10 : 22, 0, compactStory ? 10 : 22];
+      const finalScale = compactStory ? 0.78 : 0.84;
+
+      gsap.set(flavorCards, {
+        autoAlpha: 0,
+        xPercent: -50,
+        yPercent: -50,
+        x: 0,
+        y: 36,
+        scale: 0.72,
+        rotation: 0,
+        transformOrigin: '50% 88%',
+      });
+      gsap.set(flavorCards[0], { autoAlpha: 1, y: 0, scale: 1 });
+
+      const flavorTimeline = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          id: 'bar-martiri-flavors',
+          trigger: story,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 0.22,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => gsap.set(flavorProgress, { scaleX: self.progress }),
+        },
+      });
+
+      flavorTimeline
+        .to(flavorCue, { autoAlpha: 0, y: 10, duration: 0.35 }, 0.3)
+        .to(
+          flavorIntro,
+          { y: compactStory ? -8 : -14, duration: 0.8, ease: 'power2.inOut' },
+          0.45
+        )
+        .to(
+          flavorCards[0],
+          { scale: finalScale, duration: 0.8, ease: 'power2.inOut' },
+          0.6
+        );
+
+      [1, 3, 2, 4].forEach((cardIndex, revealIndex) => {
+        flavorTimeline.to(
+          flavorCards[cardIndex],
+          {
+            autoAlpha: 1,
+            x: () => slotOrder[cardIndex] * spacing(),
+            y: yOffsets[cardIndex],
+            scale: finalScale,
+            duration: 0.9,
+            ease: 'power3.out',
+          },
+          1.05 + revealIndex * 0.72
+        );
+        flavorTimeline.to(
+          flavorCards[cardIndex].querySelector('img'),
+          {
+            rotation: rotations[cardIndex],
+            duration: 0.9,
+            ease: 'power3.out',
+          },
+          1.05 + revealIndex * 0.72
+        );
+      });
+      flavorTimeline.to({}, { duration: 0.85 });
+    }
 
     [
       ['.visit-copy > *', '.visit-section'],
@@ -1313,6 +1404,8 @@
         });
       }, '0px 0px -12%');
     });
+
+    window.addEventListener('load', () => window.ScrollTrigger?.refresh(), { once: true });
   }
 
   function loadScript(source) {
@@ -1342,9 +1435,10 @@
     if (reducedMotion) return;
     try {
       await loadScript('assets/vendor/gsap.min.js');
+      await loadScript('assets/vendor/ScrollTrigger.min.js');
       createStoryMotion();
     } catch {
-      // The page remains fully usable when the optional entrance motion cannot load.
+      story?.classList.add('is-static');
     }
   }
 

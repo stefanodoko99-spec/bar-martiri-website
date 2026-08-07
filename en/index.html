@@ -160,7 +160,7 @@
     </script>
     <link rel="preload" href="assets/optimized/waffle-cone.webp" as="image" type="image/webp">
     <link rel="preload" href="assets/optimized/vanilla-soft-serve.webp" as="image" type="image/webp">
-    <link rel="stylesheet" href="styles.css?v=20260806-3">
+    <link rel="stylesheet" href="styles.css?v=20260807-1">
   </head>
   <body>
     <section
@@ -254,6 +254,79 @@
           </div>
           <figcaption id="hero-drag-hint">Move the ice cream left or right.</figcaption>
         </figure>
+      </section>
+
+      <section class="flavor-story" aria-labelledby="flavor-story-title">
+        <div class="flavor-stage">
+          <header class="flavor-intro">
+            <p class="eyebrow">Five ice creams</p>
+            <h2 id="flavor-story-title">Choose your flavour.</h2>
+            <p>Keep scrolling to see all five flavours.</p>
+          </header>
+
+          <div class="flavor-lineup" aria-label="Ice cream flavours">
+            <figure class="flavor-card" data-flavor-card>
+              <img
+                src="assets/optimized/ice-cream-cone.webp"
+                alt="Vanilla ice cream placed in a cone"
+                width="560"
+                height="700"
+                loading="lazy"
+                decoding="async"
+              >
+              <figcaption>Vanilla</figcaption>
+            </figure>
+            <figure class="flavor-card" data-flavor-card>
+              <img
+                src="assets/optimized/vanilla-chocolate-cone.webp"
+                alt="Half vanilla and half chocolate ice cream"
+                width="560"
+                height="700"
+                loading="lazy"
+                decoding="async"
+              >
+              <figcaption>Vanilla and chocolate</figcaption>
+            </figure>
+            <figure class="flavor-card" data-flavor-card>
+              <img
+                src="assets/optimized/chocolate-cone.webp"
+                alt="Full chocolate ice cream"
+                width="560"
+                height="700"
+                loading="lazy"
+                decoding="async"
+              >
+              <figcaption>Chocolate</figcaption>
+            </figure>
+            <figure class="flavor-card" data-flavor-card>
+              <img
+                src="assets/optimized/vanilla-pink-cone.webp"
+                alt="Half vanilla and half strawberry ice cream"
+                width="560"
+                height="700"
+                loading="lazy"
+                decoding="async"
+              >
+              <figcaption>Vanilla and strawberry</figcaption>
+            </figure>
+            <figure class="flavor-card" data-flavor-card>
+              <img
+                src="assets/optimized/pink-cone.webp"
+                alt="Full strawberry ice cream"
+                width="560"
+                height="700"
+                loading="lazy"
+                decoding="async"
+              >
+              <figcaption>Strawberry</figcaption>
+            </figure>
+          </div>
+
+          <div class="flavor-progress" aria-hidden="true">
+            <span data-flavor-progress></span>
+          </div>
+          <p class="flavor-cue" aria-hidden="true">Keep scrolling</p>
+        </div>
       </section>
 
       <section class="search-intro" aria-labelledby="search-intro-title">
@@ -730,6 +803,6 @@
     <script defer src="supabase-config.js?v=20260804-1"></script>
     <script defer src="product-image-map.js?v=20260806-2"></script>
     <script defer src="menu-data.js?v=20260806-1"></script>
-    <script defer src="script.js?v=20260806-4"></script>
+    <script defer src="script.js?v=20260807-1"></script>
   </body>
 </html>
