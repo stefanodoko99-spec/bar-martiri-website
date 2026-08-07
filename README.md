@@ -16,6 +16,7 @@ Repository me kopjen e codebase-it publik të faqes:
 - Privatësia: `privacy.html`
 - Menuja: `menu-data.js`, `supabase-config.js`, `supabase-store.js`
 - Harta e imazheve të produkteve: `product-image-map.js`
+- Analitika pa cookies: `vercel-analytics.js`
 - Paneli: `admin.html`, `admin.css`, `admin.js`
 - SEO: `robots.txt`, `sitemap.xml`
 - Asetet publike, përfshirë 66 imazhe lokale të produkteve
