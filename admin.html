@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f4f0e8">
-    <link rel="icon" href="assets/icecream-gallery/ice-cream-cone-transparent.png">
+    <link rel="icon" href="assets/optimized/favicon-64.png" type="image/png">
     <meta name="robots" content="noindex, nofollow, noarchive">
     <title>Admin | Bar Martiri</title>
-    <link rel="stylesheet" href="admin.css?v=20260803-1">
+    <link rel="stylesheet" href="admin.css?v=20260804-1">
   </head>
   <body>
     <header class="admin-header">
@@ -17,22 +17,22 @@
       </a>
       <div class="storage-status" data-storage-status>
         <span aria-hidden="true"></span>
-        Ruajtje lokale
+        Duke kontrolluar Supabase
       </div>
     </header>
 
     <main class="auth-shell" data-auth-shell>
       <section class="auth-card" data-login-view hidden aria-labelledby="login-title">
         <p class="eyebrow">Administrimi</p>
-        <h1 id="login-title">Mire se u ktheve</h1>
-        <p class="auth-intro">Hyr per te menaxhuar produktet e menuse.</p>
+        <h1 id="login-title">Mirë se u ktheve</h1>
+        <p class="auth-intro">Hyr për të menaxhuar produktet e menusë.</p>
         <form data-login-form>
           <label>
-            Fjalekalimi
+            Fjalëkalimi
             <input name="password" type="password" autocomplete="current-password" required>
           </label>
           <p class="form-error" data-login-error role="alert"></p>
-          <button class="primary-button" type="submit">Hyr ne panel</button>
+          <button class="primary-button" type="submit">Hyr në panel</button>
         </form>
       </section>
     </main>
@@ -72,14 +72,14 @@
         </header>
 
         <div class="admin-notice" data-storage-notice>
-          <strong>Vetem ne kete pajisje</strong>
-          <p>Ndryshimet ruhen ne shfletues. Eksporto nje kopje para se te pastrosh te dhenat.</p>
+          <strong>Duke kontrolluar lidhjen</strong>
+          <p>Paneli hapet vetëm pasi verifikohet sesioni i sigurt në Supabase.</p>
         </div>
 
         <div class="admin-layout">
           <section class="product-list-panel" aria-labelledby="product-list-title">
             <div class="section-toolbar">
-              <h3 id="product-list-title">Te gjitha produktet</h3>
+              <h3 id="product-list-title">Të gjitha produktet</h3>
               <span data-product-count>0</span>
             </div>
             <div class="sort-toolbar">
@@ -146,15 +146,44 @@
                   <select name="category" data-category-select required></select>
                 </label>
                 <label>
-                  Cmimi (ALL)
+                  Çmimi (ALL)
                   <input name="price" type="number" min="0" step="10" inputmode="numeric">
                 </label>
               </div>
 
               <label>
-                Pershkrimi
+                Përshkrimi në shqip
                 <textarea name="description" rows="4" maxlength="240"></textarea>
               </label>
+
+              <fieldset class="translation-fieldset">
+                <legend>Përkthimet</legend>
+                <div class="translation-grid">
+                  <div>
+                    <p class="translation-label">Italiano</p>
+                    <label>
+                      Emri në italisht
+                      <input name="name_it" type="text" maxlength="80">
+                    </label>
+                    <label>
+                      Përshkrimi në italisht
+                      <textarea name="description_it" rows="3" maxlength="240"></textarea>
+                    </label>
+                  </div>
+                  <div>
+                    <p class="translation-label">English</p>
+                    <label>
+                      Emri në anglisht
+                      <input name="name_en" type="text" maxlength="80">
+                    </label>
+                    <label>
+                      Përshkrimi në anglisht
+                      <textarea name="description_en" rows="3" maxlength="240"></textarea>
+                    </label>
+                  </div>
+                </div>
+                <p class="field-help">Fushat bëhen aktive pasi të aplikohet migrimi Supabase i përfshirë në codebase.</p>
+              </fieldset>
 
               <fieldset class="image-fieldset">
                 <legend>Fotoja</legend>
@@ -166,8 +195,8 @@
                       <circle cx="8.5" cy="8.5" r="1.5"></circle>
                       <path d="m21 15-5-5L5 21"></path>
                     </svg>
-                    <strong>Terhiq foton ketu</strong>
-                    <small>ose kliko per ta zgjedhur</small>
+                    <strong>Tërhiq fotografinë këtu</strong>
+                    <small>ose kliko për ta zgjedhur; ajo optimizohet automatikisht</small>
                   </span>
                 </label>
                 <input id="product-image" data-image-input type="file" accept="image/png,image/jpeg,image/webp" hidden>
@@ -185,11 +214,10 @@
       </section>
     </main>
 
-    <script src="assets/vendor/crypto-js.min.js"></script>
-    <script src="assets/vendor/supabase.min.js"></script>
-    <script src="supabase-config.js?v=20260729-2"></script>
-    <script src="menu-data.js?v=20260803-1"></script>
-    <script src="supabase-store.js?v=20260803-1"></script>
-    <script src="admin.js?v=20260803-1"></script>
+    <script defer src="assets/vendor/supabase.min.js"></script>
+    <script defer src="supabase-config.js?v=20260804-1"></script>
+    <script defer src="menu-data.js?v=20260804-1"></script>
+    <script defer src="supabase-store.js?v=20260804-1"></script>
+    <script defer src="admin.js?v=20260804-1"></script>
   </body>
 </html>

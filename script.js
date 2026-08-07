@@ -9,7 +9,8 @@
     categoryOverrides: {},
   };
   const supabaseConfig = window.BAR_MARTIRI_SUPABASE || {};
-  const story = document.querySelector('.assembly-story');
+  const localProductImages = window.BAR_MARTIRI_LOCAL_PRODUCT_IMAGES || {};
+  const story = document.querySelector('.flavor-story');
   const dock = document.querySelector('[data-bottom-dock]');
   const dockActions = [...document.querySelectorAll('[data-dock-action]')];
   const panelLayer = document.querySelector('[data-panel-layer]');
@@ -18,6 +19,7 @@
   const categoryTabs = document.querySelector('[data-category-tabs]');
   const productGrid = document.querySelector('[data-product-grid]');
   const menuStatus = document.querySelector('[data-menu-status]');
+  const menuSearchInput = document.querySelector('[data-menu-search]');
   const cookieBanner = document.querySelector('[data-cookie-banner]');
   const welcomeGate = document.querySelector('[data-welcome-gate]');
   const welcomeStatus = document.querySelector('[data-welcome-status]');
@@ -26,14 +28,15 @@
   const languageSwitches = [...document.querySelectorAll('[data-language-switch]')];
   const mapFrame = document.querySelector('[data-map-shell] iframe');
   const mapPlaceholder = document.querySelector('[data-map-placeholder]');
-  const MENU_CACHE_KEY = 'barMartiri.publicMenu.v2';
-  const MENU_CACHE_TTL = 5 * 60 * 1000;
+  const MENU_CACHE_KEY = 'barMartiri.publicMenu.v3';
+  const MENU_CACHE_TTL = 24 * 60 * 60 * 1000;
+  const MENU_CACHE_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
   const WEATHER_CACHE_KEY = 'barMartiri.spilleWeather.v1';
   const WEATHER_CACHE_TTL = 60 * 60 * 1000;
-  const REVIEW_CACHE_KEY = 'barMartiri.googleReviews.v1';
-  const REVIEW_CACHE_TTL = 6 * 60 * 60 * 1000;
   const SPILLE_COORDS = { latitude: 41.0966, longitude: 19.4583 };
   const COOKIE_NAME = 'bar_martiri_cookie_pref';
+  const LANGUAGE_COOKIE_NAME = 'bar_martiri_language';
+  const COOKIE_MAX_AGE = 180 * 24 * 60 * 60;
   const LANGUAGE_KEY = 'barMartiri.language.v1';
 
   const LANGUAGE_LOCALES = Object.freeze({
@@ -42,33 +45,77 @@
     en: 'en-GB',
   });
 
+  const SEO_TEXT = Object.freeze({
+    sq: {
+      title: 'Bar Martiri Spille | Shezlone dhe Akullore',
+      description:
+        'Bar Martiri në Spille, Shqipëri: shezlone, parkim falas, akullore, kafe dhe pije pranë detit për pushimet tuaja verore.',
+      path: '/',
+    },
+    it: {
+      title: 'Bar Martiri Spille | Lettini vicino al mare',
+      description:
+        'Bar Martiri a Spille, Albania: lettini, parcheggio gratuito, gelato, caffè e bibite vicino al mare.',
+      path: '/it/',
+    },
+    en: {
+      title: 'Bar Martiri Spille | Sunbeds by the Sea',
+      description:
+        'Bar Martiri in Spille, Albania: sunbeds, free parking, ice cream, coffee and cold drinks by the sea.',
+      path: '/en/',
+    },
+  });
+
   const UI_TEXT = Object.freeze({
     'Kalo te permbajtja': { sq: 'Kalo te përmbajtja', it: 'Vai al contenuto', en: 'Skip to content' },
     'Kreu i faqes': { sq: 'Kreu i faqes', it: 'Intestazione del sito', en: 'Site header' },
     'Bar Martiri, kryefaqja': { sq: 'Bar Martiri, kryefaqja', it: 'Bar Martiri, pagina iniziale', en: 'Bar Martiri, home page' },
+    'Zgjedhja e gjuhës': { sq: 'Zgjedhja e gjuhës', it: 'Scelta della lingua', en: 'Language selection' },
     'Ndrysho gjuhën': { sq: 'Ndrysho gjuhën', it: 'Cambia lingua', en: 'Change language' },
     'Navigimi kryesor': { sq: 'Navigimi kryesor', it: 'Navigazione principale', en: 'Main navigation' },
+    'Shërbimet e Bar Martiri': { sq: 'Shërbimet e Bar Martiri', it: 'Servizi di Bar Martiri', en: 'Bar Martiri services' },
+    'Shijet e akullores': { sq: 'Shijet e akullores', it: 'Gusti del gelato', en: 'Ice cream flavours' },
+    'Akullore vanilje qe vendoset ne kaush': { sq: 'Akullore vanilje që vendoset në kaush', it: 'Gelato alla vaniglia servito nel cono', en: 'Vanilla ice cream placed in a cone' },
+    'Akullore e plote me cokollate': { sq: 'Akullore e plotë me çokollatë', it: 'Gelato interamente al cioccolato', en: 'Full chocolate ice cream' },
+    'Akullore gjysme vanilje dhe gjysme cokollate': { sq: 'Akullore gjysmë vanilje dhe gjysmë çokollatë', it: 'Gelato metà vaniglia e metà cioccolato', en: 'Half vanilla and half chocolate ice cream' },
+    'Akullore gjysme vanilje dhe gjysme luleshtrydhe': { sq: 'Akullore gjysmë vanilje dhe gjysmë luleshtrydhe', it: 'Gelato metà vaniglia e metà fragola', en: 'Half vanilla and half strawberry ice cream' },
+    'Akullore e plote me luleshtrydhe': { sq: 'Akullore e plotë me luleshtrydhe', it: 'Gelato interamente alla fragola', en: 'Full strawberry ice cream' },
+    '5 nga 5': { sq: '5 nga 5', it: '5 su 5', en: '5 out of 5' },
+    'BAR MARTIRI · SPILLE · AKULLORE · KAFE · DET ·': { sq: 'BAR MARTIRI · SPILLE · AKULLORE · KAFE · DET ·', it: 'BAR MARTIRI · SPILLE · GELATO · CAFFÈ · MARE ·', en: 'BAR MARTIRI · SPILLE · ICE CREAM · COFFEE · SEA ·' },
+    'Bar · Akullore · Spille': { sq: 'Bar · Akullore · Spille', it: 'Bar · Gelateria · Spille', en: 'Bar · Ice Cream · Spille' },
     'Hap menune': { sq: 'Hap menunë', it: 'Apri il menu', en: 'Open menu' },
     'Mbyll menune': { sq: 'Mbyll menunë', it: 'Chiudi il menu', en: 'Close menu' },
+    'Hap vendndodhjen': { sq: 'Hap vendndodhjen', it: 'Apri la posizione', en: 'Open location' },
+    'Mbyll vendndodhjen': { sq: 'Mbyll vendndodhjen', it: 'Chiudi la posizione', en: 'Close location' },
+    'Hap informacionin': { sq: 'Hap informacionin', it: 'Apri le informazioni', en: 'Open information' },
+    'Mbyll informacionin': { sq: 'Mbyll informacionin', it: 'Chiudi le informazioni', en: 'Close information' },
     'Kategorite e menuse': { sq: 'Kategoritë e menusë', it: 'Categorie del menu', en: 'Menu categories' },
     'Lidhje te tjera': { sq: 'Lidhje të tjera', it: 'Altri collegamenti', en: 'Other links' },
+    'Sherbimet e Bar Martiri': { sq: 'Shërbimet e Bar Martiri', it: 'Servizi di Bar Martiri', en: 'Bar Martiri services' },
     'Spille · Shqipëri': { sq: 'Spille · Shqipëri', it: 'Spille · Albania', en: 'Spille · Albania' },
-    'E bute. E fresket. E jotja.': { sq: 'E butë. E freskët. E jotja.', it: 'Morbido. Fresco. Tuo.', en: 'Soft. Fresh. Yours.' },
-    'Akullorja qe nis me kaushin.': { sq: 'Akullorja që nis me kaushin.', it: 'Il gelato che inizia dal cono.', en: 'The ice cream that starts with the cone.' },
-    'Pese shije': { sq: 'Pesë shije', it: 'Cinque gusti', en: 'Five flavours' },
-    'Nje Martiri.': { sq: 'Një Martiri.', it: 'Un Martiri.', en: 'One Martiri.' },
-    'Baza': { sq: 'Baza', it: 'La base', en: 'The base' },
-    'E bere me qumesht': { sq: 'E bërë me qumësht', it: 'Preparato con latte', en: 'Made with milk' },
-    'E lemuar, e fresket dhe e pergatitur per momentin tend prane detit.': { sq: 'E lëmuar, e freskët dhe e përgatitur për momentin tënd pranë detit.', it: 'Cremoso, fresco e preparato per il tuo momento vicino al mare.', en: 'Smooth, fresh and made for your moment by the sea.' },
-    'Kaushi': { sq: 'Kaushi', it: 'Il cono', en: 'The cone' },
-    'Vafer krokante': { sq: 'Vafer krokante', it: 'Cialda croccante', en: 'Crisp wafer' },
-    'Nje fund i lehte dhe krokant per cdo spirale akulloreje.': { sq: 'Një bazë e lehtë dhe krokante për çdo spirale akulloreje.', it: 'Una base leggera e croccante per ogni spirale di gelato.', en: 'A light, crisp base for every swirl of ice cream.' },
-    'Rreshqit per ta krijuar': { sq: 'Rrëshqit për ta krijuar', it: 'Scorri per crearlo', en: 'Scroll to build it' },
+    'Akullore në Bar Martiri': { sq: 'Akullore në Bar Martiri', it: 'Gelato al Bar Martiri', en: 'Ice cream at Bar Martiri' },
+    'Akullore e freskët pranë detit.': { sq: 'Akullore e freskët pranë detit.', it: 'Gelato fresco vicino al mare.', en: 'Fresh ice cream by the sea.' },
+    'Vanilje e freskët, e servirur në kaush krokant për një pushim të ëmbël gjatë ditëve të verës në Spille.': { sq: 'Vanilje e freskët, e servirur në kaush krokant për një pushim të ëmbël gjatë ditëve të verës në Spille.', it: 'Vaniglia fresca servita in un cono croccante, per una dolce pausa nelle giornate estive a Spille.', en: 'Fresh vanilla served in a crisp cone for a sweet break during summer days in Spille.' },
+    'Informacion për akulloren': { sq: 'Informacion për akulloren', it: 'Informazioni sul gelato', en: 'Ice cream information' },
+    'Shërbehet e freskët': { sq: 'Shërbehet e freskët', it: 'Servito fresco', en: 'Served fresh' },
+    'Shiko menunë': { sq: 'Shiko menunë', it: 'Vedi il menu', en: 'View the menu' },
+    'Lëvize akulloren majtas ose djathtas.': { sq: 'Lëvize akulloren majtas ose djathtas.', it: 'Sposta il gelato a sinistra o a destra.', en: 'Move the ice cream left or right.' },
+    'Akullore vanilje në kaush; lëvize majtas ose djathtas': { sq: 'Akullore vanilje në kaush; lëvize majtas ose djathtas', it: 'Gelato alla vaniglia nel cono; spostalo a sinistra o a destra', en: 'Vanilla ice cream in a cone; move it left or right' },
+    'Kaush krokant': { sq: 'Kaush krokant', it: 'Cono croccante', en: 'Crisp cone' },
+    'Pesë akullore': { sq: 'Pesë akullore', it: 'Cinque gelati', en: 'Five ice creams' },
+    'Zgjidh shijen tënde.': { sq: 'Zgjidh shijen tënde.', it: 'Scegli il tuo gusto.', en: 'Choose your flavour.' },
+    'Vazhdo poshtë për të parë të pesë shijet.': { sq: 'Vazhdo poshtë për të parë të pesë shijet.', it: 'Continua a scorrere per vedere tutti e cinque i gusti.', en: 'Keep scrolling to see all five flavours.' },
+    'Vazhdo poshtë': { sq: 'Vazhdo poshtë', it: 'Continua a scorrere', en: 'Keep scrolling' },
+    'Vanilje': { sq: 'Vanilje', it: 'Vaniglia', en: 'Vanilla' },
+    'Vanilje dhe çokollatë': { sq: 'Vanilje dhe çokollatë', it: 'Vaniglia e cioccolato', en: 'Vanilla and chocolate' },
+    'Çokollatë': { sq: 'Çokollatë', it: 'Cioccolato', en: 'Chocolate' },
+    'Vanilje dhe luleshtrydhe': { sq: 'Vanilje dhe luleshtrydhe', it: 'Vaniglia e fragola', en: 'Vanilla and strawberry' },
+    'Luleshtrydhe': { sq: 'Luleshtrydhe', it: 'Fragola', en: 'Strawberry' },
     'Bar në Spille': { sq: 'Bar në Spille', it: 'Bar a Spille', en: 'Bar in Spille' },
-    'Vera pranë detit nis te Martiri.': { sq: 'Vera pranë detit nis te Martiri.', it: "L'estate al mare inizia da Martiri.", en: 'Summer by the sea starts at Martiri.' },
-    'Bar Martiri në Spille, Shqipëri, është ndalesa pranë plazhit për shezlongje, akullore, kafe dhe pije të freskëta. Parkimi falas dhe aksesi i thjeshtë e bëjnë ditën në det më të lehtë.': { sq: 'Bar Martiri në Spille, Shqipëri, është ndalesa pranë plazhit për shezlongje, akullore, kafe dhe pije të freskëta. Parkimi falas dhe aksesi i thjeshtë e bëjnë ditën në det më të lehtë.', it: 'Bar Martiri a Spille, Albania, è una sosta vicino alla spiaggia per lettini, gelato, caffè e bibite. Il parcheggio gratuito e il facile accesso rendono più semplice la giornata al mare.', en: 'Bar Martiri in Spille, Albania, is a beachside stop for sunbeds, ice cream, coffee and cold drinks. Free parking and easy access make a day by the sea simpler.' },
-    'Shezlongje pranë detit': { sq: 'Shezlongje pranë detit', it: 'Lettini vicino al mare', en: 'Sunbeds by the sea' },
-    'Prenoto vendin tënd për një ditë pushimi në Spille.': { sq: 'Prenoto vendin tënd për një ditë pushimi në Spille.', it: 'Prenota il tuo posto per una giornata di relax a Spille.', en: 'Book your spot for a relaxing day in Spille.' },
+    'Vera nis tek Bar Martiri.': { sq: 'Vera nis tek Bar Martiri.', it: "L'estate inizia al Bar Martiri.", en: 'Summer starts at Bar Martiri.' },
+    'Bar Martiri në Spille, Shqipëri, është ndalesa pranë plazhit për shezlone, akullore, kafe dhe pije të freskëta. Parkimi falas dhe aksesi i thjeshtë e bëjnë ditën në det më të lehtë.': { sq: 'Bar Martiri në Spille, Shqipëri, është ndalesa pranë plazhit për shezlone, akullore, kafe dhe pije të freskëta. Parkimi falas dhe aksesi i thjeshtë e bëjnë ditën në det më të lehtë.', it: 'Bar Martiri a Spille, Albania, è una sosta vicino alla spiaggia per lettini, gelato, caffè e bibite. Il parcheggio gratuito e il facile accesso rendono più semplice la giornata al mare.', en: 'Bar Martiri in Spille, Albania, is a beachside stop for sunbeds, ice cream, coffee and cold drinks. Free parking and easy access make a day by the sea simpler.' },
+    'Shezlone pranë detit': { sq: 'Shezlone pranë detit', it: 'Lettini vicino al mare', en: 'Sunbeds by the sea' },
+    'Rezervo vendin tënd për një ditë pushimi në Spille.': { sq: 'Rezervo vendin tënd për një ditë pushimi në Spille.', it: 'Prenota il tuo posto per una giornata di relax a Spille.', en: 'Book your spot for a relaxing day in Spille.' },
     'Parkim falas': { sq: 'Parkim falas', it: 'Parcheggio gratuito', en: 'Free parking' },
     'Parkim pa pagesë për klientët e Bar Martiri.': { sq: 'Parkim pa pagesë për klientët e Bar Martiri.', it: 'Parcheggio gratuito per i clienti di Bar Martiri.', en: 'Free parking for Bar Martiri customers.' },
     'Shije verore': { sq: 'Shije verore', it: "Sapori d'estate", en: 'Summer flavours' },
@@ -82,11 +129,13 @@
     'Cdo dite': { sq: 'Çdo ditë', it: 'Tutti i giorni', en: 'Every day' },
     'Hap ne harte': { sq: 'Hap në hartë', it: 'Apri la mappa', en: 'Open map' },
     'Google Reviews': { sq: 'Vlerësime në Google', it: 'Recensioni Google', en: 'Google Reviews' },
+    'Vlerësimi, i verifikuar për herë të fundit më 3 gusht 2026, bazohet në': { sq: 'Vlerësimi, i verifikuar për herë të fundit më 3 gusht 2026, bazohet në', it: 'La valutazione, verificata l’ultima volta il 3 agosto 2026, si basa su', en: 'The rating, last verified on 3 August 2026, is based on' },
+    'vlerësime në Google.': { sq: 'vlerësime në Google.', it: 'recensioni su Google.', en: 'Google reviews.' },
     'Vleresimi aktual nga': { sq: 'Vlerësimi aktual nga', it: 'Valutazione attuale da', en: 'Current rating from' },
     'pershtypje te publikuara ne Google.': { sq: 'vlerësime të publikuara në Google.', it: 'recensioni pubblicate su Google.', en: 'reviews published on Google.' },
     'Shiko te gjitha ne Google': { sq: 'Shiko të gjitha në Google', it: 'Vedi tutte su Google', en: 'See all on Google' },
-    'Shihemi': { sq: 'Shihemi', it: 'Ci vediamo', en: 'See you' },
-    'te Martiri.': { sq: 'te Martiri.', it: 'da Martiri.', en: 'at Martiri.' },
+    'Shihemi tek': { sq: 'Shihemi tek', it: 'Ci vediamo al', en: 'See you at' },
+    'Bar Martiri.': { sq: 'Bar Martiri.', it: 'Bar Martiri.', en: 'Bar Martiri.' },
     'Akullore, kafe dhe pije te fresketa, cdo dite nga 06:00 deri ne 23:00.': { sq: 'Akullore, kafe dhe pije të freskëta, çdo ditë nga 06:00 deri në 23:00.', it: 'Gelato, caffè e bibite, tutti i giorni dalle 06:00 alle 23:00.', en: 'Ice cream, coffee and cold drinks, every day from 06:00 to 23:00.' },
     'Na gjen ketu': { sq: 'Na gjen këtu', it: 'Ci trovi qui', en: 'Find us here' },
     'Harta ngarkohet vetem kur e kerkon ti.': { sq: 'Harta ngarkohet vetëm kur e kërkon ti.', it: 'La mappa si carica solo quando lo richiedi.', en: 'The map loads only when you request it.' },
@@ -97,34 +146,48 @@
     'Pushimi yt ne Spille': { sq: 'Pushimi yt në Spille', it: 'La tua vacanza a Spille', en: 'Your break in Spille' },
     'Deti, hija dhe gjithcka qe te duhet per nje dite te qete.': { sq: 'Deti, hija dhe gjithçka që të duhet për një ditë të qetë.', it: 'Il mare, l’ombra e tutto ciò che serve per una giornata tranquilla.', en: 'The sea, shade and everything you need for a relaxed day.' },
     'Bar Martiri eshte prane plazhit, me sherbim te thjeshte dhe hapesire per te kaluar diten me familjen ose miqte.': { sq: 'Bar Martiri është pranë plazhit, me shërbim të thjeshtë dhe hapësirë për të kaluar ditën me familjen ose miqtë.', it: 'Bar Martiri è vicino alla spiaggia, con un servizio semplice e spazio per trascorrere la giornata con la famiglia o gli amici.', en: 'Bar Martiri is by the beach, with simple service and space to spend the day with family or friends.' },
-    'Shezlongje': { sq: 'Shezlongje', it: 'Lettini', en: 'Sunbeds' },
-    'Prenoto vendin tend prane detit me nje telefonate.': { sq: 'Prenoto vendin tënd pranë detit me një telefonatë.', it: 'Prenota il tuo posto vicino al mare con una telefonata.', en: 'Book your place by the sea with one phone call.' },
+    'Shezlone': { sq: 'Shezlone', it: 'Lettini', en: 'Sunbeds' },
+    'Rezervo vendin tënd pranë detit me një telefonatë.': { sq: 'Rezervo vendin tënd pranë detit me një telefonatë.', it: 'Prenota il tuo posto vicino al mare con una telefonata.', en: 'Book your place by the sea with one phone call.' },
     'Parkim pa pagese per klientet e Bar Martiri.': { sq: 'Parkim pa pagesë për klientët e Bar Martiri.', it: 'Parcheggio gratuito per i clienti di Bar Martiri.', en: 'Free parking for Bar Martiri customers.' },
     'Akses i thjeshte': { sq: 'Akses i thjeshtë', it: 'Accesso facile', en: 'Easy access' },
     'Na gjen lehte nga Rruga e Pishave ne Spille.': { sq: 'Na gjen lehtë nga Rruga e Pishave në Spille.', it: 'Ci trovi facilmente da Rruga e Pishave a Spille.', en: 'Find us easily from Rruga e Pishave in Spille.' },
     'Hapur cdo dite': { sq: 'Hapur çdo ditë', it: 'Aperto ogni giorno', en: 'Open every day' },
     'Te presim nga ora 06:00 deri ne 23:00.': { sq: 'Të presim nga ora 06:00 deri në 23:00.', it: 'Ti aspettiamo dalle 06:00 alle 23:00.', en: 'We welcome you from 06:00 to 23:00.' },
-    'Prenotime shezlongjesh': { sq: 'Prenotime shezlongjesh', it: 'Prenotazione lettini', en: 'Sunbed reservations' },
+    'Rezervime shezlonesh': { sq: 'Rezervime shezlonesh', it: 'Prenotazione lettini', en: 'Sunbed reservations' },
     'Rezervo me telefon': { sq: 'Rezervo me telefon', it: 'Prenota per telefono', en: 'Book by phone' },
     'Telefono tani': { sq: 'Telefono tani', it: 'Chiama ora', en: 'Call now' },
+    'Menuja e Bar Martiri': { sq: 'Menuja e Bar Martiri', it: 'Menu di Bar Martiri', en: 'Bar Martiri menu' },
+    'Zgjidh kategorinë ose kërko produktin.': { sq: 'Zgjidh kategorinë ose kërko produktin.', it: 'Scegli una categoria o cerca un prodotto.', en: 'Choose a category or search for a product.' },
+    'Mini menuja e kategorive': { sq: 'Mini menuja e kategorive', it: 'Mini menu delle categorie', en: 'Category mini menu' },
+    'Kërko në menu': { sq: 'Kërko në menu', it: 'Cerca nel menu', en: 'Search the menu' },
+    'Kërko produktin': { sq: 'Kërko produktin', it: 'Cerca un prodotto', en: 'Search for a product' },
     'Preferencat e cookies': { sq: 'Preferencat e cookies', it: 'Preferenze cookie', en: 'Cookie preferences' },
-    'Privatesia': { sq: 'Privatësia', it: 'Privacy', en: 'Privacy' },
-    'Ruajme vetem preferencen tende. Google Maps ngarkohet vetem pasi ta pranosh.': { sq: 'Ruajmë vetëm preferencën tënde. Google Maps ngarkohet vetëm pasi ta pranosh.', it: 'Salviamo solo la tua preferenza. Google Maps si carica solo dopo il consenso.', en: 'We only save your preference. Google Maps loads only after you consent.' },
-    'Vetem te nevojshmet': { sq: 'Vetëm të nevojshmet', it: 'Solo necessari', en: 'Essential only' },
-    'Prano': { sq: 'Prano', it: 'Accetta', en: 'Accept' },
+    'Privatësia dhe cookies': { sq: 'Privatësia dhe cookies', it: 'Privacy e cookie', en: 'Privacy and cookies' },
+    'Menaxho cookies': { sq: 'Menaxho cookies', it: 'Gestisci i cookie', en: 'Manage cookies' },
+    'Përdorim cookies të domosdoshme për gjuhën dhe zgjedhjen tënde. Google Maps aktivizohet vetëm me pëlqimin tënd.': { sq: 'Përdorim cookies të domosdoshme për gjuhën dhe zgjedhjen tënde. Google Maps aktivizohet vetëm me pëlqimin tënd.', it: 'Usiamo cookie necessari per la lingua e la tua scelta. Google Maps si attiva solo con il tuo consenso.', en: 'We use necessary cookies for your language and choice. Google Maps is enabled only with your consent.' },
+    'Shiko hollësitë': { sq: 'Shiko hollësitë', it: 'Vedi i dettagli', en: 'View details' },
+    'Të domosdoshme:': { sq: 'Të domosdoshme:', it: 'Necessari:', en: 'Necessary:' },
+    'ruajnë gjuhën dhe preferencën për 6 muaj.': { sq: 'ruajnë gjuhën dhe preferencën për 6 muaj.', it: 'salvano la lingua e la preferenza per 6 mesi.', en: 'save your language and preference for 6 months.' },
+    'Opsionale:': { sq: 'Opsionale:', it: 'Opzionali:', en: 'Optional:' },
+    'lejojnë përmbajtjen e Google Maps. Nuk përdorim cookies reklamimi ose analitike.': { sq: 'lejojnë përmbajtjen e Google Maps. Nuk përdorim cookies reklamimi ose analitike.', it: 'consentono i contenuti di Google Maps. Non usiamo cookie pubblicitari o analitici.', en: 'allow Google Maps content. We do not use advertising or analytics cookies.' },
+    'Lexo politikën e privatësisë': { sq: 'Lexo politikën e privatësisë', it: 'Leggi l’informativa sulla privacy', en: 'Read the privacy policy' },
+    'Refuzo opsionalet': { sq: 'Refuzo opsionalet', it: 'Rifiuta gli opzionali', en: 'Reject optional cookies' },
+    'Prano Google Maps': { sq: 'Prano Google Maps', it: 'Accetta Google Maps', en: 'Accept Google Maps' },
     'Home': { sq: 'Kryefaqja', it: 'Home', en: 'Home' },
+    'Kryefaqja': { sq: 'Kryefaqja', it: 'Home', en: 'Home' },
     'Location': { sq: 'Vendndodhja', it: 'Posizione', en: 'Location' },
     'Info': { sq: 'Info', it: 'Info', en: 'Info' },
   });
 
   const DYNAMIC_TEXT = Object.freeze({
-    loadingMenu: { sq: 'Po ngarkohet menuja…', it: 'Caricamento del menu…', en: 'Loading the menu…' },
-    menuReady: { sq: 'Menuja është gati. Zgjidh gjuhën.', it: 'Il menu è pronto. Scegli la lingua.', en: 'The menu is ready. Choose your language.' },
+    chooseLanguage: { sq: 'Zgjidh gjuhën për të vazhduar.', it: 'Scegli la lingua per continuare.', en: 'Choose your language to continue.' },
     refreshingMenu: { sq: 'Po përditësojmë menunë…', it: 'Aggiornamento del menu…', en: 'Updating the menu…' },
     cachedMenu: { sq: 'Po shfaqet menuja e ruajtur. Provo përsëri pas pak për përditësimet.', it: 'Mostriamo il menu salvato. Riprova tra poco per gli aggiornamenti.', en: 'Showing the saved menu. Try again shortly for updates.' },
+    offlineMenu: { sq: 'Lidhja me menunë nuk është e disponueshme. Po shfaqen vetëm produktet bazë.', it: 'Il collegamento al menu non è disponibile. Vengono mostrati solo i prodotti di base.', en: 'The menu connection is unavailable. Only the basic products are shown.' },
     products: { sq: 'produkte', it: 'prodotti', en: 'products' },
     comingSoon: { sq: 'Së shpejti', it: 'Prossimamente', en: 'Coming soon' },
     emptyCategory: { sq: 'Produktet e kësaj kategorie do të shtohen së shpejti.', it: 'I prodotti di questa categoria saranno aggiunti presto.', en: 'Products in this category will be added soon.' },
+    noResults: { sq: 'Nuk u gjet asnjë produkt. Provo një emër tjetër.', it: 'Nessun prodotto trovato. Prova un altro nome.', en: 'No products found. Try another name.' },
     unnamedProduct: { sq: 'Pa emër', it: 'Senza nome', en: 'Unnamed' },
   });
 
@@ -147,13 +210,13 @@
   let closeTimer = 0;
   let menuRendered = false;
   let catalogProducts = menuData.products.map(normalizeProduct);
-  let storyImagesLoaded = false;
   let lastScrollY = window.scrollY;
   let lastPanelScrollY = 0;
   let scrollFrame = 0;
   let currentLanguage = 'sq';
   let menuLoadPromise = null;
-  let lastTouchY = null;
+  let productImageObserver = null;
+  let menuSearchQuery = '';
 
   function dynamicText(key) {
     return DYNAMIC_TEXT[key]?.[currentLanguage] || DYNAMIC_TEXT[key]?.sq || '';
@@ -175,8 +238,12 @@
         const trimmed = node.nodeValue.trim();
         const normalized = trimmed.replace(/\s+/g, ' ');
         if (normalized) {
-          if (!node.__barMartiriSourceText && UI_TEXT[normalized]) {
-            node.__barMartiriSourceText = normalized;
+          if (!node.__barMartiriSourceText) {
+            node.__barMartiriSourceText = UI_TEXT[normalized]
+              ? normalized
+              : Object.keys(UI_TEXT).find((key) =>
+                  Object.values(UI_TEXT[key] || {}).includes(normalized)
+                );
           }
           const source = node.__barMartiriSourceText;
           const translated = source && UI_TEXT[source]?.[currentLanguage];
@@ -193,14 +260,19 @@
 
   function translateAttributes(root = document.body) {
     if (!root) return;
-    const attributes = ['aria-label', 'title', 'placeholder', 'data-dock-label'];
+    const attributes = ['aria-label', 'title', 'placeholder', 'alt', 'data-dock-label'];
     root.querySelectorAll(attributes.map((name) => `[${name}]`).join(',')).forEach((element) => {
       attributes.forEach((name) => {
         if (!element.hasAttribute(name)) return;
         const sourceKey = `i18nSource${name.replace(/(^|-)(\w)/g, (_, dash, letter) => letter.toUpperCase())}`;
         const current = element.getAttribute(name);
-        if (!element.dataset[sourceKey] && UI_TEXT[current]) {
-          element.dataset[sourceKey] = current;
+        if (!element.dataset[sourceKey]) {
+          const source = UI_TEXT[current]
+            ? current
+            : Object.keys(UI_TEXT).find((key) =>
+                Object.values(UI_TEXT[key] || {}).includes(current)
+              );
+          if (source) element.dataset[sourceKey] = source;
         }
         const source = element.dataset[sourceKey];
         const translated = source && UI_TEXT[source]?.[currentLanguage];
@@ -214,8 +286,24 @@
   }
 
   function productTranslationFor(product) {
-    if (currentLanguage === 'sq') return null;
-    return menuData.productTranslations?.[product?.id]?.[currentLanguage] || null;
+    const localTranslation = menuData.productTranslations?.[product?.id]?.[currentLanguage];
+    if (currentLanguage === 'sq') return localTranslation || null;
+    const databaseTranslation = product?.translations?.[currentLanguage];
+    if (databaseTranslation?.name || databaseTranslation?.description) return databaseTranslation;
+    return localTranslation || null;
+  }
+
+  function updateDocumentMetadata() {
+    const metadata = SEO_TEXT[currentLanguage] || SEO_TEXT.sq;
+    const absoluteUrl = new URL(metadata.path, window.location.origin).href;
+    document.title = metadata.title;
+    document.querySelector('meta[name="description"]')?.setAttribute('content', metadata.description);
+    document.querySelector('meta[property="og:title"]')?.setAttribute('content', metadata.title);
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', metadata.description);
+    document.querySelector('meta[property="og:url"]')?.setAttribute('content', absoluteUrl);
+    document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', metadata.title);
+    document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', metadata.description);
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', absoluteUrl);
   }
 
   function productNameFor(product) {
@@ -223,18 +311,19 @@
   }
 
   function productDescriptionFor(product) {
-    if (!String(product?.description || '').trim()) return '';
-    return productTranslationFor(product)?.description || product.description;
+    return productTranslationFor(product)?.description || product.description || '';
   }
 
   function applyLanguage(language) {
     currentLanguage = LANGUAGE_LOCALES[language] ? language : 'sq';
     document.documentElement.lang = LANGUAGE_LOCALES[currentLanguage];
+    updateDocumentMetadata();
     try {
       localStorage.setItem(LANGUAGE_KEY, currentLanguage);
     } catch {
       // The selected language still applies for this visit.
     }
+    writeCookie(LANGUAGE_COOKIE_NAME, currentLanguage);
 
     translateTextNodes(document.body);
     translateAttributes(document.body);
@@ -253,33 +342,59 @@
 
   function closeWelcomeGate(language) {
     applyLanguage(language);
+    const languagePath = SEO_TEXT[currentLanguage]?.path;
+    if (languagePath && window.location.pathname !== languagePath) {
+      window.location.assign(languagePath);
+      return;
+    }
     if (!welcomeGate) return;
     welcomeGate.classList.add('is-leaving');
     document.body.classList.remove('is-welcome-open');
     window.setTimeout(() => {
       welcomeGate.hidden = true;
-      if (!getCookiePreference()) window.setTimeout(showCookieBanner, 450);
     }, reducedMotion ? 0 : 260);
+    scheduleStoryMotion();
   }
 
-  async function initializeWelcomeGate() {
-    if (!welcomeGate) {
+  function getInitialLanguage() {
+    const routeLanguage = document.documentElement.dataset.initialLanguage;
+    if (LANGUAGE_LOCALES[routeLanguage]) return routeLanguage;
+    const cookieLanguage = readCookie(LANGUAGE_COOKIE_NAME);
+    if (LANGUAGE_LOCALES[cookieLanguage]) return cookieLanguage;
+    try {
+      const savedLanguage = localStorage.getItem(LANGUAGE_KEY);
+      if (LANGUAGE_LOCALES[savedLanguage]) return savedLanguage;
+    } catch {
+      // The language chooser remains available when storage is unavailable.
+    }
+    return '';
+  }
+
+  function initializeWelcomeGate() {
+    const initialLanguage = getInitialLanguage();
+    if (initialLanguage) {
+      const languagePath = SEO_TEXT[initialLanguage]?.path;
+      const routeLanguage = document.documentElement.dataset.initialLanguage;
+      if (!routeLanguage && languagePath && window.location.pathname !== languagePath) {
+        window.location.replace(languagePath);
+        return;
+      }
+      applyLanguage(initialLanguage);
+      if (welcomeGate) welcomeGate.hidden = true;
+      document.body.classList.remove('is-welcome-open');
       void refreshProducts();
-      if (!getCookiePreference()) window.setTimeout(showCookieBanner, 650);
+      scheduleStoryMotion();
       return;
     }
 
-    setDynamicText(welcomeStatus, 'loadingMenu');
-    languageChoices.forEach((button) => (button.disabled = true));
-    await Promise.all([
-      Promise.race([
-        refreshProducts(),
-        new Promise((resolve) => window.setTimeout(resolve, 4500)),
-      ]),
-      new Promise((resolve) => window.setTimeout(resolve, 650)),
-    ]);
+    if (!welcomeGate) {
+      void refreshProducts();
+      return;
+    }
 
-    setDynamicText(welcomeStatus, 'menuReady');
+    welcomeGate.hidden = false;
+    document.body.classList.add('is-welcome-open');
+    setDynamicText(welcomeStatus, 'chooseLanguage');
     welcomeLoader?.classList.add('is-ready');
     languageChoices.forEach((button) => {
       button.disabled = false;
@@ -287,10 +402,26 @@
         once: true,
       });
     });
+    languageChoices[0]?.focus({ preventScroll: true });
+    void refreshProducts();
   }
 
   languageSwitches.forEach((button) => {
-    button.addEventListener('click', () => applyLanguage(button.dataset.languageSwitch));
+    button.addEventListener('click', () => {
+      const language = button.dataset.languageSwitch;
+      const languagePath = SEO_TEXT[language]?.path;
+      if (languagePath && window.location.pathname !== languagePath) {
+        try {
+          localStorage.setItem(LANGUAGE_KEY, language);
+        } catch {
+          // Navigation still applies when storage is unavailable.
+        }
+        writeCookie(LANGUAGE_COOKIE_NAME, language);
+        window.location.assign(languagePath);
+        return;
+      }
+      applyLanguage(language);
+    });
   });
 
   function normalizeDegrees(value) {
@@ -490,80 +621,23 @@
         // Weather remains visible when storage is unavailable.
       }
     } catch (error) {
-      console.error('Moti per Spillen nuk mund te perditesohet.', error);
+      console.error('Moti për Spillen nuk mund të përditësohet.', error);
       const summary = document.querySelector('[data-weather-summary]');
-      if (summary) summary.textContent = 'Moti nuk u perditesua. Provo perseri pas pak.';
-    }
-  }
-
-  function renderReviewStats(stats) {
-    const rating = Number(stats?.rating);
-    const count = Number(stats?.userRatingCount);
-    if (!Number.isFinite(rating) || !Number.isInteger(count) || count < 1) return false;
-
-    const ratingElement = document.querySelector('[data-review-rating]');
-    const countElement = document.querySelector('[data-review-count]');
-    if (ratingElement) ratingElement.textContent = rating.toFixed(1);
-    if (countElement) countElement.textContent = count.toLocaleString('sq-AL');
-
-    const structuredData = document.querySelector('script[type="application/ld+json"]');
-    if (structuredData) {
-      try {
-        const data = JSON.parse(structuredData.textContent);
-        const business = data?.['@graph']?.find((entry) => entry?.['@id']?.endsWith('#business'));
-        if (business) {
-          business.aggregateRating = {
-            '@type': 'AggregateRating',
-            ratingValue: rating.toFixed(1),
-            reviewCount: String(count),
-          };
-          structuredData.textContent = JSON.stringify(data);
-        }
-      } catch {
-        // The visible review total remains available if structured data cannot be updated.
-      }
-    }
-    return true;
-  }
-
-  async function loadGoogleReviewStats() {
-    if (!document.querySelector('[data-review-count]')) return;
-
-    try {
-      const cached = JSON.parse(localStorage.getItem(REVIEW_CACHE_KEY));
-      if (
-        cached?.stats &&
-        Date.now() - Number(cached.savedAt) < REVIEW_CACHE_TTL &&
-        renderReviewStats(cached.stats)
-      ) {
-        return;
-      }
-    } catch {
-      // Continue with the static verified total when storage is unavailable.
-    }
-
-    try {
-      const response = await fetch('/.netlify/functions/google-reviews');
-      if (!response.ok) return;
-      const stats = await response.json();
-      if (!renderReviewStats(stats)) return;
-      try {
-        localStorage.setItem(
-          REVIEW_CACHE_KEY,
-          JSON.stringify({ stats, savedAt: Date.now() })
-        );
-      } catch {
-        // The live values remain visible when storage is unavailable.
-      }
-    } catch {
-      // The static review count is the production fallback.
+      if (summary) summary.textContent = 'Moti nuk u përditësua. Provo përsëri pas pak.';
     }
   }
 
   function normalizeProduct(product, index = 0) {
+    const productId = String(product.id || `product-${index}`);
     const image = String(product.image || '');
+    const localCatalogImage = localProductImages[productId];
+    const localProductPrefix = `/assets/products/${productId}.`;
+    const isLegacyLocalImage =
+      image.startsWith(localProductPrefix) ||
+      image.startsWith(localProductPrefix.slice(1)) ||
+      image.startsWith(`${window.location.origin}${localProductPrefix}`);
     return {
-      id: String(product.id || `product-${index}`),
+      id: productId,
       name: String(product.name || '').slice(0, 80),
       category: menuData.categoryOverrides?.[String(product.id || '')] || String(product.category || ''),
       description: String(product.description || '').slice(0, 240),
@@ -571,22 +645,45 @@
         product.price === null || product.price === undefined
           ? ''
           : String(product.price),
-      image: optimizedLocalImages[image] || image,
+      image:
+        ((localCatalogImage?.source === image ||
+          localCatalogImage?.local === image ||
+          isLegacyLocalImage) &&
+          localCatalogImage?.local) ||
+        optimizedLocalImages[image] ||
+        image,
       sortOrder: Number(product.sort_order ?? product.sortOrder ?? index),
+      translations: {
+        it: {
+          name: String(product.name_it ?? product.translations?.it?.name ?? '').slice(0, 80),
+          description: String(
+            product.description_it ?? product.translations?.it?.description ?? ''
+          ).slice(0, 240),
+        },
+        en: {
+          name: String(product.name_en ?? product.translations?.en?.name ?? '').slice(0, 80),
+          description: String(
+            product.description_en ?? product.translations?.en?.description ?? ''
+          ).slice(0, 240),
+        },
+      },
     };
   }
 
   function readCachedProducts() {
     try {
-      const cached = JSON.parse(sessionStorage.getItem(MENU_CACHE_KEY));
+      const cached = JSON.parse(localStorage.getItem(MENU_CACHE_KEY));
       if (
         !cached ||
         !Array.isArray(cached.products) ||
-        Date.now() - Number(cached.savedAt) > MENU_CACHE_TTL
+        Date.now() - Number(cached.savedAt) > MENU_CACHE_MAX_AGE
       ) {
         return null;
       }
-      return cached.products.map(normalizeProduct);
+      return {
+        products: cached.products.map(normalizeProduct),
+        stale: Date.now() - Number(cached.savedAt) > MENU_CACHE_TTL,
+      };
     } catch {
       return null;
     }
@@ -594,7 +691,7 @@
 
   function cacheProducts(products) {
     try {
-      sessionStorage.setItem(
+      localStorage.setItem(
         MENU_CACHE_KEY,
         JSON.stringify({ savedAt: Date.now(), products })
       );
@@ -607,34 +704,48 @@
     if (menuLoadPromise) return menuLoadPromise;
 
     menuLoadPromise = (async () => {
-      const cachedProducts = readCachedProducts();
-      if (cachedProducts?.length) {
-        catalogProducts = cachedProducts;
+      const cached = readCachedProducts();
+      if (cached?.products?.length) {
+        catalogProducts = cached.products;
         if (menuRendered) renderProducts();
         if (menuStatus) {
           menuStatus.textContent = '';
           delete menuStatus.dataset.i18nDynamic;
         }
-        return catalogProducts;
+        if (!cached.stale) return catalogProducts;
       }
 
       if (!supabaseConfig.url || !supabaseConfig.publishableKey) return catalogProducts;
       setDynamicText(menuStatus, 'refreshingMenu');
 
       try {
-        const query = new URLSearchParams({
-          select: 'id,name,category,description,price,image,sort_order,created_at',
-          order: 'sort_order.asc,created_at.asc',
-        });
-        const response = await fetch(
-          `${supabaseConfig.url}/rest/v1/products?${query.toString()}`,
-          {
+        const requestProducts = async (includeTranslations = true) => {
+          const fields = [
+            'id',
+            'name',
+            'category',
+            'description',
+            'price',
+            'image',
+            'sort_order',
+            'created_at',
+          ];
+          if (includeTranslations) {
+            fields.push('name_it', 'name_en', 'description_it', 'description_en');
+          }
+          const query = new URLSearchParams({
+            select: fields.join(','),
+            order: 'sort_order.asc,created_at.asc',
+          });
+          return fetch(`${supabaseConfig.url}/rest/v1/products?${query.toString()}`, {
             headers: {
               apikey: supabaseConfig.publishableKey,
               Authorization: `Bearer ${supabaseConfig.publishableKey}`,
             },
-          }
-        );
+          });
+        };
+        let response = await requestProducts(true);
+        if (response.status === 400) response = await requestProducts(false);
         if (!response.ok) throw new Error(`Menu request failed with ${response.status}`);
 
         const products = (await response.json()).map(normalizeProduct);
@@ -648,11 +759,13 @@
           delete menuStatus.dataset.i18nDynamic;
         }
       } catch (error) {
-        console.error('Menuja nuk mund te perditesohet.', error);
-        setDynamicText(menuStatus, 'cachedMenu');
+        console.error('Menuja nuk mund të përditësohet.', error);
+        setDynamicText(menuStatus, cached?.products?.length ? 'cachedMenu' : 'offlineMenu');
       }
       return catalogProducts;
-    })();
+    })().finally(() => {
+      menuLoadPromise = null;
+    });
 
     return menuLoadPromise;
   }
@@ -668,17 +781,30 @@
     });
   }
 
+  function productMatchesSearch(product) {
+    if (!menuSearchQuery) return true;
+    const searchable = `${productNameFor(product)} ${productDescriptionFor(product)}`
+      .toLocaleLowerCase(LANGUAGE_LOCALES[currentLanguage])
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+    return searchable.includes(menuSearchQuery);
+  }
+
   function renderCategories() {
     if (!categoryTabs) return;
     categoryTabs.replaceChildren();
 
     menuData.categories.forEach((category) => {
+      const matchingProducts = catalogProducts.filter(
+        (product) => product.category === category.id && productMatchesSearch(product)
+      );
       const button = document.createElement('button');
       button.className = 'category-tab';
       button.type = 'button';
       button.dataset.category = category.id;
       button.textContent = capitalizeWords(categoryLabelFor(category));
       button.setAttribute('aria-controls', `menu-category-${category.id}`);
+      button.disabled = Boolean(menuSearchQuery && !matchingProducts.length);
       button.classList.toggle('is-active', category.id === activeCategory);
       button.addEventListener('click', () => {
         activeCategory = category.id;
@@ -693,17 +819,32 @@
     });
   }
 
-  function createProductCard(product) {
+  function createProductCard(product, priority = false) {
     const card = document.createElement('article');
     card.className = 'product-card';
 
     const image = document.createElement('img');
-    image.src = product.image || 'assets/optimized/ice-cream-cone.webp';
+    const source = product.image || '/assets/optimized/ice-cream-cone.webp';
+    image.src = priority
+      ? source
+      : 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+    if (!priority) image.dataset.src = source;
     image.alt = productNameFor(product);
-    image.loading = 'lazy';
+    image.loading = priority ? 'eager' : 'lazy';
+    image.fetchPriority = priority ? 'high' : 'low';
     image.decoding = 'async';
     image.width = 560;
     image.height = 700;
+    image.addEventListener('load', () => card.classList.add('is-image-ready'));
+    image.addEventListener(
+      'error',
+      () => {
+        if (!image.src.endsWith('/assets/optimized/ice-cream-cone.webp')) {
+          image.src = '/assets/optimized/ice-cream-cone.webp';
+        }
+      },
+      { once: true }
+    );
 
     const body = document.createElement('div');
     const title = document.createElement('h4');
@@ -723,17 +864,48 @@
     return card;
   }
 
+  function observeProductImages() {
+    productImageObserver?.disconnect();
+    const images = [...productGrid.querySelectorAll('img[data-src]')];
+    const loadImage = (image) => {
+      if (!image.dataset.src) return;
+      image.src = image.dataset.src;
+      delete image.dataset.src;
+    };
+    if (!('IntersectionObserver' in window)) {
+      images.forEach(loadImage);
+      return;
+    }
+    const menuPanel = panels.find((panel) => panel.dataset.panel === 'menu') || null;
+    productImageObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          productImageObserver?.unobserve(entry.target);
+          loadImage(entry.target);
+        });
+      },
+      { root: menuPanel, rootMargin: '180px 0px' }
+    );
+    images.forEach((image) => productImageObserver.observe(image));
+  }
+
   function renderProducts() {
     if (!productGrid) return;
     menuRendered = true;
     productGrid.replaceChildren();
 
+    let visibleProductCount = 0;
     menuData.categories.forEach((category) => {
-      const products = catalogProducts.filter((product) => product.category === category.id);
+      const products = catalogProducts.filter(
+        (product) => product.category === category.id && productMatchesSearch(product)
+      );
       const section = document.createElement('section');
       section.className = 'menu-category';
       section.id = `menu-category-${category.id}`;
       section.setAttribute('aria-labelledby', `menu-category-title-${category.id}`);
+      if (menuSearchQuery && !products.length) section.hidden = true;
+      visibleProductCount += products.length;
 
       const heading = document.createElement('header');
       const title = document.createElement('h3');
@@ -748,7 +920,9 @@
       const items = document.createElement('div');
       items.className = 'product-grid';
       if (products.length) {
-        products.forEach((product) => items.append(createProductCard(product)));
+        products.forEach((product, index) =>
+          items.append(createProductCard(product, category.id === menuData.categories[0]?.id && index < 3))
+        );
       } else {
         const empty = document.createElement('p');
         empty.className = 'empty-category';
@@ -759,7 +933,24 @@
       section.append(heading, items);
       productGrid.append(section);
     });
+    if (menuSearchQuery && !visibleProductCount) {
+      const empty = document.createElement('p');
+      empty.className = 'menu-search-empty';
+      empty.textContent = dynamicText('noResults');
+      productGrid.append(empty);
+    }
+    observeProductImages();
   }
+
+  menuSearchInput?.addEventListener('input', () => {
+    menuSearchQuery = menuSearchInput.value
+      .trim()
+      .toLocaleLowerCase(LANGUAGE_LOCALES[currentLanguage])
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+    renderCategories();
+    renderProducts();
+  });
 
   function setDockActive(name) {
     dockActions.forEach((action) => {
@@ -877,6 +1068,10 @@
     });
   });
 
+  document.querySelector('[data-hero-menu]')?.addEventListener('click', (event) => {
+    openPanel('menu', event.currentTarget);
+  });
+
   closeButtons.forEach((button) => {
     button.addEventListener('click', () => closePanel());
   });
@@ -925,41 +1120,6 @@
     { passive: true }
   );
 
-  function isAtDocumentEnd() {
-    const root = document.documentElement;
-    return window.scrollY >= Math.max(0, root.scrollHeight - window.innerHeight - 1);
-  }
-
-  window.addEventListener(
-    'wheel',
-    (event) => {
-      if (!activePanel && event.deltaY > 0 && isAtDocumentEnd()) event.preventDefault();
-    },
-    { passive: false }
-  );
-
-  window.addEventListener(
-    'touchstart',
-    (event) => {
-      lastTouchY = event.touches[0]?.clientY ?? null;
-    },
-    { passive: true }
-  );
-
-  window.addEventListener(
-    'touchmove',
-    (event) => {
-      const nextTouchY = event.touches[0]?.clientY ?? null;
-      const scrollingPastEnd =
-        lastTouchY !== null && nextTouchY !== null && nextTouchY < lastTouchY;
-      if (!activePanel && scrollingPastEnd && isAtDocumentEnd()) event.preventDefault();
-      lastTouchY = nextTouchY;
-    },
-    { passive: false }
-  );
-
-  window.addEventListener('touchend', () => (lastTouchY = null), { passive: true });
-
   panels.forEach((panel) => {
     panel.addEventListener(
       'scroll',
@@ -970,16 +1130,24 @@
     );
   });
 
-  function getCookiePreference() {
+  function readCookie(name) {
     const cookie = document.cookie
       .split('; ')
-      .find((entry) => entry.startsWith(`${COOKIE_NAME}=`));
+      .find((entry) => entry.startsWith(`${name}=`));
     return cookie ? decodeURIComponent(cookie.split('=').slice(1).join('=')) : '';
   }
 
-  function saveCookiePreference(value) {
+  function writeCookie(name, value) {
     const secure = location.protocol === 'https:' ? '; Secure' : '';
-    document.cookie = `${COOKIE_NAME}=${encodeURIComponent(value)}; Max-Age=31536000; Path=/; SameSite=Lax${secure}`;
+    document.cookie = `${name}=${encodeURIComponent(value)}; Max-Age=${COOKIE_MAX_AGE}; Path=/; SameSite=Lax${secure}`;
+  }
+
+  function getCookiePreference() {
+    return readCookie(COOKIE_NAME);
+  }
+
+  function saveCookiePreference(value) {
+    writeCookie(COOKIE_NAME, value);
     hideCookieBanner();
   }
 
@@ -1004,11 +1172,19 @@
     if (mapPlaceholder) mapPlaceholder.hidden = true;
   }
 
+  function unloadMap() {
+    if (!mapFrame?.src) return;
+    mapFrame.removeAttribute('src');
+    mapFrame.hidden = true;
+    if (mapPlaceholder) mapPlaceholder.hidden = false;
+  }
+
   document.querySelectorAll('[data-cookie-choice]').forEach((button) => {
     button.addEventListener('click', () => {
       const choice = button.dataset.cookieChoice === 'all' ? 'all' : 'essential';
       saveCookiePreference(choice);
       if (choice === 'all' && activePanel === 'location') loadMap();
+      if (choice === 'essential') unloadMap();
     });
   });
 
@@ -1017,9 +1193,12 @@
     loadMap();
   });
 
-  document.querySelector('[data-cookie-settings]')?.addEventListener('click', () => {
-    document.cookie = `${COOKIE_NAME}=; Max-Age=0; Path=/; SameSite=Lax`;
-    showCookieBanner();
+  document.querySelectorAll('[data-cookie-settings]').forEach((button) => {
+    button.addEventListener('click', () => {
+      document.cookie = `${COOKIE_NAME}=; Max-Age=0; Path=/; SameSite=Lax`;
+      showCookieBanner();
+      cookieBanner?.querySelector('[data-cookie-choice="essential"]')?.focus();
+    });
   });
 
   function createMarqueeVisibility() {
@@ -1039,189 +1218,266 @@
     });
   }
 
-  function loadStoryImages() {
-    if (storyImagesLoaded) return;
-    storyImagesLoaded = true;
-    document.querySelectorAll('[data-story-src]').forEach((image) => {
-      image.src = image.dataset.storySrc;
-      image.removeAttribute('data-story-src');
+  function createHeroDrag() {
+    const dragTarget = document.querySelector('[data-hero-drag]');
+    const visual = document.querySelector('[data-hero-drag-visual]');
+    if (!dragTarget || !visual) return;
+
+    let currentX = 0;
+    let startX = 0;
+    let startDragX = 0;
+    let pointerId = null;
+    let animationFrame = 0;
+
+    const dragLimit = () => Math.min(190, Math.max(72, window.innerWidth * 0.22));
+    const renderPosition = (nextX, animate = false) => {
+      const limit = dragLimit();
+      currentX = Math.min(limit, Math.max(-limit, nextX));
+      const rotation = currentX / 22;
+      const percentage = Math.round((currentX / limit) * 100);
+      dragTarget.setAttribute('aria-valuenow', String(percentage));
+      if (animate && window.gsap && !reducedMotion) {
+        window.gsap.to(visual, {
+          x: currentX,
+          rotation,
+          duration: 0.28,
+          ease: 'power2.out',
+          overwrite: 'auto',
+        });
+      } else {
+        visual.style.transform = `translate3d(${currentX}px, 0, 0) rotate(${rotation}deg)`;
+      }
+    };
+
+    const endDrag = (event) => {
+      if (pointerId === null || (event.pointerId !== undefined && event.pointerId !== pointerId)) return;
+      dragTarget.classList.remove('is-dragging');
+      if (dragTarget.hasPointerCapture?.(pointerId)) dragTarget.releasePointerCapture(pointerId);
+      pointerId = null;
+    };
+
+    dragTarget.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      pointerId = event.pointerId;
+      startX = event.clientX;
+      startDragX = currentX;
+      dragTarget.setPointerCapture(pointerId);
+      dragTarget.classList.add('is-dragging');
     });
+    dragTarget.addEventListener('pointermove', (event) => {
+      if (event.pointerId !== pointerId) return;
+      const nextX = startDragX + event.clientX - startX;
+      cancelAnimationFrame(animationFrame);
+      animationFrame = requestAnimationFrame(() => renderPosition(nextX));
+    });
+    dragTarget.addEventListener('pointerup', endDrag);
+    dragTarget.addEventListener('pointercancel', endDrag);
+    dragTarget.addEventListener('lostpointercapture', () => {
+      pointerId = null;
+      dragTarget.classList.remove('is-dragging');
+    });
+    dragTarget.addEventListener('keydown', (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home'].includes(event.key)) return;
+      event.preventDefault();
+      const nextX = event.key === 'Home' ? 0 : currentX + (event.key === 'ArrowLeft' ? -28 : 28);
+      renderPosition(nextX, true);
+    });
+    window.addEventListener('resize', () => renderPosition(currentX), { passive: true });
   }
 
   function createStoryMotion() {
-    if (reducedMotion || !story || !window.gsap || !window.ScrollTrigger) {
-      loadStoryImages();
-      return;
-    }
+    if (reducedMotion || !story || !window.gsap || !window.ScrollTrigger) return;
     const gsap = window.gsap;
     gsap.registerPlugin(window.ScrollTrigger);
 
-    const wafer = document.querySelector('[data-cone-piece="wafer"]');
-    const serve = document.querySelector('[data-cone-piece="serve"]');
-    const shadow = document.querySelector('.cone-shadow');
-    const intro = document.querySelector('[data-story-panel="intro"]');
-    const milk = document.querySelector('[data-story-panel="milk"]');
-    const waferFact = document.querySelector('[data-story-panel="wafer"]');
-    const finale = document.querySelector('[data-story-panel="finale"]');
-    const leftFlavors = [...document.querySelectorAll('[data-story-flavor="left"]')];
-    const rightFlavors = [...document.querySelectorAll('[data-story-flavor="right"]')];
-    const scrollCue = document.querySelector('.scroll-cue');
-    const progress = document.querySelector('[data-progress-bar]');
+    const flavorCards = [...document.querySelectorAll('[data-flavor-card]')];
+    const flavorIntro = document.querySelector('.flavor-intro');
+    const flavorCue = document.querySelector('.flavor-cue');
+    const flavorProgress = document.querySelector('[data-flavor-progress]');
     const compactStory = window.matchMedia('(max-width: 640px)').matches;
 
-    gsap.set(wafer, {
-      autoAlpha: 1,
-      xPercent: -50,
-      y: 42,
-      rotation: -3,
+    gsap.from('.hero-copy > *', {
+      autoAlpha: 0,
+      y: 22,
+      duration: 0.65,
+      stagger: 0.08,
+      ease: 'power2.out',
+      clearProps: 'opacity,visibility,transform',
+    });
+    gsap.from('.hero-product', {
+      autoAlpha: 0,
+      y: 24,
       scale: 0.96,
-      transformOrigin: '50% 0%',
-    });
-    gsap.set(serve, {
-      autoAlpha: 0,
-      xPercent: -50,
-      y: -270,
-      rotation: 5,
-      scale: 0.92,
-      transformOrigin: '50% 100%',
-    });
-    gsap.set(shadow, { autoAlpha: 0, scaleX: 0.4, xPercent: -50 });
-    gsap.set([milk, waferFact], { autoAlpha: 0, y: 28 });
-    gsap.set(finale, { autoAlpha: 0, y: 16, xPercent: -50 });
-    gsap.set(leftFlavors, {
-      autoAlpha: 0,
-      x: compactStory ? -150 : -360,
-      y: 72,
-      scale: 0.78,
-    });
-    gsap.set(rightFlavors, {
-      autoAlpha: 0,
-      x: compactStory ? 150 : 360,
-      y: 72,
-      scale: 0.78,
+      duration: 0.8,
+      ease: 'power3.out',
+      clearProps: 'opacity,visibility,transform',
     });
 
-    const timeline = gsap.timeline({
-      defaults: { ease: 'none' },
-      scrollTrigger: {
-        id: 'bar-martiri-cone-story',
-        trigger: story,
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 0.18,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          gsap.set(progress, { scaleX: self.progress });
-          if (self.progress > 0.55) loadStoryImages();
-        },
-      },
-    });
+    if (flavorCards.length === 5) {
+      const spacing = () =>
+        compactStory
+          ? Math.min(74, window.innerWidth * 0.18)
+          : Math.min(180, window.innerWidth * 0.15);
+      const slotOrder = [0, -1, -2, 1, 2];
+      const rotations = [0, -5, -10, 5, 10];
+      const yOffsets = [0, 0, compactStory ? 10 : 22, 0, compactStory ? 10 : 22];
+      const finalScale = compactStory ? 0.78 : 0.84;
 
-    timeline
-      .addLabel('intro', 0)
-      .to(wafer, { y: 0, rotation: 0, scale: 1, duration: 1.25, ease: 'back.out(1.25)' }, 0.35)
-      .to(shadow, { autoAlpha: 1, scaleX: 1, duration: 0.8, ease: 'power2.out' }, 0.7)
-      .to(intro, { autoAlpha: 0, y: -36, duration: 0.7 }, 1.25)
-      .to(scrollCue, { autoAlpha: 0, y: 12, duration: 0.4 }, 1.1)
-      .addLabel('softServe', 2)
-      .to(
-        serve,
-        {
-          autoAlpha: 1,
-          y: 0,
-          rotation: 0,
-          scale: 1,
-          duration: 1.55,
-          ease: 'power3.out',
+      gsap.set(flavorCards, {
+        autoAlpha: 0,
+        xPercent: -50,
+        yPercent: -50,
+        x: 0,
+        y: 36,
+        scale: 0.72,
+        rotation: 0,
+        transformOrigin: '50% 88%',
+      });
+      gsap.set(flavorCards[0], { autoAlpha: 1, y: 0, scale: 1 });
+
+      const flavorTimeline = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          id: 'bar-martiri-flavors',
+          trigger: story,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 0.22,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => gsap.set(flavorProgress, { scaleX: self.progress }),
         },
-        2
-      )
-      .to(
-        [wafer, serve],
-        {
-          y: compactStory ? -112 : 0,
-          scale: compactStory ? 0.82 : 1,
-          duration: 0.8,
-          ease: 'power2.inOut',
-        },
-        3.55
-      )
-      .addLabel('milkFact', 4)
-      .to(milk, { autoAlpha: 1, y: 0, duration: 0.65, ease: 'power2.out' }, 4)
-      .to(milk, { autoAlpha: 0, y: -22, duration: 0.5 }, 5.35)
-      .addLabel('waferFact', 5.7)
-      .to(waferFact, { autoAlpha: 1, y: 0, duration: 0.65, ease: 'power2.out' }, 5.7)
-      .to(waferFact, { autoAlpha: 0, y: -22, duration: 0.55 }, 7.15)
-      .to(
-        [wafer, serve],
-        {
-          scale: compactStory ? 0.68 : 0.82,
-          y: compactStory ? -116 : -20,
-          duration: 1.1,
-          ease: 'power2.inOut',
-        },
-        7.25
-      )
-      .addLabel('flavorJoin', 8)
-      .to(
-        leftFlavors,
-        {
-          autoAlpha: 1,
-          x: 0,
-          y: 0,
-          scale: 1,
-          stagger: 0.16,
-          duration: 1.15,
-          ease: 'power3.out',
-        },
-        8
-      )
-      .to(
-        rightFlavors,
-        {
-          autoAlpha: 1,
-          x: 0,
-          y: 0,
-          scale: 1,
-          stagger: 0.16,
-          duration: 1.15,
-          ease: 'power3.out',
-        },
-        8
-      )
-      .to(finale, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 9.05)
-      .to({}, { duration: 0.9 });
+      });
+
+      flavorTimeline
+        .to(flavorCue, { autoAlpha: 0, y: 10, duration: 0.35 }, 0.3)
+        .to(
+          flavorIntro,
+          { y: compactStory ? -8 : -14, duration: 0.8, ease: 'power2.inOut' },
+          0.45
+        )
+        .to(
+          flavorCards[0],
+          { scale: finalScale, duration: 0.8, ease: 'power2.inOut' },
+          0.6
+        );
+
+      [1, 3, 2, 4].forEach((cardIndex, revealIndex) => {
+        flavorTimeline.to(
+          flavorCards[cardIndex],
+          {
+            autoAlpha: 1,
+            x: () => slotOrder[cardIndex] * spacing(),
+            y: yOffsets[cardIndex],
+            scale: finalScale,
+            duration: 0.9,
+            ease: 'power3.out',
+          },
+          1.05 + revealIndex * 0.72
+        );
+        flavorTimeline.to(
+          flavorCards[cardIndex].querySelector('img'),
+          {
+            rotation: rotations[cardIndex],
+            duration: 0.9,
+            ease: 'power3.out',
+          },
+          1.05 + revealIndex * 0.72
+        );
+      });
+      flavorTimeline.to({}, { duration: 0.85 });
+    }
 
     [
       ['.visit-copy > *', '.visit-section'],
       ['.visit-details > *', '.visit-section'],
       ['.closing-section > *', '.closing-section'],
-    ].forEach(([targets, trigger]) => {
-      gsap.from(targets, {
-        autoAlpha: 0,
-        y: 28,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger,
-          start: 'top 82%',
-          once: true,
-        },
-      });
+    ].forEach(([targets, triggerSelector]) => {
+      const trigger = document.querySelector(triggerSelector);
+      runWhenNear(trigger, () => {
+        gsap.from(targets, {
+          autoAlpha: 0,
+          y: 24,
+          duration: 0.7,
+          stagger: 0.08,
+          ease: 'power2.out',
+          clearProps: 'opacity,visibility,transform',
+        });
+      }, '0px 0px -12%');
     });
 
     window.addEventListener('load', () => window.ScrollTrigger?.refresh(), { once: true });
   }
 
+  function loadScript(source) {
+    return new Promise((resolve, reject) => {
+      const existing = document.querySelector(`script[src="${source}"]`);
+      if (existing) {
+        if (existing.dataset.loaded === 'true') resolve();
+        else {
+          existing.addEventListener('load', resolve, { once: true });
+          existing.addEventListener('error', reject, { once: true });
+        }
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = source;
+      script.defer = true;
+      script.addEventListener('load', () => {
+        script.dataset.loaded = 'true';
+        resolve();
+      }, { once: true });
+      script.addEventListener('error', reject, { once: true });
+      document.head.append(script);
+    });
+  }
+
+  async function loadStoryMotion() {
+    if (reducedMotion) return;
+    try {
+      await loadScript('assets/vendor/gsap.min.js');
+      await loadScript('assets/vendor/ScrollTrigger.min.js');
+      createStoryMotion();
+    } catch {
+      story?.classList.add('is-static');
+    }
+  }
+
+  function runWhenNear(element, callback, rootMargin = '600px 0px') {
+    if (!element || !('IntersectionObserver' in window)) {
+      const run = () => callback();
+      if ('requestIdleCallback' in window) window.requestIdleCallback(run, { timeout: 1800 });
+      else window.setTimeout(run, 700);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        observer.disconnect();
+        callback();
+      },
+      { rootMargin }
+    );
+    observer.observe(element);
+  }
+
+  let storyMotionScheduled = false;
+  function scheduleStoryMotion() {
+    if (storyMotionScheduled) return;
+    storyMotionScheduled = true;
+    window.setTimeout(
+      () => runWhenNear(story, () => void loadStoryMotion(), '700px 0px'),
+      reducedMotion ? 0 : 120
+    );
+  }
+
   setDockActive('home');
   updateSunset();
   window.setInterval(updateSunset, 60 * 1000);
-  loadSpilleWeather();
-  loadGoogleReviewStats();
-  createStoryMotion();
+  runWhenNear(document.querySelector('[data-spille-dashboard]'), loadSpilleWeather, '500px 0px');
   createMarqueeVisibility();
-  void initializeWelcomeGate();
+  createHeroDrag();
+  if (!getCookiePreference()) showCookieBanner();
+  initializeWelcomeGate();
   const year = document.querySelector('[data-current-year]');
   if (year) year.textContent = new Date().getFullYear();
 })();

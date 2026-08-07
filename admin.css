@@ -564,6 +564,54 @@ textarea:focus {
   gap: 14px;
 }
 
+.translation-fieldset {
+  min-width: 0;
+  margin: 4px 0 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: var(--paper-strong);
+}
+
+.translation-fieldset legend {
+  padding: 0 8px;
+  font-family: var(--font-display);
+  font-size: 20px;
+}
+
+.translation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.translation-grid > div {
+  display: grid;
+  gap: 12px;
+}
+
+.translation-label,
+.field-help {
+  margin: 0;
+}
+
+.translation-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.field-help {
+  margin-top: 14px;
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
+.translation-fieldset :disabled {
+  background: #ece9e2;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 .image-fieldset {
   min-width: 0;
   margin: 0;
@@ -728,6 +776,10 @@ textarea:focus {
   }
 
   .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .translation-grid {
     grid-template-columns: 1fr;
   }
 
