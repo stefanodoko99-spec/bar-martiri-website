@@ -3,5 +3,5 @@ Allow: /
 Disallow: /admin
 Disallow: /admin.html
 
-Sitemap: https://bar-martiri.vercel.app/sitemap.xml
-Sitemap: https://bar-martiri.vercel.app/image-sitemap.xml
+Sitemap: https://www.barmartiri.com/sitemap.xml
+Sitemap: https://www.barmartiri.com/image-sitemap.xml

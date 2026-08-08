@@ -17,13 +17,13 @@ const imageLocations = [
 const images = imageLocations
   .map(
     (path) =>
-      `    <image:image><image:loc>https://bar-martiri.vercel.app/${path}</image:loc></image:image>`
+      `    <image:image><image:loc>https://www.barmartiri.com/${path}</image:loc></image:image>`
   )
   .join('\n');
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>https://bar-martiri.vercel.app/</loc>
+    <loc>https://www.barmartiri.com/</loc>
 ${images}
   </url>
 </urlset>

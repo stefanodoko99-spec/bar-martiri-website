@@ -57,7 +57,7 @@ const locales = {
 };
 
 for (const [language, locale] of Object.entries(locales)) {
-  const canonical = `https://bar-martiri.vercel.app${locale.path}`;
+  const canonical = `https://www.barmartiri.com${locale.path}`;
   let page = source
     .replace('<html lang="sq-AL">', `<html lang="${locale.htmlLanguage}" data-initial-language="${language}">`)
     .replace('<head>', '<head>\n    <base href="/">')
@@ -67,7 +67,7 @@ for (const [language, locale] of Object.entries(locales)) {
       `content="${locale.description}"`
     )
     .replace(
-      '<link rel="canonical" href="https://bar-martiri.vercel.app/">',
+      '<link rel="canonical" href="https://www.barmartiri.com/">',
       `<link rel="canonical" href="${canonical}">`
     )
     .replace('content="sq_AL"', `content="${locale.ogLocale}"`)
@@ -80,7 +80,7 @@ for (const [language, locale] of Object.entries(locales)) {
       'content="Shezlone, parkim falas, akullore, kafe dhe pije pranë detit në Spille."',
       `content="${locale.socialDescription}"`
     )
-    .replace('content="https://bar-martiri.vercel.app/"', `content="${canonical}"`)
+    .replace('content="https://www.barmartiri.com/"', `content="${canonical}"`)
     .replace('<title>Bar Martiri Spille | Shezlone dhe Akullore</title>', `<title>${locale.title}</title>`)
     .replaceAll('Bar Martiri Spille | Shezlone dhe Akullore', locale.title)
     .replace(
@@ -92,11 +92,11 @@ for (const [language, locale] of Object.entries(locales)) {
       locale.businessDescription
     )
     .replace(
-      '"@id": "https://bar-martiri.vercel.app/#webpage"',
+      '"@id": "https://www.barmartiri.com/#webpage"',
       `"@id": "${canonical}#webpage"`
     )
     .replace(
-      `"@id": "${canonical}#webpage",\n            "url": "https://bar-martiri.vercel.app/"`,
+      `"@id": "${canonical}#webpage",\n            "url": "https://www.barmartiri.com/"`,
       `"@id": "${canonical}#webpage",\n            "url": "${canonical}"`
     )
     .replaceAll('"inLanguage": "sq-AL"', `"inLanguage": "${locale.htmlLanguage}"`);

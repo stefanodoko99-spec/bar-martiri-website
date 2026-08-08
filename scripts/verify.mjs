@@ -42,7 +42,7 @@ const assertions = [
   [!adminHtml.includes('crypto-js.min.js'), 'Production admin must not load local password fallback'],
   [!adminScript.includes('FIXED_AUTH'), 'Production admin must fail closed without Supabase'],
   [publicHtml.includes('hreflang="it-IT"') && publicHtml.includes('hreflang="en-GB"'), 'Localized hreflang links are required'],
-  [publicHtml.includes('"@type": "WebPage"') && publicHtml.includes('"menu": "https://bar-martiri.vercel.app/#menu"'), 'WebPage and menu structured data are required'],
+  [publicHtml.includes('"@type": "WebPage"') && publicHtml.includes('"menu": "https://www.barmartiri.com/#menu"'), 'WebPage and menu structured data are required'],
   [publicHtml.includes('data-cookie-choice="essential"') && publicHtml.includes('data-cookie-choice="all"'), 'Cookie consent must offer accept and reject controls'],
   [publicScript.includes("if (!getCookiePreference()) showCookieBanner();"), 'Cookie consent must appear on the first visit'],
   [privacyHtml.includes('bar_martiri_language') && privacyHtml.includes('bar_martiri_cookie_pref'), 'The privacy page must document first-party cookies'],
@@ -60,9 +60,9 @@ const assertions = [
     'Corrected Albanian product names must remain in the menu overrides',
   ],
   [
-    italianHtml.includes('rel="canonical" href="https://bar-martiri.vercel.app/it/"') &&
-      englishHtml.includes('rel="canonical" href="https://bar-martiri.vercel.app/en/"'),
-    'Localized canonical links must use the Vercel production domain',
+    italianHtml.includes('rel="canonical" href="https://www.barmartiri.com/it/"') &&
+      englishHtml.includes('rel="canonical" href="https://www.barmartiri.com/en/"'),
+    'Localized canonical links must use the production domain',
   ],
   [
     italianHtml.includes("L'estate inizia al Bar Martiri.") &&
