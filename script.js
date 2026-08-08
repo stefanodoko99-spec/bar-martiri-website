@@ -803,7 +803,16 @@
       button.className = 'category-tab';
       button.type = 'button';
       button.dataset.category = category.id;
-      button.textContent = capitalizeWords(categoryLabelFor(category));
+      const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      icon.setAttribute('class', 'category-tab-icon');
+      icon.setAttribute('aria-hidden', 'true');
+      const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+      use.setAttribute('href', `#category-icon-${category.id}`);
+      icon.append(use);
+      const label = document.createElement('span');
+      label.className = 'category-tab-label';
+      label.textContent = capitalizeWords(categoryLabelFor(category));
+      button.append(icon, label);
       button.setAttribute('aria-controls', `menu-category-${category.id}`);
       button.disabled = Boolean(menuSearchQuery && !matchingProducts.length);
       button.classList.toggle('is-active', category.id === activeCategory);
