@@ -1349,7 +1349,8 @@ svg {
     min-height 220ms var(--ease-out),
     border-color 180ms var(--ease-standard),
     background-color 180ms var(--ease-standard),
-    color 180ms var(--ease-standard);
+    color 180ms var(--ease-standard),
+    transform 150ms var(--ease-out);
 }
 
 .category-tab-icon {
@@ -1372,6 +1373,15 @@ svg {
 .category-tab:disabled {
   opacity: 0.38;
   cursor: not-allowed;
+}
+
+.category-tab:not(:disabled):active {
+  transform: scale(0.92);
+}
+
+.category-tab:not(.is-active):not(:disabled):active {
+  border-color: var(--line-strong);
+  background: rgba(21, 21, 21, 0.08);
 }
 
 .dock-panel--menu.is-header-compact .panel-header {
@@ -2097,9 +2107,10 @@ svg {
 
   .category-tab {
     flex: 0 0 auto;
-    min-width: 44px;
-    min-height: 44px;
+    min-width: 46px;
+    min-height: 46px;
     padding: 8px;
+    border-radius: 12px;
   }
 
   .category-tab-icon {
