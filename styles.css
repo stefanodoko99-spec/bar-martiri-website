@@ -1359,7 +1359,7 @@ svg {
 
 .menu-category {
   content-visibility: auto;
-  contain-intrinsic-size: auto 860px;
+  contain-intrinsic-height: auto 860px;
   scroll-margin-top: 240px;
 }
 
