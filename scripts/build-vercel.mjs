@@ -18,6 +18,7 @@ const publicFiles = [
   'sitemap.xml',
   'image-sitemap.xml',
   'privacy.html',
+  'vercel-analytics.js',
 ];
 
 const publicDirectories = ['assets', 'en', 'it'];
