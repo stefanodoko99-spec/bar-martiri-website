@@ -15,6 +15,7 @@
   const dockActions = [...document.querySelectorAll('[data-dock-action]')];
   const panelLayer = document.querySelector('[data-panel-layer]');
   const panels = [...document.querySelectorAll('[data-panel]')];
+  const menuPanel = panels.find((panel) => panel.dataset.panel === 'menu') || null;
   const closeButtons = [...document.querySelectorAll('[data-panel-close]')];
   const categoryTabs = document.querySelector('[data-category-tabs]');
   const productGrid = document.querySelector('[data-product-grid]');
@@ -811,6 +812,7 @@
         categoryTabs
           .querySelectorAll('.category-tab')
           .forEach((tab) => tab.classList.toggle('is-active', tab === button));
+        menuPanel?.classList.add('is-header-compact');
         document
           .querySelector(`#menu-category-${category.id}`)
           ?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
@@ -988,6 +990,7 @@
     panelLayer.hidden = false;
     target.hidden = false;
     target.scrollTop = 0;
+    target.classList.remove('is-header-compact');
     lastPanelScrollY = 0;
     document.body.classList.add('is-panel-open');
     dock?.classList.remove('is-compact');
@@ -1125,6 +1128,7 @@
       'scroll',
       () => {
         if (panel.dataset.panel === activePanel) updateDockForScroll(panel.scrollTop, true);
+        if (panel === menuPanel) panel.classList.toggle('is-header-compact', panel.scrollTop > 24);
       },
       { passive: true }
     );

@@ -1191,6 +1191,9 @@ svg {
   background: rgba(244, 240, 232, 0.94);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  transition:
+    min-height 240ms var(--ease-out),
+    padding 240ms var(--ease-out);
 }
 
 .panel-header h2 {
@@ -1199,6 +1202,7 @@ svg {
   font-size: clamp(42px, 6vw, 76px);
   font-weight: 400;
   line-height: 0.92;
+  transition: font-size 240ms var(--ease-out);
 }
 
 .panel-tools {
@@ -1272,30 +1276,29 @@ svg {
   background: rgba(244, 240, 232, 0.95);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  transition:
+    top 240ms var(--ease-out),
+    padding 240ms var(--ease-out);
 }
 
 .menu-toolbar {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.55fr);
-  gap: 24px;
-  align-items: center;
+  display: flex;
+  justify-content: flex-end;
   padding-bottom: 12px;
-}
-
-.menu-toolbar p {
-  margin: 3px 0 0;
-  color: var(--ink-soft);
-  font-size: 13px;
+  transition: padding-bottom 220ms var(--ease-out);
 }
 
 .menu-search {
   position: relative;
   display: flex;
+  width: 100%;
+  max-width: 420px;
   min-height: 46px;
   align-items: center;
   border: 1px solid var(--line-strong);
   border-radius: 8px;
   background: var(--paper-strong);
+  transition: min-height 220ms var(--ease-out);
 }
 
 .menu-search svg {
@@ -1316,6 +1319,7 @@ svg {
   background: transparent;
   color: var(--ink);
   font: inherit;
+  transition: min-height 220ms var(--ease-out);
 }
 
 .category-tabs {
@@ -1337,6 +1341,7 @@ svg {
   line-height: 1.15;
   cursor: pointer;
   transition:
+    min-height 220ms var(--ease-out),
     border-color 180ms var(--ease-standard),
     background-color 180ms var(--ease-standard),
     color 180ms var(--ease-standard);
@@ -1351,6 +1356,36 @@ svg {
 .category-tab:disabled {
   opacity: 0.38;
   cursor: not-allowed;
+}
+
+.dock-panel--menu.is-header-compact .panel-header {
+  min-height: 64px;
+  padding: 8px 0;
+}
+
+.dock-panel--menu.is-header-compact .panel-header h2 {
+  font-size: 22px;
+}
+
+.dock-panel--menu.is-header-compact .menu-controls {
+  top: 64px;
+  padding: 8px 0;
+}
+
+.dock-panel--menu.is-header-compact .menu-toolbar {
+  padding-bottom: 8px;
+}
+
+.dock-panel--menu.is-header-compact .menu-search {
+  min-height: 40px;
+}
+
+.dock-panel--menu.is-header-compact .menu-search input {
+  min-height: 38px;
+}
+
+.dock-panel--menu.is-header-compact .category-tab {
+  min-height: 38px;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1378,7 +1413,11 @@ svg {
 .menu-category {
   content-visibility: auto;
   contain-intrinsic-size: auto 860px;
-  scroll-margin-top: 190px;
+  scroll-margin-top: 240px;
+}
+
+.dock-panel--menu.is-header-compact .menu-category {
+  scroll-margin-top: 176px;
 }
 
 .menu-category > header {
@@ -2006,13 +2045,8 @@ svg {
     top: 91px;
   }
 
-  .menu-toolbar {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .menu-toolbar > div {
-    text-align: left;
+  .menu-search {
+    max-width: none;
   }
 
   .category-tabs {
@@ -2040,7 +2074,7 @@ svg {
   }
 
   .menu-category {
-    scroll-margin-top: 154px;
+    scroll-margin-top: 224px;
   }
 
   .menu-category > header {
