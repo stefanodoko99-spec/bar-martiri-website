@@ -2026,15 +2026,15 @@ svg {
   }
 
   .panel-header {
-    min-height: 92px;
+    min-height: 64px;
     align-items: center;
     gap: 8px;
-    padding: 18px 0 14px;
+    padding: 8px 0;
   }
 
   .panel-header h2 {
     overflow-wrap: anywhere;
-    font-size: clamp(22px, 7vw, 32px);
+    font-size: clamp(18px, 6vw, 24px);
   }
 
   .panel-tools {
@@ -2042,20 +2042,42 @@ svg {
   }
 
   .menu-controls {
-    top: 91px;
+    top: 64px;
+    padding: 8px 0;
+  }
+
+  .menu-toolbar {
+    padding-bottom: 8px;
   }
 
   .menu-search {
     max-width: none;
+    min-height: 40px;
+  }
+
+  .menu-search input {
+    min-height: 38px;
   }
 
   .category-tabs {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .category-tabs::-webkit-scrollbar {
+    display: none;
   }
 
   .category-tab {
-    min-height: 46px;
-    font-size: 10px;
+    flex: 0 0 auto;
+    min-height: 40px;
+    padding: 6px 14px;
+    white-space: nowrap;
   }
 
   .menu-page-intro {
@@ -2074,7 +2096,7 @@ svg {
   }
 
   .menu-category {
-    scroll-margin-top: 224px;
+    scroll-margin-top: 180px;
   }
 
   .menu-category > header {
