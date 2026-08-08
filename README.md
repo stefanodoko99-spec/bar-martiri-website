@@ -27,9 +27,9 @@ Repository me kopjen e codebase-it publik të faqes:
 ## Renditja dhe përshkrimet
 
 Emrat dhe përshkrimet e produkteve shfaqen në shqip, italisht ose anglisht
-sipas gjuhës së zgjedhur. Emrat tregtarë të markave nuk përkthehen. Përkthimet
-lidhen me ID-në e produktit, ndaj çmimet dhe të dhënat burimore në Supabase nuk
-ndryshohen.
+sipas gjuhës së zgjedhur. Përkthimet ekzistuese sipas ID-së mbeten si fallback.
+Pas aplikimit të `supabase/setup.sql`, fushat shumëgjuhëshe ruhen në databazë dhe
+mund të ndryshohen direkt nga admini.
 
 Paneli i adminit mbështet renditje manuale me shigjeta, alfabetike dhe sipas
 çmimit. Renditja ruhet te fusha ekzistuese `sort_order`.
@@ -37,6 +37,38 @@ Paneli i adminit mbështet renditje manuale me shigjeta, alfabetike dhe sipas
 Butoni “Apliko përshkrimet draft” plotëson vetëm përshkrimet bosh dhe korrigjon
 dy produkte alkoolike të vendosura gabimisht te kategoria e akullores. Tekstet
 duhet të verifikohen nga administratori përpara publikimit përfundimtar.
+
+## Përgatitja e databazës
+
+1. Ekzekuto `supabase/setup.sql` në Supabase SQL Editor.
+2. Krijo ose përdor përdoruesin e administratorit në Supabase Auth.
+3. Shto UUID-në e tij te `public.admin_users`, sipas komandës së komentuar në
+   fund të skedarit SQL.
+4. Verifiko login-in, ruajtjen, renditjen, importin dhe ngarkimin e fotografive.
+
+Kodi zbulon automatikisht nëse kolonat e përkthimit nuk janë aplikuar ende dhe
+vazhdon të shfaqë menunë ekzistuese pa e prishur faqen publike.
+
+## Testimi dhe build
+
+Nuk ka varësi të jashtme për t’u instaluar. Mjafton Node.js:
+
+```bash
+npm run build
+npm run check
+```
+
+Kur ndryshohen fotografitë ekzistuese në Supabase, rigjenero kopjet lokale me:
+
+```bash
+npm run optimize:catalog
+```
+
+Harta e imazheve kontrollon edhe URL-në burimore; një fotografi e re e ngarkuar
+nga admini shfaqet menjëherë nga Supabase dhe nuk zëvendësohet gabimisht me një
+kopje lokale të vjetër.
+
+Netlify ekzekuton automatikisht `npm run build` dhe publikon root-in e projektit.
 
 ## Kufizime të kopjes
 
