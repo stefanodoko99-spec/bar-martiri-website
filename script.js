@@ -1231,73 +1231,6 @@
     });
   }
 
-  function createHeroDrag() {
-    const dragTarget = document.querySelector('[data-hero-drag]');
-    const visual = document.querySelector('[data-hero-drag-visual]');
-    if (!dragTarget || !visual) return;
-
-    let currentX = 0;
-    let startX = 0;
-    let startDragX = 0;
-    let pointerId = null;
-    let animationFrame = 0;
-
-    const dragLimit = () => Math.min(190, Math.max(72, window.innerWidth * 0.22));
-    const renderPosition = (nextX, animate = false) => {
-      const limit = dragLimit();
-      currentX = Math.min(limit, Math.max(-limit, nextX));
-      const rotation = currentX / 22;
-      const percentage = Math.round((currentX / limit) * 100);
-      dragTarget.setAttribute('aria-valuenow', String(percentage));
-      if (animate && window.gsap && !reducedMotion) {
-        window.gsap.to(visual, {
-          x: currentX,
-          rotation,
-          duration: 0.28,
-          ease: 'power2.out',
-          overwrite: 'auto',
-        });
-      } else {
-        visual.style.transform = `translate3d(${currentX}px, 0, 0) rotate(${rotation}deg)`;
-      }
-    };
-
-    const endDrag = (event) => {
-      if (pointerId === null || (event.pointerId !== undefined && event.pointerId !== pointerId)) return;
-      dragTarget.classList.remove('is-dragging');
-      if (dragTarget.hasPointerCapture?.(pointerId)) dragTarget.releasePointerCapture(pointerId);
-      pointerId = null;
-    };
-
-    dragTarget.addEventListener('pointerdown', (event) => {
-      if (event.pointerType === 'mouse' && event.button !== 0) return;
-      pointerId = event.pointerId;
-      startX = event.clientX;
-      startDragX = currentX;
-      dragTarget.setPointerCapture(pointerId);
-      dragTarget.classList.add('is-dragging');
-    });
-    dragTarget.addEventListener('pointermove', (event) => {
-      if (event.pointerId !== pointerId) return;
-      const nextX = startDragX + event.clientX - startX;
-      cancelAnimationFrame(animationFrame);
-      animationFrame = requestAnimationFrame(() => renderPosition(nextX));
-    });
-    dragTarget.addEventListener('pointerup', endDrag);
-    dragTarget.addEventListener('pointercancel', endDrag);
-    dragTarget.addEventListener('lostpointercapture', () => {
-      pointerId = null;
-      dragTarget.classList.remove('is-dragging');
-    });
-    dragTarget.addEventListener('keydown', (event) => {
-      if (!['ArrowLeft', 'ArrowRight', 'Home'].includes(event.key)) return;
-      event.preventDefault();
-      const nextX = event.key === 'Home' ? 0 : currentX + (event.key === 'ArrowLeft' ? -28 : 28);
-      renderPosition(nextX, true);
-    });
-    window.addEventListener('resize', () => renderPosition(currentX), { passive: true });
-  }
-
   function createStoryMotion() {
     if (reducedMotion || !story || !window.gsap || !window.ScrollTrigger) return;
     const gsap = window.gsap;
@@ -1317,15 +1250,6 @@
       ease: 'power2.out',
       clearProps: 'opacity,visibility,transform',
     });
-    gsap.from('.hero-product', {
-      autoAlpha: 0,
-      y: 24,
-      scale: 0.96,
-      duration: 0.8,
-      ease: 'power3.out',
-      clearProps: 'opacity,visibility,transform',
-    });
-
     if (flavorCards.length === 5) {
       const spacing = () =>
         compactStory
@@ -1488,7 +1412,6 @@
   window.setInterval(updateSunset, 60 * 1000);
   runWhenNear(document.querySelector('[data-spille-dashboard]'), loadSpilleWeather, '500px 0px');
   createMarqueeVisibility();
-  createHeroDrag();
   if (!getCookiePreference()) showCookieBanner();
   initializeWelcomeGate();
   const year = document.querySelector('[data-current-year]');

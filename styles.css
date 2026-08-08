@@ -316,16 +316,15 @@ svg {
 }
 
 .hero-section {
-  display: grid;
+  display: flex;
   min-height: 100svh;
-  grid-template-columns: minmax(0, 0.95fr) minmax(420px, 1.05fr);
-  gap: clamp(42px, 7vw, 112px);
   align-items: center;
+  justify-content: center;
   padding: clamp(130px, 14vw, 190px) var(--page-pad) clamp(90px, 10vw, 140px);
   overflow: hidden;
   border-bottom: 1px solid var(--line);
   background:
-    radial-gradient(circle at 76% 48%, rgba(255, 255, 255, 0.72), transparent 34%),
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.72), transparent 34%),
     var(--paper);
 }
 
@@ -385,84 +384,6 @@ svg {
   font-weight: 800;
   text-transform: uppercase;
   cursor: pointer;
-}
-
-.hero-product {
-  display: grid;
-  min-width: 0;
-  margin: 0;
-  place-items: center;
-  outline: none;
-  touch-action: pan-y;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.hero-product-visual {
-  --cone-joint: 43%;
-  --cone-overlap: 18px;
-  position: relative;
-  width: min(540px, 42vw);
-  height: min(760px, 78svh);
-  cursor: grab;
-  transform: translate3d(0, 0, 0);
-  transform-origin: 50% 58%;
-  will-change: transform;
-}
-
-.hero-product.is-dragging .hero-product-visual {
-  cursor: grabbing;
-}
-
-.hero-product:focus-visible .hero-product-visual {
-  filter: drop-shadow(0 0 0.5px var(--ink));
-}
-
-.cone-piece,
-.cone-shadow {
-  position: absolute;
-  left: 50%;
-  display: block;
-}
-
-.cone-piece {
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 28px 30px var(--shadow-soft));
-  transform: translateX(-50%);
-  transform-origin: 50% 50%;
-}
-
-.cone-piece--wafer {
-  z-index: 1;
-  top: var(--cone-joint);
-  width: 27%;
-}
-
-.cone-piece--serve {
-  z-index: 2;
-  bottom: calc(100% - var(--cone-joint) - var(--cone-overlap));
-  width: 35%;
-}
-
-.cone-shadow {
-  z-index: 0;
-  bottom: 1%;
-  width: 34%;
-  height: 3.5%;
-  border-radius: 50%;
-  background: var(--shadow-soft);
-  filter: blur(13px);
-  transform: translateX(-50%);
-}
-.hero-product figcaption {
-  max-width: 34ch;
-  margin-top: -34px;
-  color: var(--ink-soft);
-  font-size: 11px;
-  font-weight: 800;
-  text-align: center;
-  text-transform: uppercase;
 }
 
 .flavor-story {
@@ -1828,15 +1749,6 @@ svg {
     grid-template-columns: 1fr;
   }
 
-  .hero-section {
-    grid-template-columns: minmax(0, 1fr) minmax(340px, 0.85fr);
-    gap: 30px;
-  }
-
-  .hero-product-visual {
-    width: min(500px, 48vw);
-  }
-
   .flavor-card {
     width: clamp(138px, 21vw, 190px);
   }
@@ -1890,8 +1802,6 @@ svg {
 
   .hero-section {
     min-height: max(820px, 100svh);
-    grid-template-columns: 1fr;
-    gap: 10px;
     padding-top: 126px;
     padding-bottom: 86px;
     text-align: center;
@@ -1916,15 +1826,6 @@ svg {
 
   .hero-menu-link {
     margin-top: 14px;
-  }
-
-  .hero-product-visual {
-    width: min(390px, 90vw);
-    height: min(500px, 52svh);
-  }
-
-  .hero-product figcaption {
-    margin-top: -20px;
   }
 
   .flavor-story {
@@ -1968,14 +1869,6 @@ svg {
 
   .flavor-story.is-static .flavor-card {
     height: 300px;
-  }
-
-  .cone-piece--wafer {
-    width: 29%;
-  }
-
-  .cone-piece--serve {
-    width: 37%;
   }
 
   .search-intro {
@@ -2365,10 +2258,6 @@ svg {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-
-  .hero-product-visual {
-    will-change: auto;
   }
 
   .flavor-story {
