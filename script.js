@@ -608,7 +608,7 @@
       try {
         new Notification(dynamicText('orderConfirmedHeadline'), {
           body: dynamicText('orderConfirmedDetail'),
-          icon: '/assets/optimized/favicon-64.png',
+          icon: '/assets/optimized/favicon-96.png',
         });
       } catch {
         // Some browsers restrict direct Notification construction; ignore.

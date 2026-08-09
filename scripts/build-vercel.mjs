@@ -16,6 +16,7 @@ const publicFiles = [
   'supabase-store.js',
   'indexnow.js',
   '46e297fcd1eacc2d8f7f2cec82e9cfce.txt',
+  'favicon.ico',
   'robots.txt',
   'sitemap.xml',
   'image-sitemap.xml',

@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const IMAGE_EXTENSIONS = ['.webp', '.jpg', '.jpeg', '.png'];
-const EXCLUDED_FILES = new Set(['favicon-64.png']);
+const EXCLUDED_FILES = new Set(['favicon-48.png', 'favicon-96.png', 'apple-touch-icon.png']);
 
 const productIds = (await readdir(resolve(projectRoot, 'assets/products')))
   .filter((file) => file.endsWith('.webp'))
