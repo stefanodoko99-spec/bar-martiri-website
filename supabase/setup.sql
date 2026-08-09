@@ -169,5 +169,44 @@ $$;
 revoke all on function public.update_product_order(jsonb) from public;
 grant execute on function public.update_product_order(jsonb) to authenticated;
 
+-- Reviews summary (rating, count, testimonials) shown on the public site and
+-- editable from /admin instead of being hand-typed in the HTML.
+create table if not exists public.site_reviews (
+  id text primary key default 'main',
+  rating_value numeric not null default 3.9,
+  review_count integer not null default 0,
+  last_verified date not null default current_date,
+  testimonials jsonb not null default '[]'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
+insert into public.site_reviews (id, rating_value, review_count, last_verified, testimonials)
+values (
+  'main', 3.9, 31, '2026-08-03',
+  '[{"author":"Doctor Who","rating":5,"quote":"That ice-cream was awesome."},{"author":"E Cabej","rating":5,"quote":"The service is excellent."}]'::jsonb
+)
+on conflict (id) do nothing;
+
+alter table public.site_reviews enable row level security;
+
+drop policy if exists "Public can read site reviews" on public.site_reviews;
+create policy "Public can read site reviews"
+on public.site_reviews for select
+to anon, authenticated
+using (true);
+
+drop policy if exists "Admins can insert site reviews" on public.site_reviews;
+create policy "Admins can insert site reviews"
+on public.site_reviews for insert
+to authenticated
+with check (public.is_menu_admin());
+
+drop policy if exists "Admins can update site reviews" on public.site_reviews;
+create policy "Admins can update site reviews"
+on public.site_reviews for update
+to authenticated
+using (public.is_menu_admin())
+with check (public.is_menu_admin());
+
 -- After creating the administrator in Authentication, run this with its UUID:
 -- insert into public.admin_users (user_id) values ('AUTH-USER-UUID') on conflict do nothing;

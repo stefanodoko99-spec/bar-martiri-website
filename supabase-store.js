@@ -2,6 +2,16 @@
   'use strict';
 
   const PRODUCTS_KEY = 'barMartiri.products.v1';
+  const REVIEWS_KEY = 'barMartiri.reviews.v1';
+  const DEFAULT_REVIEWS = Object.freeze({
+    ratingValue: '3.9',
+    reviewCount: 31,
+    lastVerified: '2026-08-03',
+    testimonials: [
+      { author: 'Doctor Who', rating: 5, quote: 'That ice-cream was awesome.' },
+      { author: 'E Cabej', rating: 5, quote: 'The service is excellent.' },
+    ],
+  });
   const config = window.BAR_MARTIRI_SUPABASE || {};
   const menuData = window.BAR_MARTIRI_MENU || { products: [] };
   const isConfigured = Boolean(
@@ -293,6 +303,73 @@
     if (error) throw error;
   }
 
+  function normalizeReviews(row) {
+    const source = row || {};
+    const testimonials = Array.isArray(source.testimonials)
+      ? source.testimonials
+      : DEFAULT_REVIEWS.testimonials;
+    return {
+      ratingValue: String(source.rating_value ?? source.ratingValue ?? DEFAULT_REVIEWS.ratingValue),
+      reviewCount: Number(source.review_count ?? source.reviewCount ?? DEFAULT_REVIEWS.reviewCount),
+      lastVerified: String(source.last_verified ?? source.lastVerified ?? DEFAULT_REVIEWS.lastVerified),
+      testimonials: testimonials.map((item) => ({
+        author: String(item.author || '').slice(0, 80),
+        rating: Number(item.rating) || 5,
+        quote: String(item.quote || '').slice(0, 240),
+      })),
+    };
+  }
+
+  function loadLocalReviews() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(REVIEWS_KEY));
+      return stored ? normalizeReviews(stored) : normalizeReviews(DEFAULT_REVIEWS);
+    } catch {
+      return normalizeReviews(DEFAULT_REVIEWS);
+    }
+  }
+
+  function saveLocalReviews(summary) {
+    localStorage.setItem(REVIEWS_KEY, JSON.stringify(summary));
+  }
+
+  async function getReviewSummary() {
+    if (!client) return loadLocalReviews();
+    try {
+      const { data, error } = await client
+        .from('site_reviews')
+        .select('rating_value,review_count,last_verified,testimonials')
+        .eq('id', 'main')
+        .single();
+      if (error) throw error;
+      return normalizeReviews(data);
+    } catch {
+      return loadLocalReviews();
+    }
+  }
+
+  async function saveReviewSummary(summary) {
+    const normalized = normalizeReviews(summary);
+    if (!client) {
+      saveLocalReviews(normalized);
+      return normalized;
+    }
+
+    const { error } = await client.from('site_reviews').upsert(
+      {
+        id: 'main',
+        rating_value: Number(normalized.ratingValue),
+        review_count: normalized.reviewCount,
+        last_verified: normalized.lastVerified,
+        testimonials: normalized.testimonials,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'id' }
+    );
+    if (error) throw error;
+    return normalized;
+  }
+
   window.BAR_MARTIRI_STORE = Object.freeze({
     isRemote: () => Boolean(client),
     hasTranslationColumns: () => translationColumnsSupported,
@@ -305,5 +382,7 @@
     signIn,
     getSession,
     signOut,
+    getReviewSummary,
+    saveReviewSummary,
   });
 })();

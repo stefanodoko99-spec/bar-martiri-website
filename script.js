@@ -25,6 +25,9 @@
   const languageSwitches = [...document.querySelectorAll('[data-language-switch]')];
   const mapFrame = document.querySelector('[data-map-shell] iframe');
   const mapPlaceholder = document.querySelector('[data-map-placeholder]');
+  const reviewRatingEl = document.querySelector('[data-review-rating]');
+  const reviewCopyEl = document.querySelector('[data-review-copy]');
+  const reviewsListEl = document.querySelector('.reviews-list');
   const MENU_CACHE_KEY = 'barMartiri.publicMenu.v3';
   const MENU_CACHE_TTL = 24 * 60 * 60 * 1000;
   const MENU_CACHE_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
@@ -130,8 +133,6 @@
     'Google Reviews': { sq: 'Vlerësime në Google', it: 'Recensioni Google', en: 'Google Reviews' },
     'Vlerësimi, i verifikuar për herë të fundit më 3 gusht 2026, bazohet në': { sq: 'Vlerësimi, i verifikuar për herë të fundit më 3 gusht 2026, bazohet në', it: 'La valutazione, verificata l’ultima volta il 3 agosto 2026, si basa su', en: 'The rating, last verified on 3 August 2026, is based on' },
     'vlerësime në Google.': { sq: 'vlerësime në Google.', it: 'recensioni su Google.', en: 'Google reviews.' },
-    'Vleresimi aktual nga': { sq: 'Vlerësimi aktual nga', it: 'Valutazione attuale da', en: 'Current rating from' },
-    'pershtypje te publikuara ne Google.': { sq: 'vlerësime të publikuara në Google.', it: 'recensioni pubblicate su Google.', en: 'reviews published on Google.' },
     'Shiko te gjitha ne Google': { sq: 'Shiko të gjitha në Google', it: 'Vedi tutte su Google', en: 'See all on Google' },
     'Shihemi tek': { sq: 'Shihemi tek', it: 'Ci vediamo al', en: 'See you at' },
     'Bar Martiri.': { sq: 'Bar Martiri.', it: 'Bar Martiri.', en: 'Bar Martiri.' },
@@ -187,6 +188,10 @@
     emptyCategory: { sq: 'Produktet e kësaj kategorie do të shtohen së shpejti.', it: 'I prodotti di questa categoria saranno aggiunti presto.', en: 'Products in this category will be added soon.' },
     noResults: { sq: 'Nuk u gjet asnjë produkt. Provo një emër tjetër.', it: 'Nessun prodotto trovato. Prova un altro nome.', en: 'No products found. Try another name.' },
     unnamedProduct: { sq: 'Pa emër', it: 'Senza nome', en: 'Unnamed' },
+    reviewVerifiedPrefix: { sq: 'Vlerësimi, i verifikuar për herë të fundit më', it: 'La valutazione, verificata l’ultima volta il', en: 'The rating, last verified on' },
+    reviewBasedOnSuffix: { sq: 'bazohet në', it: 'si basa su', en: 'is based on' },
+    reviewCountSuffix: { sq: 'vlerësime në Google.', it: 'recensioni su Google.', en: 'Google reviews.' },
+    ratingOutOf5: { sq: 'nga 5', it: 'su 5', en: 'out of 5' },
   });
 
   const optimizedLocalImages = {
@@ -215,6 +220,16 @@
   let menuLoadPromise = null;
   let productImageObserver = null;
   let menuSearchQuery = '';
+  const DEFAULT_REVIEWS = Object.freeze({
+    ratingValue: '3.9',
+    reviewCount: 31,
+    lastVerified: '2026-08-03',
+    testimonials: [
+      { author: 'Doctor Who', rating: 5, quote: 'That ice-cream was awesome.' },
+      { author: 'E Cabej', rating: 5, quote: 'The service is excellent.' },
+    ],
+  });
+  let reviewSummary = DEFAULT_REVIEWS;
 
   function dynamicText(key) {
     return DYNAMIC_TEXT[key]?.[currentLanguage] || DYNAMIC_TEXT[key]?.sq || '';
@@ -312,6 +327,88 @@
     return productTranslationFor(product)?.description || product.description || '';
   }
 
+  function formatVerifiedDate(dateString) {
+    try {
+      return new Date(`${dateString}T00:00:00`).toLocaleDateString(LANGUAGE_LOCALES[currentLanguage], {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      });
+    } catch {
+      return dateString;
+    }
+  }
+
+  function renderReviews() {
+    if (reviewRatingEl) reviewRatingEl.textContent = reviewSummary.ratingValue;
+
+    if (reviewCopyEl) {
+      reviewCopyEl.replaceChildren(
+        `${dynamicText('reviewVerifiedPrefix')} ${formatVerifiedDate(reviewSummary.lastVerified)}, ${dynamicText('reviewBasedOnSuffix')} `
+      );
+      const count = document.createElement('strong');
+      count.textContent = reviewSummary.reviewCount;
+      reviewCopyEl.append(count, ` ${dynamicText('reviewCountSuffix')}`);
+    }
+
+    if (reviewsListEl) {
+      reviewsListEl.replaceChildren();
+      reviewSummary.testimonials.forEach((testimonial) => {
+        const ratingValue = Number(testimonial.rating) || 5;
+        const article = document.createElement('article');
+        article.className = 'review-row';
+
+        const meta = document.createElement('div');
+        meta.className = 'review-meta';
+        const ratingSpan = document.createElement('span');
+        ratingSpan.className = 'review-rating';
+        ratingSpan.setAttribute('aria-label', `${ratingValue} ${dynamicText('ratingOutOf5')}`);
+        ratingSpan.textContent = `${ratingValue.toFixed(1)} / 5`;
+        const authorParagraph = document.createElement('p');
+        authorParagraph.textContent = `${testimonial.author} · Google`;
+        meta.append(ratingSpan, authorParagraph);
+
+        const quote = document.createElement('blockquote');
+        quote.lang = 'en';
+        quote.textContent = `“${testimonial.quote}”`;
+
+        article.append(meta, quote);
+        reviewsListEl.append(article);
+      });
+    }
+  }
+
+  async function loadReviewSummary() {
+    if (!supabaseConfig.url || !supabaseConfig.publishableKey) return;
+    try {
+      const response = await fetch(
+        `${supabaseConfig.url}/rest/v1/site_reviews?id=eq.main&select=rating_value,review_count,last_verified,testimonials`,
+        {
+          headers: {
+            apikey: supabaseConfig.publishableKey,
+            Authorization: `Bearer ${supabaseConfig.publishableKey}`,
+          },
+        }
+      );
+      if (!response.ok) return;
+      const rows = await response.json();
+      const row = rows?.[0];
+      if (!row) return;
+      reviewSummary = {
+        ratingValue: String(row.rating_value ?? DEFAULT_REVIEWS.ratingValue),
+        reviewCount: Number(row.review_count ?? DEFAULT_REVIEWS.reviewCount),
+        lastVerified: String(row.last_verified ?? DEFAULT_REVIEWS.lastVerified),
+        testimonials:
+          Array.isArray(row.testimonials) && row.testimonials.length
+            ? row.testimonials
+            : DEFAULT_REVIEWS.testimonials,
+      };
+      renderReviews();
+    } catch {
+      // Keep showing the default review summary when the table isn't reachable yet.
+    }
+  }
+
   function applyLanguage(language) {
     currentLanguage = LANGUAGE_LOCALES[language] ? language : 'sq';
     document.documentElement.lang = LANGUAGE_LOCALES[currentLanguage];
@@ -336,6 +433,7 @@
       renderCategories();
       renderProducts();
     }
+    renderReviews();
   }
 
   function detectBrowserLanguage() {
@@ -1385,6 +1483,7 @@
   runWhenNear(document.querySelector('[data-spille-dashboard]'), loadSpilleWeather, '500px 0px');
   createMarqueeVisibility();
   if (!getCookiePreference()) showCookieBanner();
+  void loadReviewSummary();
   initializeLanguage();
   const year = document.querySelector('[data-current-year]');
   if (year) year.textContent = new Date().getFullYear();

@@ -17,6 +17,21 @@ const MENU_NAME = {
   it: 'Il menu del Bar Martiri',
   en: 'The Bar Martiri menu',
 };
+const REVIEW_TEXT = {
+  verifiedPrefix: { sq: 'Vlerësimi, i verifikuar për herë të fundit më', it: 'La valutazione, verificata l’ultima volta il', en: 'The rating, last verified on' },
+  basedOnSuffix: { sq: 'bazohet në', it: 'si basa su', en: 'is based on' },
+  countSuffix: { sq: 'vlerësime në Google.', it: 'recensioni su Google.', en: 'Google reviews.' },
+  ratingOutOf5: { sq: 'nga 5', it: 'su 5', en: 'out of 5' },
+};
+const DEFAULT_REVIEWS = {
+  ratingValue: '3.9',
+  reviewCount: 31,
+  lastVerified: '2026-08-03',
+  testimonials: [
+    { author: 'Doctor Who', rating: 5, quote: 'That ice-cream was awesome.' },
+    { author: 'E Cabej', rating: 5, quote: 'The service is excellent.' },
+  ],
+};
 
 async function loadMenuData() {
   const menuDataSource = await readFile(resolve(projectRoot, 'menu-data.js'), 'utf8');
@@ -101,6 +116,107 @@ async function loadFallbackProducts() {
     sortOrder: Number(product.sort_order ?? index),
     translations: { it: {}, en: {} },
   }));
+}
+
+async function fetchReviewSummary() {
+  const configSource = await readFile(resolve(projectRoot, 'supabase-config.js'), 'utf8');
+  const sandbox = { BAR_MARTIRI_SUPABASE: null };
+  new Function('window', configSource)(sandbox);
+  const config = sandbox.BAR_MARTIRI_SUPABASE;
+  try {
+    const query = new URLSearchParams({
+      id: 'eq.main',
+      select: 'rating_value,review_count,last_verified,testimonials',
+    });
+    const response = await fetch(`${config.url}/rest/v1/site_reviews?${query.toString()}`, {
+      headers: { apikey: config.publishableKey, Authorization: `Bearer ${config.publishableKey}` },
+    });
+    if (!response.ok) throw new Error(`Supabase request failed with ${response.status}`);
+    const rows = await response.json();
+    const row = rows?.[0];
+    if (!row) throw new Error('No review summary row found');
+    return {
+      ratingValue: String(row.rating_value ?? DEFAULT_REVIEWS.ratingValue),
+      reviewCount: Number(row.review_count ?? DEFAULT_REVIEWS.reviewCount),
+      lastVerified: String(row.last_verified ?? DEFAULT_REVIEWS.lastVerified),
+      testimonials:
+        Array.isArray(row.testimonials) && row.testimonials.length
+          ? row.testimonials
+          : DEFAULT_REVIEWS.testimonials,
+    };
+  } catch (error) {
+    console.warn(`Review summary fetch failed, using defaults: ${error.message}`);
+    return DEFAULT_REVIEWS;
+  }
+}
+
+function formatVerifiedDate(dateString, locale) {
+  try {
+    return new Date(`${dateString}T00:00:00`).toLocaleDateString(locale, {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  } catch {
+    return dateString;
+  }
+}
+
+function buildReviewsHtml(reviewSummary, language) {
+  const locale = LOCALE_TAG[language];
+  const copy = `${REVIEW_TEXT.verifiedPrefix[language]} ${formatVerifiedDate(reviewSummary.lastVerified, locale)}, ${REVIEW_TEXT.basedOnSuffix[language]} <strong>${escapeHtml(reviewSummary.reviewCount)}</strong> ${REVIEW_TEXT.countSuffix[language]}`;
+  const rows = reviewSummary.testimonials
+    .map((testimonial) => {
+      const ratingValue = Number(testimonial.rating) || 5;
+      return `<article class="review-row"><div class="review-meta"><span class="review-rating" aria-label="${ratingValue} ${escapeHtml(REVIEW_TEXT.ratingOutOf5[language])}">${ratingValue.toFixed(1)} / 5</span><p>${escapeHtml(testimonial.author)} · Google</p></div><blockquote lang="en">“${escapeHtml(testimonial.quote)}”</blockquote></article>`;
+    })
+    .join('');
+  return { ratingValue: reviewSummary.ratingValue, copy, rows };
+}
+
+function injectReviews(html, reviewSummary, language) {
+  const { ratingValue, copy, rows } = buildReviewsHtml(reviewSummary, language);
+
+  const ratingPattern = /<span data-review-rating>[^<]*<\/span>/;
+  if (!ratingPattern.test(html)) throw new Error('Could not find the review rating placeholder.');
+  html = html.replace(ratingPattern, `<span data-review-rating>${escapeHtml(ratingValue)}</span>`);
+
+  const copyPattern = /<p data-review-copy>[\s\S]*?<\/p>/;
+  if (!copyPattern.test(html)) throw new Error('Could not find the review copy placeholder.');
+  html = html.replace(copyPattern, `<p data-review-copy>${copy}</p>`);
+
+  const listPattern = /<div class="reviews-list">[\s\S]*?<\/div>\s*<\/section>/;
+  if (!listPattern.test(html)) throw new Error('Could not find the reviews-list container.');
+  html = html.replace(listPattern, `<div class="reviews-list">${rows}</div>\n      </section>`);
+
+  const businessMatch = html.match(/<script type="application\/ld\+json">\n([\s\S]*?)\n {4}<\/script>/);
+  if (!businessMatch) throw new Error('Could not find the JSON-LD script block to inject reviews into.');
+  const data = JSON.parse(businessMatch[1]);
+  const businessNode = data['@graph']?.find((node) => {
+    const type = node['@type'];
+    return Array.isArray(type) ? type.includes('BarOrPub') : type === 'BarOrPub';
+  });
+  if (!businessNode) throw new Error('Could not find the business node in the JSON-LD graph.');
+  businessNode.aggregateRating = {
+    '@type': 'AggregateRating',
+    ratingValue: reviewSummary.ratingValue,
+    bestRating: '5',
+    reviewCount: String(reviewSummary.reviewCount),
+  };
+  businessNode.review = reviewSummary.testimonials.map((testimonial) => ({
+    '@type': 'Review',
+    author: { '@type': 'Person', name: testimonial.author },
+    reviewRating: { '@type': 'Rating', ratingValue: String(Number(testimonial.rating) || 5), bestRating: '5' },
+    reviewBody: testimonial.quote,
+    inLanguage: 'en',
+  }));
+  const serialized = JSON.stringify(data, null, 2)
+    .split('\n')
+    .map((line) => `      ${line}`)
+    .join('\n');
+  html = html.replace(businessMatch[0], `<script type="application/ld+json">\n${serialized}\n    </script>`);
+
+  return html;
 }
 
 function escapeHtml(value) {
@@ -254,6 +370,8 @@ try {
   products = await loadFallbackProducts();
 }
 
+const reviewSummary = await fetchReviewSummary();
+
 const pages = {
   sq: 'index.html',
   it: 'it/index.html',
@@ -267,6 +385,7 @@ for (const language of LOCALES) {
   const menuSchema = buildMenuSchema(products, menuData, language);
   html = injectProductGrid(html, gridHtml);
   html = injectMenuSchema(html, menuSchema);
+  html = injectReviews(html, reviewSummary, language);
   await writeFile(filePath, html);
 }
 

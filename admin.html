@@ -44,11 +44,17 @@
           <h1>Menuja</h1>
         </div>
         <nav aria-label="Navigimi i panelit">
-          <button class="sidebar-action is-active" type="button">
+          <button class="sidebar-action is-active" type="button" data-admin-view-tab="products">
             <svg aria-hidden="true" viewBox="0 0 24 24">
               <path d="M4 6h16M4 12h16M4 18h10"></path>
             </svg>
             Produktet
+          </button>
+          <button class="sidebar-action" type="button" data-admin-view-tab="reviews">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="m12 3 2.6 5.6 6.1.8-4.5 4.2 1.1 6-5.3-3-5.3 3 1.1-6-4.5-4.2 6.1-.8Z"></path>
+            </svg>
+            Vlerësimet
           </button>
         </nav>
         <div class="sidebar-footer">
@@ -76,7 +82,7 @@
           <p>Paneli hapet vetëm pasi verifikohet sesioni i sigurt në Supabase.</p>
         </div>
 
-        <div class="admin-layout">
+        <div class="admin-layout" data-admin-view-panel="products">
           <section class="product-list-panel" aria-labelledby="product-list-title">
             <div class="section-toolbar">
               <h3 id="product-list-title">Të gjitha produktet</h3>
@@ -207,6 +213,52 @@
               <div class="form-actions">
                 <button class="primary-button" type="submit">Ruaj produktin</button>
                 <button class="danger-button" type="button" data-delete-product hidden>Fshi</button>
+              </div>
+            </form>
+          </section>
+        </div>
+
+        <div class="admin-layout" data-admin-view-panel="reviews" hidden>
+          <section class="reviews-panel" aria-labelledby="reviews-panel-title">
+            <div class="section-toolbar">
+              <h3 id="reviews-panel-title">Vlerësimet nga Google</h3>
+            </div>
+            <p class="field-help">
+              Këto vlera shfaqen në faqen publike dhe në të dhënat structured (schema.org). Përditësoji
+              kur kontrollosh profilin tuaj në Google Maps.
+            </p>
+            <form class="reviews-form" data-reviews-form>
+              <div class="form-row">
+                <label>
+                  Vlerësimi (nga 5)
+                  <input name="ratingValue" type="number" min="0" max="5" step="0.1" required>
+                </label>
+                <label>
+                  Numri i vlerësimeve
+                  <input name="reviewCount" type="number" min="0" step="1" required>
+                </label>
+                <label>
+                  Verifikuar më
+                  <input name="lastVerified" type="date" required>
+                </label>
+              </div>
+
+              <fieldset class="translation-fieldset">
+                <legend>Përshtypjet e shfaqura</legend>
+                <div data-testimonials-list></div>
+                <button class="secondary-button" type="button" data-add-testimonial>
+                  <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="M12 5v14M5 12h14"></path>
+                  </svg>
+                  Shto përshtypje
+                </button>
+              </fieldset>
+
+              <p class="form-error" data-reviews-error role="alert"></p>
+              <p class="sort-status" data-reviews-status role="status" aria-live="polite"></p>
+
+              <div class="form-actions">
+                <button class="primary-button" type="submit">Ruaj vlerësimet</button>
               </div>
             </form>
           </section>

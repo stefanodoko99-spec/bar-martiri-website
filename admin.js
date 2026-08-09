@@ -24,9 +24,151 @@
   const sortMode = document.querySelector('[data-sort-mode]');
   const applySortButton = document.querySelector('[data-apply-sort]');
   const sortStatus = document.querySelector('[data-sort-status]');
+  const reviewsForm = document.querySelector('[data-reviews-form]');
+  const testimonialsList = document.querySelector('[data-testimonials-list]');
+  const addTestimonialButton = document.querySelector('[data-add-testimonial]');
+  const reviewsError = document.querySelector('[data-reviews-error]');
+  const reviewsStatus = document.querySelector('[data-reviews-status]');
   let products = [...menuData.products];
   let currentImage = '';
   let pendingImage = null;
+  let testimonials = [];
+
+  document.querySelectorAll('[data-admin-view-tab]').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const view = tab.dataset.adminViewTab;
+      document.querySelectorAll('[data-admin-view-tab]').forEach((button) => {
+        button.classList.toggle('is-active', button === tab);
+      });
+      document.querySelectorAll('[data-admin-view-panel]').forEach((panel) => {
+        panel.hidden = panel.dataset.adminViewPanel !== view;
+      });
+    });
+  });
+
+  function createTestimonialRow(testimonial = { author: '', rating: 5, quote: '' }) {
+    const row = document.createElement('div');
+    row.className = 'testimonial-row';
+    row.dataset.testimonialRow = '';
+
+    const formRow = document.createElement('div');
+    formRow.className = 'form-row';
+
+    const authorLabel = document.createElement('label');
+    authorLabel.textContent = 'Autori';
+    const authorInput = document.createElement('input');
+    authorInput.type = 'text';
+    authorInput.maxLength = 80;
+    authorInput.dataset.field = 'author';
+    authorInput.value = testimonial.author || '';
+    authorInput.required = true;
+    authorLabel.append(authorInput);
+
+    const ratingLabel = document.createElement('label');
+    ratingLabel.textContent = 'Vlerësimi (nga 5)';
+    const ratingInput = document.createElement('input');
+    ratingInput.type = 'number';
+    ratingInput.min = '1';
+    ratingInput.max = '5';
+    ratingInput.step = '0.1';
+    ratingInput.dataset.field = 'rating';
+    ratingInput.value = testimonial.rating ?? 5;
+    ratingInput.required = true;
+    ratingLabel.append(ratingInput);
+
+    formRow.append(authorLabel, ratingLabel);
+
+    const quoteLabel = document.createElement('label');
+    quoteLabel.textContent = 'Citimi';
+    const quoteInput = document.createElement('textarea');
+    quoteInput.rows = 2;
+    quoteInput.maxLength = 240;
+    quoteInput.dataset.field = 'quote';
+    quoteInput.value = testimonial.quote || '';
+    quoteInput.required = true;
+    quoteLabel.append(quoteInput);
+
+    const removeButton = document.createElement('button');
+    removeButton.type = 'button';
+    removeButton.className = 'icon-button';
+    removeButton.dataset.removeTestimonial = '';
+    removeButton.setAttribute('aria-label', 'Hiq përshtypjen');
+    removeButton.textContent = '×';
+    removeButton.addEventListener('click', () => row.remove());
+
+    row.append(formRow, quoteLabel, removeButton);
+    return row;
+  }
+
+  function renderTestimonials(items) {
+    if (!testimonialsList) return;
+    testimonialsList.replaceChildren();
+    (items.length ? items : [{ author: '', rating: 5, quote: '' }]).forEach((item) => {
+      testimonialsList.append(createTestimonialRow(item));
+    });
+  }
+
+  function collectTestimonials() {
+    return [...(testimonialsList?.querySelectorAll('[data-testimonial-row]') || [])]
+      .map((row) => ({
+        author: row.querySelector('[data-field="author"]')?.value.trim() || '',
+        rating: Number(row.querySelector('[data-field="rating"]')?.value) || 5,
+        quote: row.querySelector('[data-field="quote"]')?.value.trim() || '',
+      }))
+      .filter((item) => item.author && item.quote);
+  }
+
+  addTestimonialButton?.addEventListener('click', () => {
+    testimonialsList?.append(createTestimonialRow({ author: '', rating: 5, quote: '' }));
+  });
+
+  async function loadReviewsPanel() {
+    if (!store?.getReviewSummary) return;
+    try {
+      const summary = await store.getReviewSummary();
+      testimonials = summary.testimonials;
+      if (reviewsForm) {
+        reviewsForm.elements.ratingValue.value = summary.ratingValue;
+        reviewsForm.elements.reviewCount.value = summary.reviewCount;
+        reviewsForm.elements.lastVerified.value = summary.lastVerified;
+      }
+      renderTestimonials(testimonials);
+    } catch {
+      setError(reviewsError, 'Vlerësimet nuk mund të ngarkohen.');
+    }
+  }
+
+  reviewsForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    setError(reviewsError, '');
+    if (reviewsStatus) reviewsStatus.textContent = '';
+
+    const collected = collectTestimonials();
+    if (!collected.length) {
+      setError(reviewsError, 'Shto të paktën një përshtypje.');
+      return;
+    }
+
+    const summary = {
+      ratingValue: reviewsForm.elements.ratingValue.value,
+      reviewCount: Number(reviewsForm.elements.reviewCount.value) || 0,
+      lastVerified: reviewsForm.elements.lastVerified.value,
+      testimonials: collected,
+    };
+
+    const submitButton = reviewsForm.querySelector('button[type="submit"]');
+    try {
+      if (submitButton) submitButton.disabled = true;
+      await store.saveReviewSummary(summary);
+      testimonials = collected;
+      if (reviewsStatus) reviewsStatus.textContent = 'Vlerësimet u ruajtën.';
+      window.BAR_MARTIRI_INDEXNOW?.submit();
+    } catch (error) {
+      setError(reviewsError, error.message || 'Vlerësimet nuk mund të ruhen.');
+    } finally {
+      if (submitButton) submitButton.disabled = false;
+    }
+  });
 
   function showAuthView() {
     authShell.hidden = false;
@@ -62,6 +204,7 @@
     } catch {
       productError.textContent = 'Produktet nuk mund të ngarkohen nga Supabase.';
     }
+    void loadReviewsPanel();
   }
 
   function setError(element, message) {

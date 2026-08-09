@@ -612,6 +612,37 @@ textarea:focus {
   opacity: 0.7;
 }
 
+.reviews-panel {
+  width: 100%;
+  padding: 22px;
+  border: 1px solid var(--line);
+  background: var(--white);
+}
+
+.reviews-form {
+  display: grid;
+  gap: 18px;
+  padding-top: 18px;
+}
+
+.testimonial-row {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  padding: 16px 44px 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.testimonial-row:first-child {
+  padding-top: 0;
+}
+
+.testimonial-row [data-remove-testimonial] {
+  position: absolute;
+  top: 14px;
+  right: 0;
+}
+
 .image-fieldset {
   min-width: 0;
   margin: 0;
