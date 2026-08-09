@@ -130,6 +130,7 @@
     try {
       products = await store.saveProductOrder(normalizeSortOrders(nextProducts));
       renderProducts();
+      window.BAR_MARTIRI_INDEXNOW?.submit();
       if (sortStatus) sortStatus.textContent = successMessage;
     } catch (error) {
       if (sortStatus) sortStatus.textContent = error.message || 'Renditja nuk mund të ruhet.';
@@ -326,6 +327,7 @@
       products.sort((left, right) => Number(left.sortOrder) - Number(right.sortOrder));
       renderProducts();
       resetEditor();
+      window.BAR_MARTIRI_INDEXNOW?.submit();
     } catch (error) {
       productError.textContent =
         error.message || 'Produkti nuk mund të ruhet.';
@@ -345,6 +347,7 @@
       products = products.filter((item) => item.id !== id);
       renderProducts();
       resetEditor();
+      window.BAR_MARTIRI_INDEXNOW?.submit();
     } catch (error) {
       productError.textContent = error.message || 'Produkti nuk mund të fshihet.';
     } finally {
@@ -507,6 +510,7 @@
       products = await store.saveProductOrder(merged);
       renderProducts();
       resetEditor();
+      window.BAR_MARTIRI_INDEXNOW?.submit();
       if (sortStatus) {
         sortStatus.textContent = `${changed} produkte u përditësuan. Kontrolloji nga formulari.`;
       }
@@ -567,6 +571,7 @@
       products = await store.replaceProducts(importedProducts);
       renderProducts();
       resetEditor();
+      window.BAR_MARTIRI_INDEXNOW?.submit();
     } catch {
       window.alert('Skedari JSON nuk është i vlefshëm.');
     } finally {

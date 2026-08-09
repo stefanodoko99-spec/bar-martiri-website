@@ -27,7 +27,19 @@
   </url>
   <url>
     <loc>https://www.barmartiri.com/privacy</loc>
-    <lastmod>2026-08-08</lastmod>
+    <lastmod>2026-08-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.barmartiri.com/it/privacy</loc>
+    <lastmod>2026-08-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.barmartiri.com/en/privacy</loc>
+    <lastmod>2026-08-09</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

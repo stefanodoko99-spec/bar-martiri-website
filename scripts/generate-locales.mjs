@@ -34,25 +34,29 @@ const locales = {
     htmlLanguage: 'it-IT',
     ogLocale: 'it_IT',
     path: '/it/',
-    title: 'Bar Martiri Spille | Lettini vicino al mare',
+    title: 'Bar Martiri Spille | Gelato e Lettini vicino al Mare',
     description:
       'Bar Martiri a Spille, Albania: lettini, parcheggio gratuito, gelato, caffè e bibite vicino al mare.',
     socialDescription:
       'Lettini, parcheggio gratuito, gelato, caffè e bibite vicino al mare a Spille, Albania.',
     businessDescription:
       'Bar vicino al mare a Spille con lettini, parcheggio gratuito, gelato, caffè e bibite fresche.',
+    servesCuisine: ['Gelato', 'Caffè', 'Bibite'],
+    amenityAccess: 'Accesso facile da Rruga e Pishave',
   },
   en: {
     htmlLanguage: 'en-GB',
     ogLocale: 'en_GB',
     path: '/en/',
-    title: 'Bar Martiri Spille | Sunbeds by the Sea',
+    title: 'Bar Martiri Spille | Ice Cream & Sunbeds by the Sea',
     description:
       'Bar Martiri in Spille, Albania: sunbeds, free parking, ice cream, coffee and cold drinks by the sea.',
     socialDescription:
       'Sunbeds, free parking, ice cream, coffee and cold drinks by the sea in Spille, Albania.',
     businessDescription:
       'Beachside bar in Spille with sunbeds, free parking, ice cream, coffee and cold drinks.',
+    servesCuisine: ['Ice Cream', 'Coffee', 'Drinks'],
+    amenityAccess: 'Easy access from Rruga e Pishave',
   },
 };
 
@@ -62,6 +66,7 @@ for (const [language, locale] of Object.entries(locales)) {
     .replace('<html lang="sq-AL">', `<html lang="${locale.htmlLanguage}" data-initial-language="${language}">`)
     .replace('<head>', '<head>\n    <base href="/">')
     .replaceAll('href="#', `href="${locale.path}#`)
+    .replaceAll('href="/privacy"', `href="${locale.path}privacy"`)
     .replace(
       'content="Bar Martiri në Spille, Shqipëri: shezlone, parkim falas, akullore, kafe dhe pije pranë detit për pushimet tuaja verore."',
       `content="${locale.description}"`
@@ -71,7 +76,7 @@ for (const [language, locale] of Object.entries(locales)) {
       `<link rel="canonical" href="${canonical}">`
     )
     .replace('content="sq_AL"', `content="${locale.ogLocale}"`)
-    .replaceAll('content="Bar Martiri Spille | Shezlone dhe Akullore"', `content="${locale.title}"`)
+    .replaceAll('content="Bar Martiri Spille | Akullore dhe Shezlone Pranë Detit"', `content="${locale.title}"`)
     .replaceAll(
       'content="Shezlone, parkim falas, akullore, kafe dhe pije pranë detit në Spille, Shqipëri."',
       `content="${locale.socialDescription}"`
@@ -81,8 +86,8 @@ for (const [language, locale] of Object.entries(locales)) {
       `content="${locale.socialDescription}"`
     )
     .replace('content="https://www.barmartiri.com/"', `content="${canonical}"`)
-    .replace('<title>Bar Martiri Spille | Shezlone dhe Akullore</title>', `<title>${locale.title}</title>`)
-    .replaceAll('Bar Martiri Spille | Shezlone dhe Akullore', locale.title)
+    .replace('<title>Bar Martiri Spille | Akullore dhe Shezlone Pranë Detit</title>', `<title>${locale.title}</title>`)
+    .replaceAll('Bar Martiri Spille | Akullore dhe Shezlone Pranë Detit', locale.title)
     .replace(
       'Bar Martiri në Spille me shezlone, parkim falas, akullore, kafe dhe pije pranë detit.',
       locale.description
@@ -99,7 +104,15 @@ for (const [language, locale] of Object.entries(locales)) {
       `"@id": "${canonical}#webpage",\n            "url": "https://www.barmartiri.com/"`,
       `"@id": "${canonical}#webpage",\n            "url": "${canonical}"`
     )
-    .replaceAll('"inLanguage": "sq-AL"', `"inLanguage": "${locale.htmlLanguage}"`);
+    .replace(
+      /("@type": "WebPage"[\s\S]*?"inLanguage": ")sq-AL(")/,
+      `$1${locale.htmlLanguage}$2`
+    )
+    .replace(
+      '"servesCuisine": ["Akullore", "Kafe", "Pije"]',
+      `"servesCuisine": ${JSON.stringify(locale.servesCuisine)}`
+    )
+    .replace('"name": "Akses i thjeshtë nga Rruga e Pishave"', `"name": "${locale.amenityAccess}"`);
 
   page = translateStaticHtml(page, language);
 

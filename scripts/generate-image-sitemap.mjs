@@ -3,15 +3,22 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const IMAGE_EXTENSIONS = ['.webp', '.jpg', '.jpeg', '.png'];
+const EXCLUDED_FILES = new Set(['favicon-64.png']);
+
 const productIds = (await readdir(resolve(projectRoot, 'assets/products')))
   .filter((file) => file.endsWith('.webp'))
   .map((file) => file.replace(/\.webp$/, ''))
   .sort();
 if (!productIds.length) throw new Error('No optimized catalog images were found.');
 
+const optimizedFiles = (await readdir(resolve(projectRoot, 'assets/optimized')))
+  .filter((file) => IMAGE_EXTENSIONS.some((ext) => file.endsWith(ext)) && !EXCLUDED_FILES.has(file))
+  .sort();
+if (!optimizedFiles.length) throw new Error('No optimized site images were found.');
+
 const imageLocations = [
-  'assets/optimized/bar-martiri-spille-social.jpg',
-  'assets/optimized/ice-cream-cone.webp',
+  ...optimizedFiles.map((file) => `assets/optimized/${file}`),
   ...productIds.map((id) => `assets/products/${id}.webp`),
 ];
 const images = imageLocations

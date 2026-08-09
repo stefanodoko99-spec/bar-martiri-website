@@ -60,110 +60,9 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-body.is-welcome-open,
 body.is-panel-open {
   overflow: hidden;
 }
-
-.welcome-gate {
-  position: fixed;
-  z-index: 120;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  background: var(--paper);
-  opacity: 1;
-  transition: opacity 260ms var(--ease-standard);
-}
-
-.welcome-gate.is-leaving {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.welcome-card {
-  display: grid;
-  width: min(620px, 100%);
-  justify-items: center;
-  gap: 22px;
-  text-align: center;
-}
-
-.welcome-card h1 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: clamp(54px, 9vw, 108px);
-  font-weight: 400;
-  line-height: 0.9;
-}
-
-.welcome-status {
-  min-height: 24px;
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 14px;
-}
-
-.welcome-loader {
-  display: block;
-  width: min(280px, 70vw);
-  height: 2px;
-  overflow: hidden;
-  background: var(--line);
-}
-
-.welcome-loader::after {
-  display: block;
-  width: 42%;
-  height: 100%;
-  background: var(--ink);
-  content: '';
-  animation: welcome-loading 1s var(--ease-standard) infinite;
-}
-
-.welcome-loader.is-ready::after {
-  width: 100%;
-  animation: none;
-}
-
-.language-choice {
-  display: grid;
-  width: min(520px, 100%);
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.language-choice button {
-  min-height: 52px;
-  border: 1px solid var(--ink);
-  border-radius: var(--radius);
-  background: transparent;
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.language-choice button:disabled {
-  border-color: var(--line);
-  color: var(--ink-soft);
-  cursor: wait;
-}
-
-.language-choice button:not(:disabled):is(:hover, :focus-visible) {
-  background: var(--ink);
-  color: var(--white);
-}
-
-@keyframes welcome-loading {
-  from {
-    transform: translateX(-110%);
-  }
-  to {
-    transform: translateX(350%);
-  }
-}
-
 
 button,
 input,
@@ -1124,6 +1023,7 @@ svg {
   font-size: clamp(42px, 6vw, 76px);
   font-weight: 400;
   line-height: 0.92;
+  text-wrap: balance;
   transition: font-size 240ms var(--ease-out);
 }
 
@@ -1138,8 +1038,8 @@ svg {
 }
 
 .panel-language-switcher button {
-  min-width: 42px;
-  min-height: 42px;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .icon-button {
@@ -1669,7 +1569,7 @@ svg {
 .cookie-banner {
   position: fixed;
   z-index: 70;
-  bottom: calc(max(14px, env(safe-area-inset-bottom)) + var(--dock-height) + 14px);
+  top: calc(max(12px, env(safe-area-inset-top)) + 76px);
   left: var(--page-pad);
   display: grid;
   width: min(560px, calc(100% - (var(--page-pad) * 2)));
@@ -1680,7 +1580,7 @@ svg {
   background: var(--paper-strong);
   box-shadow: 0 18px 50px var(--shadow-strong);
   opacity: 0;
-  transform: translateY(14px);
+  transform: translateY(-14px);
   transition:
     opacity 220ms var(--ease-standard),
     transform 300ms var(--ease-out);
@@ -2153,10 +2053,6 @@ svg {
     font-size: 10px;
   }
 
-  .panel-header h2 {
-    font-size: 34px;
-  }
-
   .product-card {
     grid-template-columns: 96px minmax(0, 1fr);
     padding: 12px;
@@ -2298,9 +2194,5 @@ svg {
   .flavor-progress,
   .flavor-cue {
     display: none;
-  }
-
-  .welcome-loader::after {
-    animation: none;
   }
 }

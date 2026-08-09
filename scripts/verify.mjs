@@ -16,7 +16,6 @@ const requiredFiles = [
   'product-image-map.js',
   'admin.js',
   'supabase-store.js',
-  'netlify.toml',
   'supabase/setup.sql',
 ];
 
@@ -80,10 +79,8 @@ const assertions = [
     'Language controls must be available in the header and all three panels',
   ],
   [
-    publicHtml.includes('data-hero-drag') &&
-      publicHtml.includes('data-menu-search') &&
-      publicHtml.includes('data-category-tabs'),
-    'The draggable hero and compact searchable menu controls are required',
+    publicHtml.includes('data-menu-search') && publicHtml.includes('data-category-tabs'),
+    'The compact searchable menu controls are required',
   ],
   [
     publicScript.includes("loadScript('assets/vendor/ScrollTrigger.min.js')") &&

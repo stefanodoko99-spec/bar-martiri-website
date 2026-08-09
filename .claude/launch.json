@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "bar-martiri-static",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "4173", "."],
+      "port": 4173
+    },
+    {
+      "name": "bar-martiri-dist",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "4174", "dist"],
+      "port": 4174
+    }
+  ]
+}
