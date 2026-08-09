@@ -857,9 +857,9 @@ svg {
   bottom: max(14px, env(safe-area-inset-bottom));
   left: 50%;
   display: grid;
-  width: min(540px, calc(100% - 28px));
+  width: min(620px, calc(100% - 28px));
   height: var(--dock-height);
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 4px;
   padding: 7px;
   border: 1px solid var(--white);
@@ -877,7 +877,7 @@ svg {
 }
 
 .bottom-dock.is-compact {
-  width: min(330px, calc(100% - 40px));
+  width: min(400px, calc(100% - 40px));
   height: var(--dock-compact-height);
   border-radius: 18px;
   background: var(--dock-bg-strong);
@@ -919,6 +919,29 @@ svg {
 .dock-action.is-active {
   background: var(--ink);
   color: var(--white);
+}
+
+.dock-badge {
+  position: absolute;
+  top: 2px;
+  right: 10%;
+  display: flex;
+  min-width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--white);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.dock-action.is-active .dock-badge {
+  background: var(--white);
+  color: var(--ink);
 }
 
 .dock-action::after {
@@ -1067,6 +1090,7 @@ svg {
 .menu-catalog,
 .menu-status,
 .location-panel-body,
+.basket-body,
 .info-page {
   width: min(100%, var(--content));
   margin-right: auto;
@@ -1339,9 +1363,172 @@ svg {
 }
 
 .product-card strong {
-  display: block;
-  margin-top: 10px;
   font-size: 13px;
+}
+
+.product-card-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.add-to-basket {
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color 160ms var(--ease-standard),
+    color 160ms var(--ease-standard),
+    transform 120ms var(--ease-out);
+}
+
+.add-to-basket:active {
+  transform: scale(0.92);
+}
+
+.add-to-basket.is-added {
+  background: var(--ink);
+  color: var(--white);
+}
+
+.basket-body {
+  display: grid;
+  gap: 24px;
+  padding: clamp(32px, 6vw, 56px) 0 48px;
+}
+
+.basket-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.basket-row-info p {
+  margin: 0 0 4px;
+  font-weight: 700;
+}
+
+.basket-row-info span {
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
+.basket-row-controls {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.basket-row-controls button {
+  display: flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.basket-row-controls button:active {
+  transform: scale(0.92);
+}
+
+.basket-row-qty {
+  min-width: 18px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.basket-empty {
+  padding: 24px 0;
+  color: var(--ink-soft);
+}
+
+.basket-summary {
+  display: grid;
+  gap: 22px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-strong);
+}
+
+.basket-total-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.basket-total-row strong {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 400;
+}
+
+.basket-checkout-form {
+  display: grid;
+  gap: 14px;
+}
+
+.basket-checkout-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--ink-soft);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.basket-checkout-form input {
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--paper-strong);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: none;
+}
+
+.basket-checkout-form input:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.basket-status {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  padding: 32px 0;
+}
+
+.basket-status-headline {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 5vw, 46px);
+  font-weight: 400;
+}
+
+.basket-status-detail {
+  margin: 0;
+  color: var(--ink-soft);
 }
 
 .empty-category {
@@ -1437,6 +1624,7 @@ svg {
 }
 
 .secondary-button,
+.primary-button,
 .cookie-button {
   min-height: 44px;
   padding: 0 16px;
@@ -1448,6 +1636,23 @@ svg {
   font-weight: 800;
   text-transform: uppercase;
   cursor: pointer;
+}
+
+.primary-button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.form-error {
+  min-height: 16px;
+  margin: 0;
+  color: #b3261e;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.form-error:empty {
+  display: none;
 }
 
 .info-page {
@@ -1819,7 +2024,7 @@ svg {
   }
 
   .bottom-dock.is-compact {
-    width: min(288px, calc(100% - 38px));
+    width: min(330px, calc(100% - 38px));
   }
 
   .dock-action {

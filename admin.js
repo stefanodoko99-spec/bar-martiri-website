@@ -29,10 +29,19 @@
   const addTestimonialButton = document.querySelector('[data-add-testimonial]');
   const reviewsError = document.querySelector('[data-reviews-error]');
   const reviewsStatus = document.querySelector('[data-reviews-status]');
+  const ordersList = document.querySelector('[data-orders-list]');
+  const ordersEmpty = document.querySelector('[data-orders-empty]');
+  const refreshOrdersButton = document.querySelector('[data-refresh-orders]');
+  const pendingOrdersBadge = document.querySelector('[data-pending-orders-badge]');
+  const botSettingsForm = document.querySelector('[data-bot-settings-form]');
+  const botSettingsError = document.querySelector('[data-bot-settings-error]');
+  const botSettingsStatus = document.querySelector('[data-bot-settings-status]');
   let products = [...menuData.products];
   let currentImage = '';
   let pendingImage = null;
   let testimonials = [];
+  let orders = [];
+  let ordersPollTimer = 0;
 
   document.querySelectorAll('[data-admin-view-tab]').forEach((tab) => {
     tab.addEventListener('click', () => {
@@ -43,6 +52,12 @@
       document.querySelectorAll('[data-admin-view-panel]').forEach((panel) => {
         panel.hidden = panel.dataset.adminViewPanel !== view;
       });
+      if (view === 'orders') {
+        void loadOrdersPanel();
+        startOrdersPolling();
+      } else {
+        stopOrdersPolling();
+      }
     });
   });
 
@@ -170,6 +185,172 @@
     }
   });
 
+  const ORDER_STATUS_LABEL = { pending: 'Në pritje', confirmed: 'Konfirmuar', cancelled: 'Anuluar' };
+
+  function formatOrderTime(value) {
+    try {
+      return new Date(value).toLocaleString('sq-AL', {
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch {
+      return value || '';
+    }
+  }
+
+  function createOrderCard(order) {
+    const card = document.createElement('article');
+    card.className = 'order-card';
+
+    const header = document.createElement('div');
+    header.className = 'order-card-header';
+    const title = document.createElement('h4');
+    title.textContent = `#${order.id.slice(0, 8)}`;
+    const time = document.createElement('time');
+    time.textContent = formatOrderTime(order.createdAt);
+    const badge = document.createElement('span');
+    badge.className = `order-status-badge is-${order.status}`;
+    badge.textContent = ORDER_STATUS_LABEL[order.status] || order.status;
+    header.append(title, time, badge);
+
+    const contact = document.createElement('p');
+    contact.className = 'order-card-contact';
+    contact.textContent = [order.customerName, order.customerPhone].filter(Boolean).join(' · ') || '—';
+
+    const items = document.createElement('ul');
+    items.className = 'order-card-items';
+    order.items.forEach((item) => {
+      const row = document.createElement('li');
+      const name = document.createElement('span');
+      name.textContent = `${item.name} ×${item.qty}`;
+      const price = document.createElement('span');
+      price.textContent = `${Number(item.price) * Number(item.qty)} ALL`;
+      row.append(name, price);
+      items.append(row);
+    });
+
+    const total = document.createElement('div');
+    total.className = 'order-card-total';
+    const totalLabel = document.createElement('span');
+    totalLabel.textContent = 'Totali';
+    const totalValue = document.createElement('span');
+    totalValue.textContent = `${order.total} ALL`;
+    total.append(totalLabel, totalValue);
+
+    card.append(header, contact);
+    if (order.note) {
+      const note = document.createElement('p');
+      note.className = 'order-card-note';
+      note.textContent = order.note;
+      card.append(note);
+    }
+    card.append(items, total);
+
+    if (order.status === 'pending') {
+      const actions = document.createElement('div');
+      actions.className = 'order-card-actions';
+      const confirmButton = document.createElement('button');
+      confirmButton.type = 'button';
+      confirmButton.className = 'primary-button';
+      confirmButton.textContent = 'Konfirmo';
+      confirmButton.addEventListener('click', () => void changeOrderStatus(order.id, 'confirmed', confirmButton));
+      const cancelButton = document.createElement('button');
+      cancelButton.type = 'button';
+      cancelButton.className = 'danger-button';
+      cancelButton.textContent = 'Anulo';
+      cancelButton.addEventListener('click', () => void changeOrderStatus(order.id, 'cancelled', cancelButton));
+      actions.append(confirmButton, cancelButton);
+      card.append(actions);
+    }
+
+    return card;
+  }
+
+  function renderOrders() {
+    if (!ordersList) return;
+    ordersList.replaceChildren();
+    orders.forEach((order) => ordersList.append(createOrderCard(order)));
+    if (ordersEmpty) ordersEmpty.hidden = orders.length > 0;
+
+    const pendingCount = orders.filter((order) => order.status === 'pending').length;
+    if (pendingOrdersBadge) {
+      pendingOrdersBadge.textContent = String(pendingCount);
+      pendingOrdersBadge.hidden = pendingCount === 0;
+    }
+  }
+
+  async function loadOrdersPanel() {
+    if (!store?.listOrders) return;
+    try {
+      orders = await store.listOrders();
+      renderOrders();
+    } catch {
+      // Keep showing the last known order list if a refresh fails.
+    }
+  }
+
+  async function changeOrderStatus(id, status, button) {
+    if (!store?.updateOrderStatus) return;
+    if (button) button.disabled = true;
+    try {
+      const updated = await store.updateOrderStatus(id, status);
+      const index = orders.findIndex((order) => order.id === updated.id);
+      if (index >= 0) orders[index] = updated;
+      renderOrders();
+    } catch {
+      if (button) button.disabled = false;
+    }
+  }
+
+  function stopOrdersPolling() {
+    window.clearInterval(ordersPollTimer);
+    ordersPollTimer = 0;
+  }
+
+  function startOrdersPolling() {
+    stopOrdersPolling();
+    ordersPollTimer = window.setInterval(() => void loadOrdersPanel(), 10000);
+  }
+
+  refreshOrdersButton?.addEventListener('click', () => void loadOrdersPanel());
+
+  async function loadBotSettingsPanel() {
+    if (!store?.getBotSettings || !botSettingsForm) return;
+    try {
+      const settings = await store.getBotSettings();
+      botSettingsForm.elements.botName.value = settings.botName;
+      botSettingsForm.elements.botToken.value = settings.botToken;
+      botSettingsForm.elements.chatId.value = settings.chatId;
+    } catch {
+      setError(botSettingsError, 'Lidhja me Telegram nuk mund të ngarkohet.');
+    }
+  }
+
+  botSettingsForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    setError(botSettingsError, '');
+    if (botSettingsStatus) botSettingsStatus.textContent = '';
+
+    const settings = {
+      botName: botSettingsForm.elements.botName.value.trim(),
+      botToken: botSettingsForm.elements.botToken.value.trim(),
+      chatId: botSettingsForm.elements.chatId.value.trim(),
+    };
+
+    const submitButton = botSettingsForm.querySelector('button[type="submit"]');
+    try {
+      if (submitButton) submitButton.disabled = true;
+      await store.saveBotSettings(settings);
+      if (botSettingsStatus) botSettingsStatus.textContent = 'Lidhja u ruajt.';
+    } catch (error) {
+      setError(botSettingsError, error.message || 'Lidhja nuk mund të ruhet.');
+    } finally {
+      if (submitButton) submitButton.disabled = false;
+    }
+  });
+
   function showAuthView() {
     authShell.hidden = false;
     adminApp.hidden = true;
@@ -205,6 +386,8 @@
       productError.textContent = 'Produktet nuk mund të ngarkohen nga Supabase.';
     }
     void loadReviewsPanel();
+    void loadOrdersPanel();
+    void loadBotSettingsPanel();
   }
 
   function setError(element, message) {
@@ -723,6 +906,7 @@
   });
 
   document.querySelector('[data-logout]')?.addEventListener('click', async () => {
+    stopOrdersPolling();
     try {
       await store.signOut();
     } catch {

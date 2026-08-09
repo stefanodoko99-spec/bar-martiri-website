@@ -208,5 +208,167 @@ to authenticated
 using (public.is_menu_admin())
 with check (public.is_menu_admin());
 
+-- Orders placed from the public site's basket, confirmed from /admin, with a
+-- Telegram notification fired automatically on every new order.
+create extension if not exists pgcrypto;
+create extension if not exists pg_net;
+
+create table if not exists public.orders (
+  id uuid primary key default gen_random_uuid(),
+  status text not null default 'pending' check (status in ('pending', 'confirmed', 'cancelled')),
+  customer_name text not null,
+  customer_phone text,
+  note text,
+  items jsonb not null,
+  total numeric not null default 0,
+  created_at timestamptz not null default now(),
+  confirmed_at timestamptz
+);
+
+alter table public.orders enable row level security;
+
+drop policy if exists "Anyone can place an order" on public.orders;
+create policy "Anyone can place an order"
+on public.orders for insert
+to anon, authenticated
+with check (true);
+
+drop policy if exists "Anyone can view an order by id" on public.orders;
+create policy "Anyone can view an order by id"
+on public.orders for select
+to anon, authenticated
+using (true);
+
+drop policy if exists "Admins can update orders" on public.orders;
+create policy "Admins can update orders"
+on public.orders for update
+to authenticated
+using (public.is_menu_admin())
+with check (public.is_menu_admin());
+
+drop policy if exists "Admins can delete orders" on public.orders;
+create policy "Admins can delete orders"
+on public.orders for delete
+to authenticated
+using (public.is_menu_admin());
+
+-- Recompute the total server-side from live product prices on every insert, and
+-- force new orders to start pending, so a tampered client can't self-confirm an
+-- order or lie about its price.
+create or replace function public.compute_order_total()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  computed numeric := 0;
+  cart_item jsonb;
+  live_price numeric;
+begin
+  for cart_item in select * from jsonb_array_elements(new.items) loop
+    select price into live_price from public.products where id = (cart_item->>'id');
+    if live_price is not null then
+      computed := computed + (live_price * greatest(coalesce((cart_item->>'qty')::numeric, 1), 1));
+    end if;
+  end loop;
+  new.total := computed;
+  new.status := 'pending';
+  new.confirmed_at := null;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_compute_order_total on public.orders;
+create trigger trg_compute_order_total
+before insert on public.orders
+for each row execute function public.compute_order_total();
+
+-- Bot settings (name, token, chat id) are admin-only: never exposed to anon.
+create table if not exists public.bot_settings (
+  id text primary key default 'main',
+  bot_name text,
+  bot_token text,
+  chat_id text,
+  updated_at timestamptz not null default now()
+);
+
+insert into public.bot_settings (id) values ('main') on conflict (id) do nothing;
+
+alter table public.bot_settings enable row level security;
+
+drop policy if exists "Admins can read bot settings" on public.bot_settings;
+create policy "Admins can read bot settings"
+on public.bot_settings for select
+to authenticated
+using (public.is_menu_admin());
+
+drop policy if exists "Admins can insert bot settings" on public.bot_settings;
+create policy "Admins can insert bot settings"
+on public.bot_settings for insert
+to authenticated
+with check (public.is_menu_admin());
+
+drop policy if exists "Admins can update bot settings" on public.bot_settings;
+create policy "Admins can update bot settings"
+on public.bot_settings for update
+to authenticated
+using (public.is_menu_admin())
+with check (public.is_menu_admin());
+
+-- Fires a Telegram message to the configured bot/chat on every new order.
+-- security definer lets it read bot_settings even though anon (who placed the
+-- order) has no direct access to that table.
+create or replace function public.notify_telegram_new_order()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  settings record;
+  message text;
+  items_text text := '';
+  cart_item jsonb;
+begin
+  select bot_token, chat_id into settings from public.bot_settings where id = 'main';
+  if settings.bot_token is null or settings.bot_token = '' or settings.chat_id is null or settings.chat_id = '' then
+    return new;
+  end if;
+
+  for cart_item in select * from jsonb_array_elements(new.items) loop
+    items_text := items_text || format(
+      E'\n- %s x%s (%s ALL)',
+      cart_item->>'name',
+      coalesce(cart_item->>'qty', '1'),
+      coalesce(cart_item->>'price', '?')
+    );
+  end loop;
+
+  message := format(
+    E'New order #%s\nCustomer: %s\nPhone: %s\nTotal: %s ALL%s\n\nNote: %s',
+    left(new.id::text, 8),
+    coalesce(nullif(new.customer_name, ''), '-'),
+    coalesce(nullif(new.customer_phone, ''), '-'),
+    new.total,
+    items_text,
+    coalesce(nullif(new.note, ''), '-')
+  );
+
+  perform net.http_post(
+    url := format('https://api.telegram.org/bot%s/sendMessage', settings.bot_token),
+    body := jsonb_build_object('chat_id', settings.chat_id, 'text', message),
+    headers := '{"Content-Type": "application/json"}'::jsonb
+  );
+
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_notify_telegram_new_order on public.orders;
+create trigger trg_notify_telegram_new_order
+after insert on public.orders
+for each row execute function public.notify_telegram_new_order();
+
 -- After creating the administrator in Authentication, run this with its UUID:
 -- insert into public.admin_users (user_id) values ('AUTH-USER-UUID') on conflict do nothing;

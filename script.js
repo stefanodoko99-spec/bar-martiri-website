@@ -28,6 +28,17 @@
   const reviewRatingEl = document.querySelector('[data-review-rating]');
   const reviewCopyEl = document.querySelector('[data-review-copy]');
   const reviewsListEl = document.querySelector('.reviews-list');
+  const basketItemsEl = document.querySelector('[data-basket-items]');
+  const basketEmptyEl = document.querySelector('[data-basket-empty]');
+  const basketSummaryEl = document.querySelector('[data-basket-summary]');
+  const basketTotalEl = document.querySelector('[data-basket-total]');
+  const basketCountEls = [...document.querySelectorAll('[data-basket-count]')];
+  const checkoutForm = document.querySelector('[data-checkout-form]');
+  const checkoutErrorEl = document.querySelector('[data-checkout-error]');
+  const basketStatusEl = document.querySelector('[data-basket-status]');
+  const basketStatusHeadlineEl = document.querySelector('[data-basket-status-headline]');
+  const basketStatusDetailEl = document.querySelector('[data-basket-status-detail]');
+  const basketNewOrderButton = document.querySelector('[data-basket-new-order]');
   const MENU_CACHE_KEY = 'barMartiri.publicMenu.v3';
   const MENU_CACHE_TTL = 24 * 60 * 60 * 1000;
   const MENU_CACHE_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
@@ -177,6 +188,17 @@
     'Kryefaqja': { sq: 'Kryefaqja', it: 'Home', en: 'Home' },
     'Location': { sq: 'Vendndodhja', it: 'Posizione', en: 'Location' },
     'Info': { sq: 'Info', it: 'Info', en: 'Info' },
+    'Shporta': { sq: 'Shporta', it: 'Carrello', en: 'Basket' },
+    'Hap shportën': { sq: 'Hap shportën', it: 'Apri il carrello', en: 'Open basket' },
+    'Mbyll shportën': { sq: 'Mbyll shportën', it: 'Chiudi il carrello', en: 'Close basket' },
+    'Porosia jote': { sq: 'Porosia jote', it: 'Il tuo ordine', en: 'Your order' },
+    'Shporta eshte bosh.': { sq: 'Shporta është bosh.', it: 'Il carrello è vuoto.', en: 'Your basket is empty.' },
+    'Totali': { sq: 'Totali', it: 'Totale', en: 'Total' },
+    'Emri': { sq: 'Emri', it: 'Nome', en: 'Name' },
+    'Telefoni (opsionale)': { sq: 'Telefoni (opsionale)', it: 'Telefono (facoltativo)', en: 'Phone (optional)' },
+    'Shenim (p.sh. numri i shezlongut)': { sq: 'Shënim (p.sh. numri i shezlongut)', it: 'Nota (es. numero del lettino)', en: 'Note (e.g. sunbed number)' },
+    'Porosit': { sq: 'Porosit', it: 'Ordina', en: 'Place order' },
+    'Porosi e re': { sq: 'Porosi e re', it: 'Nuovo ordine', en: 'New order' },
   });
 
   const DYNAMIC_TEXT = Object.freeze({
@@ -192,6 +214,17 @@
     reviewBasedOnSuffix: { sq: 'bazohet në', it: 'si basa su', en: 'is based on' },
     reviewCountSuffix: { sq: 'vlerësime në Google.', it: 'recensioni su Google.', en: 'Google reviews.' },
     ratingOutOf5: { sq: 'nga 5', it: 'su 5', en: 'out of 5' },
+    addToBasket: { sq: 'Shto', it: 'Aggiungi', en: 'Add' },
+    removeFromBasket: { sq: 'Hiq', it: 'Rimuovi', en: 'Remove' },
+    sendingOrder: { sq: 'Po dërgohet porosia…', it: 'Invio dell’ordine…', en: 'Sending your order…' },
+    orderSentHeadline: { sq: 'Porosia u dërgua!', it: 'Ordine inviato!', en: 'Order sent!' },
+    orderSentDetail: { sq: 'Po presim konfirmimin nga Bar Martiri.', it: 'In attesa di conferma da Bar Martiri.', en: 'Waiting for confirmation from Bar Martiri.' },
+    orderConfirmedHeadline: { sq: 'Porosia u konfirmua!', it: 'Ordine confermato!', en: 'Order confirmed!' },
+    orderConfirmedDetail: { sq: 'Do të vijë shpejt te ti.', it: 'Arriverà presto da te.', en: 'It’s on its way to you.' },
+    orderCancelledHeadline: { sq: 'Porosia u anulua.', it: 'Ordine annullato.', en: 'Order cancelled.' },
+    orderCancelledDetail: { sq: 'Na vjen keq. Provo përsëri ose na kontakto.', it: 'Ci dispiace. Riprova o contattaci.', en: 'Sorry about that. Try again or contact us.' },
+    orderError: { sq: 'Porosia nuk mund të dërgohet. Provo përsëri.', it: 'L’ordine non può essere inviato. Riprova.', en: 'The order couldn’t be sent. Try again.' },
+    newOrder: { sq: 'Porosi e re', it: 'Nuovo ordine', en: 'New order' },
   });
 
   const optimizedLocalImages = {
@@ -220,6 +253,13 @@
   let menuLoadPromise = null;
   let productImageObserver = null;
   let menuSearchQuery = '';
+  const CART_KEY = 'barMartiri.cart.v1';
+  const PENDING_ORDER_KEY = 'barMartiri.pendingOrder.v1';
+  const ORDER_POLL_INTERVAL = 4000;
+  let cart = [];
+  let pendingOrderId = null;
+  let orderPollTimer = 0;
+  let placingOrder = false;
   const DEFAULT_REVIEWS = Object.freeze({
     ratingValue: '3.9',
     reviewCount: 31,
@@ -409,6 +449,302 @@
     }
   }
 
+  function loadCart() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(CART_KEY));
+      return Array.isArray(stored)
+        ? stored
+            .map((item) => ({
+              id: String(item.id || ''),
+              name: String(item.name || ''),
+              price: Number(item.price) || 0,
+              qty: Math.max(1, Math.round(Number(item.qty) || 1)),
+            }))
+            .filter((item) => item.id && item.price > 0)
+        : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveCart() {
+    try {
+      localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    } catch {
+      // The basket still works for this visit when storage is unavailable.
+    }
+  }
+
+  function cartCount() {
+    return cart.reduce((sum, item) => sum + item.qty, 0);
+  }
+
+  function cartTotal() {
+    return cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  }
+
+  function updateBasketBadge() {
+    const count = cartCount();
+    basketCountEls.forEach((element) => {
+      element.textContent = String(count);
+      element.hidden = count === 0;
+    });
+  }
+
+  function addToCart(product) {
+    const price = Number(product.price);
+    if (!Number.isFinite(price) || price <= 0) return;
+    const existing = cart.find((item) => item.id === product.id);
+    if (existing) existing.qty += 1;
+    else cart.push({ id: product.id, name: productNameFor(product), price, qty: 1 });
+    saveCart();
+    renderBasket();
+  }
+
+  function setCartQty(id, qty) {
+    if (qty <= 0) cart = cart.filter((item) => item.id !== id);
+    else {
+      const item = cart.find((entry) => entry.id === id);
+      if (item) item.qty = qty;
+    }
+    saveCart();
+    renderBasket();
+  }
+
+  function createBasketRow(item) {
+    const row = document.createElement('article');
+    row.className = 'basket-row';
+
+    const info = document.createElement('div');
+    info.className = 'basket-row-info';
+    const name = document.createElement('p');
+    name.textContent = capitalizeWords(item.name);
+    const price = document.createElement('span');
+    price.textContent = formatPrice(item.price);
+    info.append(name, price);
+
+    const controls = document.createElement('div');
+    controls.className = 'basket-row-controls';
+    const minus = document.createElement('button');
+    minus.type = 'button';
+    minus.textContent = '−';
+    minus.setAttribute('aria-label', `${dynamicText('removeFromBasket')} ${capitalizeWords(item.name)}`);
+    minus.addEventListener('click', () => setCartQty(item.id, item.qty - 1));
+    const qty = document.createElement('span');
+    qty.className = 'basket-row-qty';
+    qty.textContent = String(item.qty);
+    const plus = document.createElement('button');
+    plus.type = 'button';
+    plus.textContent = '+';
+    plus.setAttribute('aria-label', `${dynamicText('addToBasket')} ${capitalizeWords(item.name)}`);
+    plus.addEventListener('click', () => setCartQty(item.id, item.qty + 1));
+    controls.append(minus, qty, plus);
+
+    row.append(info, controls);
+    return row;
+  }
+
+  function renderBasket() {
+    updateBasketBadge();
+    if (pendingOrderId) {
+      if (basketItemsEl) basketItemsEl.hidden = true;
+      if (basketEmptyEl) basketEmptyEl.hidden = true;
+      if (basketSummaryEl) basketSummaryEl.hidden = true;
+      if (basketStatusEl) basketStatusEl.hidden = false;
+      return;
+    }
+    if (basketStatusEl) basketStatusEl.hidden = true;
+    if (!basketItemsEl) return;
+    const hasItems = cart.length > 0;
+    basketItemsEl.hidden = !hasItems;
+    basketItemsEl.replaceChildren();
+    cart.forEach((item) => basketItemsEl.append(createBasketRow(item)));
+    if (basketEmptyEl) basketEmptyEl.hidden = hasItems;
+    if (basketSummaryEl) basketSummaryEl.hidden = !hasItems;
+    if (basketTotalEl) basketTotalEl.textContent = formatPrice(cartTotal()) || '0 ALL';
+  }
+
+  function showOrderStatus(order) {
+    if (basketStatusHeadlineEl) {
+      basketStatusHeadlineEl.textContent =
+        order.status === 'confirmed'
+          ? dynamicText('orderConfirmedHeadline')
+          : order.status === 'cancelled'
+            ? dynamicText('orderCancelledHeadline')
+            : dynamicText('orderSentHeadline');
+    }
+    if (basketStatusDetailEl) {
+      basketStatusDetailEl.textContent =
+        order.status === 'confirmed'
+          ? dynamicText('orderConfirmedDetail')
+          : order.status === 'cancelled'
+            ? dynamicText('orderCancelledDetail')
+            : dynamicText('orderSentDetail');
+    }
+    if (basketNewOrderButton) {
+      basketNewOrderButton.hidden = order.status === 'pending';
+      basketNewOrderButton.textContent = dynamicText('newOrder');
+    }
+    if (basketStatusEl) basketStatusEl.hidden = false;
+    if (basketItemsEl) basketItemsEl.hidden = true;
+    if (basketEmptyEl) basketEmptyEl.hidden = true;
+    if (basketSummaryEl) basketSummaryEl.hidden = true;
+  }
+
+  function notifyOrderStatus(status) {
+    if (status !== 'confirmed') return;
+    if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        new Notification(dynamicText('orderConfirmedHeadline'), {
+          body: dynamicText('orderConfirmedDetail'),
+          icon: '/assets/optimized/favicon-64.png',
+        });
+      } catch {
+        // Some browsers restrict direct Notification construction; ignore.
+      }
+    }
+  }
+
+  function stopOrderStatusPolling() {
+    window.clearInterval(orderPollTimer);
+    orderPollTimer = 0;
+  }
+
+  async function pollOrderStatus() {
+    if (!pendingOrderId || !supabaseConfig.url || !supabaseConfig.publishableKey) return null;
+    try {
+      const response = await fetch(
+        `${supabaseConfig.url}/rest/v1/orders?id=eq.${pendingOrderId}&select=status`,
+        {
+          headers: {
+            apikey: supabaseConfig.publishableKey,
+            Authorization: `Bearer ${supabaseConfig.publishableKey}`,
+          },
+        }
+      );
+      if (!response.ok) return null;
+      const rows = await response.json();
+      const order = rows?.[0];
+      if (!order) return null;
+      showOrderStatus(order);
+      if (order.status !== 'pending') {
+        notifyOrderStatus(order.status);
+        stopOrderStatusPolling();
+      }
+      return order.status;
+    } catch {
+      return null;
+    }
+  }
+
+  function startOrderStatusPolling() {
+    stopOrderStatusPolling();
+    if (!pendingOrderId) return;
+    orderPollTimer = window.setInterval(() => void pollOrderStatus(), ORDER_POLL_INTERVAL);
+  }
+
+  async function initializeBasket() {
+    cart = loadCart();
+    updateBasketBadge();
+    try {
+      pendingOrderId = localStorage.getItem(PENDING_ORDER_KEY) || null;
+    } catch {
+      pendingOrderId = null;
+    }
+    if (pendingOrderId) {
+      const status = await pollOrderStatus();
+      if (status === 'pending' || status === null) startOrderStatusPolling();
+    }
+  }
+
+  function setCheckoutError(message) {
+    if (checkoutErrorEl) checkoutErrorEl.textContent = message;
+  }
+
+  async function submitOrder(event) {
+    event.preventDefault();
+    if (placingOrder || !cart.length || !checkoutForm) return;
+    setCheckoutError('');
+
+    const formData = new FormData(checkoutForm);
+    const customerName = String(formData.get('name') || '').trim();
+    const customerPhone = String(formData.get('phone') || '').trim();
+    const note = String(formData.get('note') || '').trim();
+    if (!customerName || !supabaseConfig.url || !supabaseConfig.publishableKey) {
+      setCheckoutError(dynamicText('orderError'));
+      return;
+    }
+
+    placingOrder = true;
+    const submitButton = checkoutForm.querySelector('button[type="submit"]');
+    const originalLabel = submitButton?.textContent;
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = dynamicText('sendingOrder');
+    }
+
+    try {
+      const response = await fetch(`${supabaseConfig.url}/rest/v1/orders`, {
+        method: 'POST',
+        headers: {
+          apikey: supabaseConfig.publishableKey,
+          Authorization: `Bearer ${supabaseConfig.publishableKey}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=representation',
+        },
+        body: JSON.stringify({
+          customer_name: customerName,
+          customer_phone: customerPhone || null,
+          note: note || null,
+          items: cart.map((item) => ({ id: item.id, name: item.name, price: item.price, qty: item.qty })),
+          total: cartTotal(),
+        }),
+      });
+      if (!response.ok) throw new Error(`Order request failed with ${response.status}`);
+      const rows = await response.json();
+      const order = rows?.[0];
+      if (!order?.id) throw new Error('Order response missing id');
+
+      pendingOrderId = String(order.id);
+      try {
+        localStorage.setItem(PENDING_ORDER_KEY, pendingOrderId);
+      } catch {
+        // The order still went through even if we can't remember it locally.
+      }
+      cart = [];
+      saveCart();
+      checkoutForm.reset();
+      showOrderStatus({ status: 'pending' });
+      renderBasket();
+      startOrderStatusPolling();
+      if ('Notification' in window && Notification.permission === 'default') {
+        void Notification.requestPermission();
+      }
+    } catch {
+      setCheckoutError(dynamicText('orderError'));
+    } finally {
+      placingOrder = false;
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = originalLabel || submitButton.textContent;
+      }
+    }
+  }
+
+  checkoutForm?.addEventListener('submit', submitOrder);
+
+  basketNewOrderButton?.addEventListener('click', () => {
+    pendingOrderId = null;
+    stopOrderStatusPolling();
+    try {
+      localStorage.removeItem(PENDING_ORDER_KEY);
+    } catch {
+      // Nothing to clean up when storage is unavailable.
+    }
+    renderBasket();
+  });
+
   function applyLanguage(language) {
     currentLanguage = LANGUAGE_LOCALES[language] ? language : 'sq';
     document.documentElement.lang = LANGUAGE_LOCALES[currentLanguage];
@@ -434,6 +770,7 @@
       renderProducts();
     }
     renderReviews();
+    renderBasket();
   }
 
   function detectBrowserLanguage() {
@@ -931,9 +1268,23 @@
 
     const price = formatPrice(product.price);
     if (price) {
+      const priceRow = document.createElement('div');
+      priceRow.className = 'product-card-price-row';
       const priceElement = document.createElement('strong');
       priceElement.textContent = price;
-      body.append(priceElement);
+      const addButton = document.createElement('button');
+      addButton.type = 'button';
+      addButton.className = 'add-to-basket';
+      addButton.textContent = dynamicText('addToBasket');
+      addButton.setAttribute('aria-label', `${dynamicText('addToBasket')} ${capitalizeWords(productNameFor(product))}`);
+      addButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        addToCart(product);
+        addButton.classList.add('is-added');
+        window.setTimeout(() => addButton.classList.remove('is-added'), 360);
+      });
+      priceRow.append(priceElement, addButton);
+      body.append(priceRow);
     }
 
     card.append(image, body);
@@ -1078,6 +1429,7 @@
       void refreshProducts();
     }
     if (name === 'location' && getCookiePreference() === 'all') loadMap();
+    if (name === 'basket') renderBasket();
 
     requestAnimationFrame(() => {
       panelLayer.classList.add('is-visible');
@@ -1484,6 +1836,7 @@
   createMarqueeVisibility();
   if (!getCookiePreference()) showCookieBanner();
   void loadReviewSummary();
+  void initializeBasket();
   initializeLanguage();
   const year = document.querySelector('[data-current-year]');
   if (year) year.textContent = new Date().getFullYear();

@@ -370,6 +370,84 @@
     return normalized;
   }
 
+  function normalizeOrder(row) {
+    return {
+      id: String(row.id),
+      status: String(row.status || 'pending'),
+      customerName: String(row.customer_name || ''),
+      customerPhone: String(row.customer_phone || ''),
+      note: String(row.note || ''),
+      items: Array.isArray(row.items) ? row.items : [],
+      total: Number(row.total) || 0,
+      createdAt: String(row.created_at || ''),
+      confirmedAt: row.confirmed_at ? String(row.confirmed_at) : null,
+    };
+  }
+
+  async function listOrders() {
+    if (!client) return [];
+    const { data, error } = await client
+      .from('orders')
+      .select('id,status,customer_name,customer_phone,note,items,total,created_at,confirmed_at')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data || []).map(normalizeOrder);
+  }
+
+  async function updateOrderStatus(id, status) {
+    if (!client) throw new Error('Admin panel unavailable without Supabase.');
+    const payload = { status };
+    if (status === 'confirmed') payload.confirmed_at = new Date().toISOString();
+    const { data, error } = await client
+      .from('orders')
+      .update(payload)
+      .eq('id', id)
+      .select('id,status,customer_name,customer_phone,note,items,total,created_at,confirmed_at')
+      .single();
+    if (error) throw error;
+    return normalizeOrder(data);
+  }
+
+  function normalizeBotSettings(row) {
+    const source = row || {};
+    return {
+      botName: String(source.bot_name || ''),
+      botToken: String(source.bot_token || ''),
+      chatId: String(source.chat_id || ''),
+    };
+  }
+
+  async function getBotSettings() {
+    if (!client) return normalizeBotSettings(null);
+    const { data, error } = await client
+      .from('bot_settings')
+      .select('bot_name,bot_token,chat_id')
+      .eq('id', 'main')
+      .single();
+    if (error) throw error;
+    return normalizeBotSettings(data);
+  }
+
+  async function saveBotSettings(settings) {
+    if (!client) throw new Error('Admin panel unavailable without Supabase.');
+    const { error } = await client.from('bot_settings').upsert(
+      {
+        id: 'main',
+        bot_name: settings.botName || null,
+        bot_token: settings.botToken || null,
+        chat_id: settings.chatId || null,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'id' }
+    );
+    if (error) throw error;
+    return normalizeBotSettings({
+      bot_name: settings.botName,
+      bot_token: settings.botToken,
+      chat_id: settings.chatId,
+    });
+  }
+
   window.BAR_MARTIRI_STORE = Object.freeze({
     isRemote: () => Boolean(client),
     hasTranslationColumns: () => translationColumnsSupported,
@@ -384,5 +462,9 @@
     signOut,
     getReviewSummary,
     saveReviewSummary,
+    listOrders,
+    updateOrderStatus,
+    getBotSettings,
+    saveBotSettings,
   });
 })();

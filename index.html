@@ -183,7 +183,7 @@
         ]
       }
     </script>
-    <link rel="stylesheet" href="styles.css?v=20260808-7">
+    <link rel="stylesheet" href="styles.css?v=20260809-1">
   </head>
   <body>
     <a class="skip-link" href="#main">Kalo te përmbajtja</a>
@@ -712,6 +712,68 @@
           </div>
         </div>
       </section>
+
+      <section
+        class="dock-panel dock-panel--basket"
+        data-panel="basket"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="basket-panel-title"
+        hidden
+      >
+        <header class="panel-header">
+          <div class="panel-title">
+            <p class="eyebrow">Shporta</p>
+            <h2 id="basket-panel-title">Porosia jote</h2>
+          </div>
+          <div class="panel-tools">
+            <div class="language-switcher panel-language-switcher" data-language-switcher aria-label="Ndrysho gjuhën">
+              <button type="button" data-language-switch="sq" aria-pressed="true">SQ</button>
+              <button type="button" data-language-switch="it" aria-pressed="false">IT</button>
+              <button type="button" data-language-switch="en" aria-pressed="false">EN</button>
+            </div>
+            <button class="icon-button" type="button" data-panel-close aria-label="Mbyll shportën">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M18 6 6 18M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </header>
+        <div class="basket-body">
+          <div class="basket-items" data-basket-items></div>
+          <p class="basket-empty" data-basket-empty>Shporta është bosh.</p>
+
+          <div class="basket-summary" data-basket-summary hidden>
+            <div class="basket-total-row">
+              <span>Totali</span>
+              <strong data-basket-total>0 ALL</strong>
+            </div>
+
+            <form class="basket-checkout-form" data-checkout-form>
+              <label>
+                Emri
+                <input name="name" type="text" required maxlength="80" autocomplete="name">
+              </label>
+              <label>
+                Telefoni (opsionale)
+                <input name="phone" type="tel" maxlength="30" autocomplete="tel">
+              </label>
+              <label>
+                Shënim (p.sh. numri i shezlongut)
+                <input name="note" type="text" maxlength="120">
+              </label>
+              <p class="form-error" data-checkout-error role="alert"></p>
+              <button class="primary-button" type="submit" data-place-order>Porosit</button>
+            </form>
+          </div>
+
+          <div class="basket-status" data-basket-status hidden>
+            <p class="basket-status-headline" data-basket-status-headline></p>
+            <p class="basket-status-detail" data-basket-status-detail></p>
+            <button class="secondary-button" type="button" data-basket-new-order hidden>Porosi e re</button>
+          </div>
+        </div>
+      </section>
     </div>
 
     <aside
@@ -774,6 +836,21 @@
       <button
         class="dock-action"
         type="button"
+        data-dock-action="basket"
+        data-dock-label="Shporta"
+        aria-label="Hap shportën"
+        aria-pressed="false"
+      >
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M6 8h12l-1.2 10.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z"></path>
+          <path d="M9 8a3 3 0 0 1 6 0"></path>
+        </svg>
+        <span>Shporta</span>
+        <b class="dock-badge" data-basket-count hidden>0</b>
+      </button>
+      <button
+        class="dock-action"
+        type="button"
         data-dock-action="location"
         data-dock-label="Location"
         aria-label="Hap vendndodhjen"
@@ -803,8 +880,8 @@
 
     <script defer src="supabase-config.js?v=20260804-1"></script>
     <script defer src="product-image-map.js?v=20260806-2"></script>
-    <script defer src="menu-data.js?v=20260806-1"></script>
-    <script defer src="script.js?v=20260808-4"></script>
+    <script defer src="menu-data.js?v=20260809-1"></script>
+    <script defer src="script.js?v=20260809-1"></script>
     <script defer src="/vercel-analytics.js?v=20260808-1"></script>
   </body>
 </html>

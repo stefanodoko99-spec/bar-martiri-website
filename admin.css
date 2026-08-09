@@ -643,6 +643,144 @@ textarea:focus {
   right: 0;
 }
 
+.orders-panel,
+.bot-settings-panel {
+  width: 100%;
+  padding: 22px;
+  border: 1px solid var(--line);
+  background: var(--white);
+}
+
+.bot-settings-form {
+  display: grid;
+  gap: 18px;
+  padding-top: 18px;
+}
+
+.orders-list {
+  display: grid;
+  gap: 14px;
+  padding-top: 18px;
+}
+
+.orders-empty {
+  padding: 18px 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.order-card {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--line);
+}
+
+.order-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.order-card-header h4 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.order-card-header time {
+  color: var(--ink-soft);
+  font-size: 11px;
+}
+
+.order-status-badge {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #ece9e2;
+  color: var(--ink-soft);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.order-status-badge.is-pending {
+  background: #fff2cc;
+  color: #8a6d00;
+}
+
+.order-status-badge.is-confirmed {
+  background: #dff3e3;
+  color: #1c6b34;
+}
+
+.order-status-badge.is-cancelled {
+  background: #fbe3e1;
+  color: #a3241c;
+}
+
+.order-card-contact {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
+.order-card-items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+
+.order-card-items li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.order-card-note {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.order-card-total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 800;
+}
+
+.order-card-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.sidebar-badge {
+  display: inline-flex;
+  min-width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #b3261e;
+  color: var(--white);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.sidebar-action.is-active .sidebar-badge {
+  background: var(--white);
+  color: var(--ink);
+}
+
 .image-fieldset {
   min-width: 0;
   margin: 0;
