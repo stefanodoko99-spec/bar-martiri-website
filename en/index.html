@@ -755,8 +755,26 @@
                 Phone (optional)
                 <input name="phone" type="tel" maxlength="30" autocomplete="tel">
               </label>
+              <p class="basket-location-label">Where are you?</p>
+              <div class="basket-location-row">
+                <label>
+                  Section
+                  <select name="umbrellaSection" data-umbrella-section required>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                  </select>
+                </label>
+                <label>
+                  Row
+                  <select name="umbrellaRow" data-umbrella-row required></select>
+                </label>
+                <label>
+                  Umbrella
+                  <select name="umbrellaNumber" data-umbrella-number required></select>
+                </label>
+              </div>
               <label>
-                Note (e.g. sunbed number)
+                Additional note (optional)
                 <input name="note" type="text" maxlength="120">
               </label>
               <p class="form-error" data-checkout-error role="alert"></p>

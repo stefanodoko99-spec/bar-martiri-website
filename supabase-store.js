@@ -377,6 +377,9 @@
       customerName: String(row.customer_name || ''),
       customerPhone: String(row.customer_phone || ''),
       note: String(row.note || ''),
+      umbrellaSection: row.umbrella_section ? String(row.umbrella_section) : '',
+      umbrellaRow: row.umbrella_row ?? null,
+      umbrellaNumber: row.umbrella_number ?? null,
       items: Array.isArray(row.items) ? row.items : [],
       total: Number(row.total) || 0,
       createdAt: String(row.created_at || ''),
@@ -388,7 +391,7 @@
     if (!client) return [];
     const { data, error } = await client
       .from('orders')
-      .select('id,status,customer_name,customer_phone,note,items,total,created_at,confirmed_at')
+      .select('id,status,customer_name,customer_phone,note,umbrella_section,umbrella_row,umbrella_number,items,total,created_at,confirmed_at')
       .order('created_at', { ascending: false });
     if (error) throw error;
     return (data || []).map(normalizeOrder);
@@ -402,7 +405,7 @@
       .from('orders')
       .update(payload)
       .eq('id', id)
-      .select('id,status,customer_name,customer_phone,note,items,total,created_at,confirmed_at')
+      .select('id,status,customer_name,customer_phone,note,umbrella_section,umbrella_row,umbrella_number,items,total,created_at,confirmed_at')
       .single();
     if (error) throw error;
     return normalizeOrder(data);

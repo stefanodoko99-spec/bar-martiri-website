@@ -35,6 +35,8 @@
   const basketCountEls = [...document.querySelectorAll('[data-basket-count]')];
   const checkoutForm = document.querySelector('[data-checkout-form]');
   const checkoutErrorEl = document.querySelector('[data-checkout-error]');
+  const umbrellaRowSelect = document.querySelector('[data-umbrella-row]');
+  const umbrellaNumberSelect = document.querySelector('[data-umbrella-number]');
   const basketStatusEl = document.querySelector('[data-basket-status]');
   const basketStatusHeadlineEl = document.querySelector('[data-basket-status-headline]');
   const basketStatusDetailEl = document.querySelector('[data-basket-status-detail]');
@@ -196,7 +198,11 @@
     'Totali': { sq: 'Totali', it: 'Totale', en: 'Total' },
     'Emri': { sq: 'Emri', it: 'Nome', en: 'Name' },
     'Telefoni (opsionale)': { sq: 'Telefoni (opsionale)', it: 'Telefono (facoltativo)', en: 'Phone (optional)' },
-    'Shenim (p.sh. numri i shezlongut)': { sq: 'Shënim (p.sh. numri i shezlongut)', it: 'Nota (es. numero del lettino)', en: 'Note (e.g. sunbed number)' },
+    'Shenim shtese (opsionale)': { sq: 'Shënim shtesë (opsionale)', it: 'Nota aggiuntiva (facoltativa)', en: 'Additional note (optional)' },
+    'Ku je?': { sq: 'Ku je?', it: 'Dove sei?', en: 'Where are you?' },
+    'Sektori': { sq: 'Sektori', it: 'Settore', en: 'Section' },
+    'Rreshti': { sq: 'Rreshti', it: 'Fila', en: 'Row' },
+    'Çadra': { sq: 'Çadra', it: 'Ombrellone', en: 'Umbrella' },
     'Porosit': { sq: 'Porosit', it: 'Ordina', en: 'Place order' },
     'Porosi e re': { sq: 'Porosi e re', it: 'Nuovo ordine', en: 'New order' },
   });
@@ -256,6 +262,10 @@
   const CART_KEY = 'barMartiri.cart.v1';
   const PENDING_ORDER_KEY = 'barMartiri.pendingOrder.v1';
   const ORDER_POLL_INTERVAL = 4000;
+  const UMBRELLA_ROWS = 8;
+  function umbrellasInRow(row) {
+    return row <= 4 ? 13 : 12;
+  }
   let cart = [];
   let pendingOrderId = null;
   let orderPollTimer = 0;
@@ -671,7 +681,17 @@
     const customerName = String(formData.get('name') || '').trim();
     const customerPhone = String(formData.get('phone') || '').trim();
     const note = String(formData.get('note') || '').trim();
-    if (!customerName || !supabaseConfig.url || !supabaseConfig.publishableKey) {
+    const umbrellaSection = String(formData.get('umbrellaSection') || '').trim();
+    const umbrellaRow = Number(formData.get('umbrellaRow'));
+    const umbrellaNumber = Number(formData.get('umbrellaNumber'));
+    if (
+      !customerName ||
+      !umbrellaSection ||
+      !Number.isFinite(umbrellaRow) ||
+      !Number.isFinite(umbrellaNumber) ||
+      !supabaseConfig.url ||
+      !supabaseConfig.publishableKey
+    ) {
       setCheckoutError(dynamicText('orderError'));
       return;
     }
@@ -697,6 +717,9 @@
           customer_name: customerName,
           customer_phone: customerPhone || null,
           note: note || null,
+          umbrella_section: umbrellaSection,
+          umbrella_row: umbrellaRow,
+          umbrella_number: umbrellaNumber,
           items: cart.map((item) => ({ id: item.id, name: item.name, price: item.price, qty: item.qty })),
           total: cartTotal(),
         }),
@@ -731,6 +754,37 @@
       }
     }
   }
+
+  function populateUmbrellaNumbers() {
+    if (!umbrellaRowSelect || !umbrellaNumberSelect) return;
+    const row = Number(umbrellaRowSelect.value) || 1;
+    const count = umbrellasInRow(row);
+    const previous = Number(umbrellaNumberSelect.value) || 0;
+    umbrellaNumberSelect.replaceChildren();
+    for (let number = 1; number <= count; number += 1) {
+      const option = document.createElement('option');
+      option.value = String(number);
+      option.textContent = String(number);
+      umbrellaNumberSelect.append(option);
+    }
+    umbrellaNumberSelect.value = String(previous >= 1 && previous <= count ? previous : 1);
+  }
+
+  function populateUmbrellaSelectors() {
+    if (!umbrellaRowSelect) return;
+    if (!umbrellaRowSelect.children.length) {
+      for (let row = 1; row <= UMBRELLA_ROWS; row += 1) {
+        const option = document.createElement('option');
+        option.value = String(row);
+        option.textContent = String(row);
+        umbrellaRowSelect.append(option);
+      }
+    }
+    populateUmbrellaNumbers();
+  }
+
+  umbrellaRowSelect?.addEventListener('change', populateUmbrellaNumbers);
+  populateUmbrellaSelectors();
 
   checkoutForm?.addEventListener('submit', submitOrder);
 

@@ -1495,7 +1495,8 @@ svg {
   text-transform: uppercase;
 }
 
-.basket-checkout-form input {
+.basket-checkout-form input,
+.basket-checkout-form select {
   min-height: 46px;
   padding: 0 14px;
   border: 1px solid var(--line-strong);
@@ -1507,9 +1508,24 @@ svg {
   text-transform: none;
 }
 
-.basket-checkout-form input:focus-visible {
+.basket-checkout-form input:focus-visible,
+.basket-checkout-form select:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 1px;
+}
+
+.basket-location-label {
+  margin: 4px 0 -6px;
+  color: var(--ink-soft);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.basket-location-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .basket-status {

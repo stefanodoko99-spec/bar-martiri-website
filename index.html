@@ -758,8 +758,26 @@
                 Telefoni (opsionale)
                 <input name="phone" type="tel" maxlength="30" autocomplete="tel">
               </label>
+              <p class="basket-location-label">Ku je?</p>
+              <div class="basket-location-row">
+                <label>
+                  Sektori
+                  <select name="umbrellaSection" data-umbrella-section required>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                  </select>
+                </label>
+                <label>
+                  Rreshti
+                  <select name="umbrellaRow" data-umbrella-row required></select>
+                </label>
+                <label>
+                  Çadra
+                  <select name="umbrellaNumber" data-umbrella-number required></select>
+                </label>
+              </div>
               <label>
-                Shënim (p.sh. numri i shezlongut)
+                Shënim shtesë (opsionale)
                 <input name="note" type="text" maxlength="120">
               </label>
               <p class="form-error" data-checkout-error role="alert"></p>

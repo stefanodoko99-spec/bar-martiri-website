@@ -219,6 +219,12 @@
     contact.className = 'order-card-contact';
     contact.textContent = [order.customerName, order.customerPhone].filter(Boolean).join(' · ') || '—';
 
+    const location = document.createElement('p');
+    location.className = 'order-card-location';
+    location.textContent = order.umbrellaSection
+      ? `📍 Sektori ${order.umbrellaSection} · Rreshti ${order.umbrellaRow} · Çadra ${order.umbrellaNumber}`
+      : '';
+
     const items = document.createElement('ul');
     items.className = 'order-card-items';
     order.items.forEach((item) => {
@@ -240,6 +246,7 @@
     total.append(totalLabel, totalValue);
 
     card.append(header, contact);
+    if (order.umbrellaSection) card.append(location);
     if (order.note) {
       const note = document.createElement('p');
       note.className = 'order-card-note';

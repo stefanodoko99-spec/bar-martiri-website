@@ -225,6 +225,12 @@ create table if not exists public.orders (
   confirmed_at timestamptz
 );
 
+-- Beach layout: 2 sections (A/B) split by the central pathway, 8 rows each,
+-- 13 umbrellas per side on rows 1-4 and 12 per side on rows 5-8 (200 total).
+alter table public.orders add column if not exists umbrella_section text;
+alter table public.orders add column if not exists umbrella_row integer;
+alter table public.orders add column if not exists umbrella_number integer;
+
 alter table public.orders enable row level security;
 
 drop policy if exists "Anyone can place an order" on public.orders;
@@ -329,6 +335,7 @@ declare
   settings record;
   message text;
   items_text text := '';
+  location_text text := '-';
   cart_item jsonb;
 begin
   select bot_token, chat_id into settings from public.bot_settings where id = 'main';
@@ -345,11 +352,16 @@ begin
     );
   end loop;
 
+  if new.umbrella_section is not null and new.umbrella_row is not null and new.umbrella_number is not null then
+    location_text := format('Section %s, Row %s, Umbrella %s', new.umbrella_section, new.umbrella_row, new.umbrella_number);
+  end if;
+
   message := format(
-    E'New order #%s\nCustomer: %s\nPhone: %s\nTotal: %s ALL%s\n\nNote: %s',
+    E'New order #%s\nCustomer: %s\nPhone: %s\nLocation: %s\nTotal: %s ALL%s\n\nNote: %s',
     left(new.id::text, 8),
     coalesce(nullif(new.customer_name, ''), '-'),
     coalesce(nullif(new.customer_phone, ''), '-'),
+    location_text,
     new.total,
     items_text,
     coalesce(nullif(new.note, ''), '-')

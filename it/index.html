@@ -755,8 +755,26 @@
                 Telefono (facoltativo)
                 <input name="phone" type="tel" maxlength="30" autocomplete="tel">
               </label>
+              <p class="basket-location-label">Dove sei?</p>
+              <div class="basket-location-row">
+                <label>
+                  Settore
+                  <select name="umbrellaSection" data-umbrella-section required>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                  </select>
+                </label>
+                <label>
+                  Fila
+                  <select name="umbrellaRow" data-umbrella-row required></select>
+                </label>
+                <label>
+                  Ombrellone
+                  <select name="umbrellaNumber" data-umbrella-number required></select>
+                </label>
+              </div>
               <label>
-                Nota (es. numero del lettino)
+                Nota aggiuntiva (facoltativa)
                 <input name="note" type="text" maxlength="120">
               </label>
               <p class="form-error" data-checkout-error role="alert"></p>

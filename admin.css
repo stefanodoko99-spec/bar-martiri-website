@@ -728,6 +728,12 @@ textarea:focus {
   font-size: 12px;
 }
 
+.order-card-location {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .order-card-items {
   margin: 0;
   padding: 0;
