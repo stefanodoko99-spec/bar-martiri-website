@@ -769,6 +769,60 @@ svg {
   line-height: 1;
 }
 
+.gallery-section {
+  padding: clamp(80px, 10vw, 140px) var(--page-pad);
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.gallery-section h2 {
+  margin: 12px 0 32px;
+  font-family: var(--font-display);
+  font-size: clamp(48px, 7vw, 96px);
+  font-weight: 400;
+  line-height: 0.9;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.gallery-item {
+  margin: 0;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+
+.gallery-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.whatsapp-button {
+  position: fixed;
+  z-index: 55;
+  right: var(--page-pad);
+  bottom: calc(max(18px, env(safe-area-inset-bottom)) + var(--dock-height) + 20px);
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border-radius: 50%;
+  background: #25d366;
+  color: var(--white);
+  box-shadow: 0 12px 28px var(--shadow-strong);
+}
+
+.whatsapp-button svg {
+  width: 26px;
+  height: 26px;
+}
+
 .primary-link {
   padding: 13px 16px;
   background: var(--ink);

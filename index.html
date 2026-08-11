@@ -8,6 +8,10 @@
     <link rel="icon" href="/favicon.ico" sizes="48x48">
     <link rel="icon" href="assets/optimized/favicon-96.png" type="image/png" sizes="96x96">
     <link rel="apple-touch-icon" href="assets/optimized/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Bar Martiri">
     <link rel="preconnect" href="https://uctomzwdnfldhoipzepp.supabase.co" crossorigin>
     <link rel="dns-prefetch" href="//uctomzwdnfldhoipzepp.supabase.co">
     <meta
@@ -185,7 +189,7 @@
         ]
       }
     </script>
-    <link rel="stylesheet" href="styles.css?v=20260809-1">
+    <link rel="stylesheet" href="styles.css?v=20260809-2">
   </head>
   <body>
     <a class="skip-link" href="#main">Kalo te përmbajtja</a>
@@ -477,6 +481,12 @@
             <blockquote lang="en">“The service is excellent.”</blockquote>
           </article>
         </div>
+      </section>
+
+      <section class="gallery-section" id="gallery" aria-labelledby="gallery-title" data-gallery-section hidden>
+        <p class="eyebrow">Bar Martiri</p>
+        <h2 id="gallery-title">Galeria</h2>
+        <div class="gallery-grid" data-gallery-grid></div>
       </section>
 
       <section class="closing-section" id="information" aria-labelledby="closing-title">
@@ -825,6 +835,21 @@
       </div>
     </aside>
 
+    <a
+      class="whatsapp-button"
+      data-whatsapp-button
+      href="https://wa.me/355696116063"
+      target="_blank"
+      rel="noreferrer"
+      aria-label="Shkruaj në WhatsApp"
+      hidden
+    >
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <path d="M7 20 4 21l1-3a8 8 0 1 1 2 2Z"></path>
+        <path d="M9 10c0 3 2.5 5.5 5.5 5.5"></path>
+      </svg>
+    </a>
+
     <nav class="bottom-dock" data-bottom-dock aria-label="Navigimi kryesor">
       <button
         class="dock-action is-active"
@@ -898,10 +923,10 @@
       </button>
     </nav>
 
-    <script defer src="supabase-config.js?v=20260804-1"></script>
+    <script defer src="supabase-config.js?v=20260809-2"></script>
     <script defer src="product-image-map.js?v=20260806-2"></script>
     <script defer src="menu-data.js?v=20260809-1"></script>
-    <script defer src="script.js?v=20260809-1"></script>
+    <script defer src="script.js?v=20260810-1"></script>
     <script defer src="/vercel-analytics.js?v=20260808-1"></script>
   </body>
 </html>

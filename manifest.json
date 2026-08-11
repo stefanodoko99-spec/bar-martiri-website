@@ -1,0 +1,23 @@
+{
+  "name": "Bar Martiri Spille",
+  "short_name": "Bar Martiri",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f0e8",
+  "theme_color": "#f4f0e8",
+  "lang": "sq",
+  "icons": [
+    {
+      "src": "assets/optimized/favicon-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/optimized/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

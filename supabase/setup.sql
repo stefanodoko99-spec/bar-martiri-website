@@ -382,5 +382,125 @@ create trigger trg_notify_telegram_new_order
 after insert on public.orders
 for each row execute function public.notify_telegram_new_order();
 
+-- Photo gallery: admin-uploaded images shown in a public site section. The
+-- section stays hidden on the site until at least one row exists.
+create table if not exists public.gallery_images (
+  id uuid primary key default gen_random_uuid(),
+  image_url text not null,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+alter table public.gallery_images enable row level security;
+
+drop policy if exists "Public can read gallery images" on public.gallery_images;
+create policy "Public can read gallery images"
+on public.gallery_images for select
+to anon, authenticated
+using (true);
+
+drop policy if exists "Admins can insert gallery images" on public.gallery_images;
+create policy "Admins can insert gallery images"
+on public.gallery_images for insert
+to authenticated
+with check (public.is_menu_admin());
+
+drop policy if exists "Admins can update gallery images" on public.gallery_images;
+create policy "Admins can update gallery images"
+on public.gallery_images for update
+to authenticated
+using (public.is_menu_admin())
+with check (public.is_menu_admin());
+
+drop policy if exists "Admins can delete gallery images" on public.gallery_images;
+create policy "Admins can delete gallery images"
+on public.gallery_images for delete
+to authenticated
+using (public.is_menu_admin());
+
+insert into storage.buckets (id, name, public)
+values ('gallery-images', 'gallery-images', true)
+on conflict (id) do update set public = excluded.public;
+
+drop policy if exists "Public can view gallery images" on storage.objects;
+create policy "Public can view gallery images"
+on storage.objects for select
+to public
+using (bucket_id = 'gallery-images');
+
+drop policy if exists "Admins can upload gallery images" on storage.objects;
+create policy "Admins can upload gallery images"
+on storage.objects for insert
+to authenticated
+with check (bucket_id = 'gallery-images' and public.is_menu_admin());
+
+drop policy if exists "Admins can update gallery image objects" on storage.objects;
+create policy "Admins can update gallery image objects"
+on storage.objects for update
+to authenticated
+using (bucket_id = 'gallery-images' and public.is_menu_admin())
+with check (bucket_id = 'gallery-images' and public.is_menu_admin());
+
+drop policy if exists "Admins can delete gallery image objects" on storage.objects;
+create policy "Admins can delete gallery image objects"
+on storage.objects for delete
+to authenticated
+using (bucket_id = 'gallery-images' and public.is_menu_admin());
+
+-- Web Push subscriptions for customers, so an order-status change can reach
+-- them even after they close the tab (regular Notification API can't). Each
+-- row links one browser's push subscription to the order it was created for.
+create table if not exists public.push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  order_id uuid not null references public.orders(id) on delete cascade,
+  endpoint text not null,
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.push_subscriptions enable row level security;
+
+drop policy if exists "Anyone can save a push subscription" on public.push_subscriptions;
+create policy "Anyone can save a push subscription"
+on public.push_subscriptions for insert
+to anon, authenticated
+with check (true);
+
+-- No public select/update/delete: only the send-order-push Edge Function
+-- (using the service role key, which bypasses RLS) ever reads these back.
+
+-- Fires the send-order-push Edge Function whenever an order's status
+-- changes, so it can push a notification to every subscription saved for
+-- that order. Mirrors the existing notify_telegram_new_order trigger below.
+-- The bearer token here is the public anon key already committed in
+-- supabase-config.js — it only lets the caller invoke this project's own
+-- Edge Functions, the same way the browser does.
+create or replace function public.notify_customer_order_status()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  perform net.http_post(
+    url := 'https://uctomzwdnfldhoipzepp.supabase.co/functions/v1/send-order-push',
+    body := jsonb_build_object('order_id', new.id, 'status', new.status),
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjdG9tendkbmZsZGhvaXB6ZXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NDQzOTEsImV4cCI6MjEwMDMyMDM5MX0._0gk4xTVRm2LvcKHtwZNmFNm4oOdrBX-4n6j9qleGww'
+    )
+  );
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_notify_customer_order_status on public.orders;
+create trigger trg_notify_customer_order_status
+after update on public.orders
+for each row
+when (old.status is distinct from new.status)
+execute function public.notify_customer_order_status();
+
 -- After creating the administrator in Authentication, run this with its UUID:
 -- insert into public.admin_users (user_id) values ('AUTH-USER-UUID') on conflict do nothing;

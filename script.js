@@ -28,6 +28,9 @@
   const reviewRatingEl = document.querySelector('[data-review-rating]');
   const reviewCopyEl = document.querySelector('[data-review-copy]');
   const reviewsListEl = document.querySelector('.reviews-list');
+  const gallerySection = document.querySelector('[data-gallery-section]');
+  const galleryGridEl = document.querySelector('[data-gallery-grid]');
+  const whatsappButton = document.querySelector('[data-whatsapp-button]');
   const basketItemsEl = document.querySelector('[data-basket-items]');
   const basketEmptyEl = document.querySelector('[data-basket-empty]');
   const basketSummaryEl = document.querySelector('[data-basket-summary]');
@@ -205,6 +208,8 @@
     'Çadra': { sq: 'Çadra', it: 'Ombrellone', en: 'Umbrella' },
     'Porosit': { sq: 'Porosit', it: 'Ordina', en: 'Place order' },
     'Porosi e re': { sq: 'Porosi e re', it: 'Nuovo ordine', en: 'New order' },
+    'Galeria': { sq: 'Galeria', it: 'Galleria', en: 'Gallery' },
+    'Shkruaj në WhatsApp': { sq: 'Shkruaj në WhatsApp', it: 'Scrivici su WhatsApp', en: 'Message us on WhatsApp' },
   });
 
   const DYNAMIC_TEXT = Object.freeze({
@@ -262,6 +267,8 @@
   const CART_KEY = 'barMartiri.cart.v1';
   const PENDING_ORDER_KEY = 'barMartiri.pendingOrder.v1';
   const ORDER_POLL_INTERVAL = 4000;
+  const VAPID_PUBLIC_KEY =
+    'BBNd3SdADUSjP5Y4gCBjiMJi7gfO0xulbR24YX5RBM_9bMvOYTubWDw2kddV2sny7wQE6zO2nAO8kEKcJOJ9jUQ';
   const UMBRELLA_ROWS = 8;
   function umbrellasInRow(row) {
     return row <= 4 ? 13 : 12;
@@ -459,6 +466,59 @@
     }
   }
 
+  async function loadGalleryImages() {
+    if (!supabaseConfig.url || !supabaseConfig.publishableKey || !galleryGridEl) return;
+    try {
+      const response = await fetch(
+        `${supabaseConfig.url}/rest/v1/gallery_images?select=image_url&order=sort_order.asc`,
+        {
+          headers: {
+            apikey: supabaseConfig.publishableKey,
+            Authorization: `Bearer ${supabaseConfig.publishableKey}`,
+          },
+        }
+      );
+      if (!response.ok) return;
+      const rows = await response.json();
+      if (!Array.isArray(rows) || !rows.length) return;
+
+      galleryGridEl.replaceChildren();
+      rows.forEach((row) => {
+        if (!row.image_url) return;
+        const figure = document.createElement('figure');
+        figure.className = 'gallery-item';
+        const img = document.createElement('img');
+        img.src = row.image_url;
+        img.alt = '';
+        img.loading = 'lazy';
+        figure.append(img);
+        galleryGridEl.append(figure);
+      });
+      if (gallerySection) gallerySection.hidden = false;
+    } catch {
+      // Keep the gallery section hidden if it isn't reachable yet.
+    }
+  }
+
+  function isWhatsAppHour() {
+    try {
+      const hour = Number(
+        new Intl.DateTimeFormat('en-GB', {
+          hour: '2-digit',
+          hour12: false,
+          timeZone: 'Europe/Tirane',
+        }).format(new Date())
+      );
+      return hour >= 18;
+    } catch {
+      return new Date().getHours() >= 18;
+    }
+  }
+
+  function updateWhatsAppVisibility() {
+    if (whatsappButton) whatsappButton.hidden = !isWhatsAppHour();
+  }
+
   function loadCart() {
     try {
       const stored = JSON.parse(localStorage.getItem(CART_KEY));
@@ -654,6 +714,54 @@
     orderPollTimer = window.setInterval(() => void pollOrderStatus(), ORDER_POLL_INTERVAL);
   }
 
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; i += 1) outputArray[i] = rawData.charCodeAt(i);
+    return outputArray;
+  }
+
+  async function registerPushForOrder(orderId) {
+    if (!orderId || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (!supabaseConfig.url || !supabaseConfig.publishableKey) return;
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js');
+
+      let permission = Notification.permission;
+      if (permission === 'default') permission = await Notification.requestPermission();
+      if (permission !== 'granted') return;
+
+      let subscription = await registration.pushManager.getSubscription();
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        });
+      }
+
+      const subscriptionJson = subscription.toJSON();
+      await fetch(`${supabaseConfig.url}/rest/v1/push_subscriptions`, {
+        method: 'POST',
+        headers: {
+          apikey: supabaseConfig.publishableKey,
+          Authorization: `Bearer ${supabaseConfig.publishableKey}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=minimal',
+        },
+        body: JSON.stringify({
+          order_id: orderId,
+          endpoint: subscriptionJson.endpoint,
+          p256dh: subscriptionJson.keys?.p256dh,
+          auth: subscriptionJson.keys?.auth,
+        }),
+      });
+    } catch {
+      // Push isn't available or was denied on this device; the poll-while-open fallback still works.
+    }
+  }
+
   async function initializeBasket() {
     cart = loadCart();
     updateBasketBadge();
@@ -665,6 +773,9 @@
     if (pendingOrderId) {
       const status = await pollOrderStatus();
       if (status === 'pending' || status === null) startOrderStatusPolling();
+      if (status === 'pending' && 'Notification' in window && Notification.permission === 'granted') {
+        void registerPushForOrder(pendingOrderId);
+      }
     }
   }
 
@@ -741,9 +852,7 @@
       showOrderStatus({ status: 'pending' });
       renderBasket();
       startOrderStatusPolling();
-      if ('Notification' in window && Notification.permission === 'default') {
-        void Notification.requestPermission();
-      }
+      void registerPushForOrder(pendingOrderId);
     } catch {
       setCheckoutError(dynamicText('orderError'));
     } finally {
@@ -1890,6 +1999,9 @@
   createMarqueeVisibility();
   if (!getCookiePreference()) showCookieBanner();
   void loadReviewSummary();
+  void loadGalleryImages();
+  updateWhatsAppVisibility();
+  window.setInterval(updateWhatsAppVisibility, 60 * 1000);
   void initializeBasket();
   initializeLanguage();
   const year = document.querySelector('[data-current-year]');

@@ -253,7 +253,7 @@
       .sort((left, right) => left.sortOrder - right.sortOrder);
   }
 
-  async function uploadImage(file, originalName = 'product.webp') {
+  async function uploadImage(file, originalName = 'product.webp', bucket = config.imageBucket) {
     if (!client) return '';
 
     if (!(file instanceof Blob) || !file.type.startsWith('image/')) {
@@ -271,15 +271,15 @@
       window.crypto?.randomUUID?.() ||
       `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const path = `${uniqueId}.${safeExtension}`;
-    const bucket = config.imageBucket || 'product-images';
-    const { error } = await client.storage.from(bucket).upload(path, file, {
+    const targetBucket = bucket || 'product-images';
+    const { error } = await client.storage.from(targetBucket).upload(path, file, {
       cacheControl: '31536000',
       contentType: file.type || 'image/webp',
       upsert: false,
     });
 
     if (error) throw error;
-    return client.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+    return client.storage.from(targetBucket).getPublicUrl(path).data.publicUrl;
   }
 
   async function signIn(password) {
@@ -451,6 +451,47 @@
     });
   }
 
+  function normalizeGalleryImage(row) {
+    return {
+      id: String(row.id),
+      imageUrl: String(row.image_url || ''),
+      sortOrder: Number(row.sort_order) || 0,
+    };
+  }
+
+  async function listGalleryImages() {
+    if (!client) return [];
+    const { data, error } = await client
+      .from('gallery_images')
+      .select('id,image_url,sort_order')
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true });
+    if (error) throw error;
+    return (data || []).map(normalizeGalleryImage);
+  }
+
+  async function saveGalleryImage(image) {
+    if (!client) throw new Error('Admin panel unavailable without Supabase.');
+    const payload = {
+      image_url: image.imageUrl,
+      sort_order: Number(image.sortOrder) || 0,
+    };
+    if (image.id) payload.id = image.id;
+    const { data, error } = await client
+      .from('gallery_images')
+      .upsert(payload, { onConflict: 'id' })
+      .select('id,image_url,sort_order')
+      .single();
+    if (error) throw error;
+    return normalizeGalleryImage(data);
+  }
+
+  async function deleteGalleryImage(id) {
+    if (!client) throw new Error('Admin panel unavailable without Supabase.');
+    const { error } = await client.from('gallery_images').delete().eq('id', id);
+    if (error) throw error;
+  }
+
   window.BAR_MARTIRI_STORE = Object.freeze({
     isRemote: () => Boolean(client),
     hasTranslationColumns: () => translationColumnsSupported,
@@ -469,5 +510,8 @@
     updateOrderStatus,
     getBotSettings,
     saveBotSettings,
+    listGalleryImages,
+    saveGalleryImage,
+    deleteGalleryImage,
   });
 })();

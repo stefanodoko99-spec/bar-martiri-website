@@ -33,6 +33,18 @@
   const ordersEmpty = document.querySelector('[data-orders-empty]');
   const refreshOrdersButton = document.querySelector('[data-refresh-orders]');
   const pendingOrdersBadge = document.querySelector('[data-pending-orders-badge]');
+  const analyticsStats = document.querySelector('[data-analytics-stats]');
+  const topItemsList = document.querySelector('[data-top-items]');
+  const hourBars = document.querySelector('[data-hour-bars]');
+  const analyticsEmpty = document.querySelector('[data-analytics-empty]');
+  const refreshAnalyticsButton = document.querySelector('[data-refresh-analytics]');
+  const adminGalleryGrid = document.querySelector('[data-admin-gallery-grid]');
+  const galleryCount = document.querySelector('[data-gallery-count]');
+  const galleryEmpty = document.querySelector('[data-gallery-empty]');
+  const galleryDropZone = document.querySelector('[data-gallery-drop-zone]');
+  const galleryImageInput = document.querySelector('[data-gallery-image-input]');
+  const galleryError = document.querySelector('[data-gallery-error]');
+  const galleryStatus = document.querySelector('[data-gallery-status]');
   const botSettingsForm = document.querySelector('[data-bot-settings-form]');
   const botSettingsError = document.querySelector('[data-bot-settings-error]');
   const botSettingsStatus = document.querySelector('[data-bot-settings-status]');
@@ -42,6 +54,7 @@
   let testimonials = [];
   let orders = [];
   let ordersPollTimer = 0;
+  let galleryImages = [];
 
   document.querySelectorAll('[data-admin-view-tab]').forEach((tab) => {
     tab.addEventListener('click', () => {
@@ -58,6 +71,8 @@
       } else {
         stopOrdersPolling();
       }
+      if (view === 'analytics') void loadAnalyticsPanel();
+      if (view === 'gallery') void loadGalleryPanel();
     });
   });
 
@@ -322,6 +337,117 @@
   }
 
   refreshOrdersButton?.addEventListener('click', () => void loadOrdersPanel());
+
+  function formatCurrency(amount) {
+    return `${Math.round(amount)} ALL`;
+  }
+
+  function renderAnalytics(ordersData) {
+    if (!analyticsStats) return;
+    const confirmedOrders = ordersData.filter((order) => order.status === 'confirmed');
+    const pendingCount = ordersData.filter((order) => order.status === 'pending').length;
+    const confirmedRevenue = confirmedOrders.reduce((sum, order) => sum + Number(order.total || 0), 0);
+    const avgOrderValue = confirmedOrders.length ? confirmedRevenue / confirmedOrders.length : 0;
+
+    const stats = [
+      { label: 'Porosi gjithsej', value: String(ordersData.length) },
+      { label: 'Të ardhura (konfirmuar)', value: formatCurrency(confirmedRevenue) },
+      { label: 'Në pritje', value: String(pendingCount) },
+      { label: 'Vlera mesatare', value: formatCurrency(avgOrderValue) },
+    ];
+
+    analyticsStats.replaceChildren();
+    stats.forEach((stat) => {
+      const card = document.createElement('div');
+      card.className = 'stat-card';
+      const label = document.createElement('p');
+      label.className = 'eyebrow';
+      label.textContent = stat.label;
+      const value = document.createElement('strong');
+      value.textContent = stat.value;
+      card.append(label, value);
+      analyticsStats.append(card);
+    });
+
+    const itemTotals = new Map();
+    ordersData.forEach((order) => {
+      order.items.forEach((item) => {
+        const key = item.name || 'Produkt';
+        const qty = Number(item.qty) || 1;
+        itemTotals.set(key, (itemTotals.get(key) || 0) + qty);
+      });
+    });
+    const topItems = [...itemTotals.entries()].sort((left, right) => right[1] - left[1]).slice(0, 5);
+
+    if (topItemsList) {
+      topItemsList.replaceChildren();
+      if (!topItems.length) {
+        const empty = document.createElement('p');
+        empty.className = 'empty-list';
+        empty.textContent = 'Ende s’ka të dhëna.';
+        topItemsList.append(empty);
+      } else {
+        topItems.forEach(([name, qty]) => {
+          const row = document.createElement('li');
+          row.className = 'top-item-row';
+          const nameSpan = document.createElement('span');
+          nameSpan.textContent = name;
+          const qtySpan = document.createElement('strong');
+          qtySpan.textContent = `×${qty}`;
+          row.append(nameSpan, qtySpan);
+          topItemsList.append(row);
+        });
+      }
+    }
+
+    const hourCounts = new Array(24).fill(0);
+    ordersData.forEach((order) => {
+      const date = new Date(order.createdAt);
+      if (!Number.isNaN(date.getTime())) hourCounts[date.getHours()] += 1;
+    });
+    const maxHourCount = Math.max(1, ...hourCounts);
+
+    if (hourBars) {
+      hourBars.replaceChildren();
+      hourCounts.forEach((count, hour) => {
+        if (!count) return;
+        const row = document.createElement('div');
+        row.className = 'hour-bar-row';
+        const label = document.createElement('span');
+        label.textContent = `${String(hour).padStart(2, '0')}:00`;
+        const track = document.createElement('div');
+        track.className = 'hour-bar-track';
+        const fill = document.createElement('div');
+        fill.className = 'hour-bar-fill';
+        fill.style.width = `${Math.round((count / maxHourCount) * 100)}%`;
+        track.append(fill);
+        const countLabel = document.createElement('span');
+        countLabel.textContent = String(count);
+        row.append(label, track, countLabel);
+        hourBars.append(row);
+      });
+      if (!hourCounts.some(Boolean)) {
+        const empty = document.createElement('p');
+        empty.className = 'empty-list';
+        empty.textContent = 'Ende s’ka të dhëna.';
+        hourBars.append(empty);
+      }
+    }
+
+    if (analyticsEmpty) analyticsEmpty.hidden = ordersData.length > 0;
+  }
+
+  async function loadAnalyticsPanel() {
+    if (!store?.listOrders) return;
+    try {
+      const allOrders = await store.listOrders();
+      renderAnalytics(allOrders);
+    } catch {
+      // Keep showing the last known analytics if a refresh fails.
+    }
+  }
+
+  refreshAnalyticsButton?.addEventListener('click', () => void loadAnalyticsPanel());
 
   async function loadBotSettingsPanel() {
     if (!store?.getBotSettings || !botSettingsForm) return;
@@ -756,6 +882,135 @@
   });
 
   dropZone?.addEventListener('drop', (event) => handleImage(event.dataTransfer?.files?.[0]));
+
+  function renderGalleryGrid() {
+    if (!adminGalleryGrid) return;
+    adminGalleryGrid.replaceChildren();
+    if (galleryCount) galleryCount.textContent = String(galleryImages.length);
+    if (galleryEmpty) galleryEmpty.hidden = galleryImages.length > 0;
+
+    galleryImages.forEach((image, index) => {
+      const item = document.createElement('div');
+      item.className = 'admin-gallery-item';
+
+      const img = document.createElement('img');
+      img.src = image.imageUrl;
+      img.alt = '';
+      item.append(img);
+
+      const actions = document.createElement('div');
+      actions.className = 'admin-gallery-item-actions';
+
+      const leftButton = document.createElement('button');
+      leftButton.type = 'button';
+      leftButton.disabled = index === 0;
+      leftButton.setAttribute('aria-label', 'Lëviz majtas');
+      leftButton.innerHTML =
+        '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"></path></svg>';
+      leftButton.addEventListener('click', () => void moveGalleryImage(image.id, -1));
+
+      const rightButton = document.createElement('button');
+      rightButton.type = 'button';
+      rightButton.disabled = index === galleryImages.length - 1;
+      rightButton.setAttribute('aria-label', 'Lëviz djathtas');
+      rightButton.innerHTML =
+        '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"></path></svg>';
+      rightButton.addEventListener('click', () => void moveGalleryImage(image.id, 1));
+
+      const removeButton = document.createElement('button');
+      removeButton.type = 'button';
+      removeButton.dataset.removeGalleryImage = '';
+      removeButton.setAttribute('aria-label', 'Fshi foton');
+      removeButton.innerHTML =
+        '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"></path></svg>';
+      removeButton.addEventListener('click', () => void removeGalleryImage(image.id));
+
+      actions.append(leftButton, rightButton, removeButton);
+      item.append(actions);
+      adminGalleryGrid.append(item);
+    });
+  }
+
+  async function loadGalleryPanel() {
+    if (!store?.listGalleryImages) return;
+    try {
+      galleryImages = await store.listGalleryImages();
+      renderGalleryGrid();
+    } catch {
+      if (galleryStatus) galleryStatus.textContent = 'Fotot nuk mund të ngarkohen.';
+    }
+  }
+
+  async function moveGalleryImage(id, direction) {
+    const index = galleryImages.findIndex((image) => image.id === id);
+    const targetIndex = index + direction;
+    if (index < 0 || targetIndex < 0 || targetIndex >= galleryImages.length) return;
+    const reordered = [...galleryImages];
+    [reordered[index], reordered[targetIndex]] = [reordered[targetIndex], reordered[index]];
+    galleryImages = reordered;
+    renderGalleryGrid();
+    try {
+      const resaved = await Promise.all(
+        galleryImages.map((image, sortOrder) => store.saveGalleryImage({ ...image, sortOrder }))
+      );
+      galleryImages = resaved;
+      renderGalleryGrid();
+    } catch {
+      if (galleryStatus) galleryStatus.textContent = 'Renditja nuk mund të ruhet.';
+      void loadGalleryPanel();
+    }
+  }
+
+  async function removeGalleryImage(id) {
+    if (!window.confirm('Ta fshij këtë foto?')) return;
+    try {
+      await store.deleteGalleryImage(id);
+      galleryImages = galleryImages.filter((image) => image.id !== id);
+      renderGalleryGrid();
+    } catch {
+      if (galleryStatus) galleryStatus.textContent = 'Fotoja nuk mund të fshihet.';
+    }
+  }
+
+  async function handleGalleryImage(file) {
+    if (!file) return;
+    if (galleryError) galleryError.textContent = '';
+    if (galleryStatus) galleryStatus.textContent = 'Po ngarkohet…';
+    try {
+      const compressed = await compressImage(file);
+      const baseName = file.name.replace(/\.[^.]+$/, '') || 'gallery';
+      const imageUrl = await store.uploadImage(
+        compressed.blob,
+        `${baseName}.webp`,
+        window.BAR_MARTIRI_SUPABASE?.galleryBucket
+      );
+      const saved = await store.saveGalleryImage({ imageUrl, sortOrder: galleryImages.length });
+      galleryImages.push(saved);
+      renderGalleryGrid();
+      if (galleryStatus) galleryStatus.textContent = 'Fotoja u shtua.';
+    } catch (error) {
+      if (galleryError) galleryError.textContent = error.message || 'Fotografia nuk mund të ngarkohet.';
+      if (galleryStatus) galleryStatus.textContent = '';
+    }
+  }
+
+  galleryImageInput?.addEventListener('change', () => handleGalleryImage(galleryImageInput.files?.[0]));
+
+  ['dragenter', 'dragover'].forEach((eventName) => {
+    galleryDropZone?.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      galleryDropZone.classList.add('is-dragging');
+    });
+  });
+
+  ['dragleave', 'drop'].forEach((eventName) => {
+    galleryDropZone?.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      galleryDropZone.classList.remove('is-dragging');
+    });
+  });
+
+  galleryDropZone?.addEventListener('drop', (event) => handleGalleryImage(event.dataTransfer?.files?.[0]));
 
   document.querySelector('[data-new-product]')?.addEventListener('click', () => {
     resetEditor();

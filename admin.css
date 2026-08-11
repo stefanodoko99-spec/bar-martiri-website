@@ -158,7 +158,7 @@ svg {
 
 form {
   display: grid;
-  gap: 18px;
+  gap: 22px;
 }
 
 label {
@@ -325,7 +325,7 @@ textarea:focus {
 
 .admin-workspace {
   min-width: 0;
-  padding: clamp(24px, 4vw, 52px);
+  padding: clamp(28px, 5vw, 68px);
 }
 
 .workspace-header {
@@ -333,7 +333,7 @@ textarea:focus {
   align-items: flex-end;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 22px;
+  margin-bottom: 32px;
 }
 
 .workspace-header h2 {
@@ -348,8 +348,8 @@ textarea:focus {
   display: flex;
   align-items: baseline;
   gap: 16px;
-  margin-bottom: 28px;
-  padding: 12px 14px;
+  margin-bottom: 36px;
+  padding: 16px 18px;
   border-left: 3px solid var(--blue);
   background: var(--blue-soft);
   font-size: 12px;
@@ -367,7 +367,7 @@ textarea:focus {
 .admin-layout {
   display: grid;
   grid-template-columns: minmax(300px, 0.9fr) minmax(420px, 1.1fr);
-  gap: 28px;
+  gap: 40px;
   align-items: start;
 }
 
@@ -380,7 +380,7 @@ textarea:focus {
 .section-toolbar,
 .editor-header {
   display: flex;
-  min-height: 66px;
+  min-height: 78px;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
@@ -555,19 +555,19 @@ textarea:focus {
 }
 
 .product-form {
-  padding-top: 22px;
+  padding-top: 28px;
 }
 
 .form-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 150px;
-  gap: 14px;
+  gap: 16px;
 }
 
 .translation-fieldset {
   min-width: 0;
   margin: 4px 0 0;
-  padding: 18px;
+  padding: 24px;
   border: 1px solid var(--line);
   background: var(--paper-strong);
 }
@@ -614,22 +614,22 @@ textarea:focus {
 
 .reviews-panel {
   width: 100%;
-  padding: 22px;
+  padding: 30px;
   border: 1px solid var(--line);
   background: var(--white);
 }
 
 .reviews-form {
   display: grid;
-  gap: 18px;
-  padding-top: 18px;
+  gap: 22px;
+  padding-top: 22px;
 }
 
 .testimonial-row {
   position: relative;
   display: grid;
-  gap: 12px;
-  padding: 16px 44px 16px 0;
+  gap: 14px;
+  padding: 20px 44px 20px 0;
   border-bottom: 1px solid var(--line);
 }
 
@@ -646,21 +646,21 @@ textarea:focus {
 .orders-panel,
 .bot-settings-panel {
   width: 100%;
-  padding: 22px;
+  padding: 30px;
   border: 1px solid var(--line);
   background: var(--white);
 }
 
 .bot-settings-form {
   display: grid;
-  gap: 18px;
-  padding-top: 18px;
+  gap: 22px;
+  padding-top: 22px;
 }
 
 .orders-list {
   display: grid;
-  gap: 14px;
-  padding-top: 18px;
+  gap: 20px;
+  padding-top: 22px;
 }
 
 .orders-empty {
@@ -671,8 +671,8 @@ textarea:focus {
 
 .order-card {
   display: grid;
-  gap: 10px;
-  padding: 16px;
+  gap: 14px;
+  padding: 22px;
   border: 1px solid var(--line);
 }
 
@@ -767,6 +767,90 @@ textarea:focus {
   gap: 10px;
 }
 
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  padding-top: 22px;
+}
+
+.stat-card {
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: var(--paper-strong);
+}
+
+.stat-card .eyebrow {
+  margin-bottom: 10px;
+}
+
+.stat-card strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 400;
+}
+
+.analytics-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  padding-top: 32px;
+}
+
+.analytics-block h4 {
+  margin: 0 0 14px;
+  font-size: 13px;
+}
+
+.top-items-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.top-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.top-item-row strong {
+  font-weight: 800;
+}
+
+.hour-bars {
+  display: grid;
+  gap: 8px;
+}
+
+.hour-bar-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 26px;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink-soft);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.hour-bar-track {
+  height: 10px;
+  overflow: hidden;
+  background: #ece9e2;
+}
+
+.hour-bar-fill {
+  height: 100%;
+  background: var(--ink);
+}
+
 .sidebar-badge {
   display: inline-flex;
   min-width: 18px;
@@ -785,6 +869,69 @@ textarea:focus {
 .sidebar-action.is-active .sidebar-badge {
   background: var(--white);
   color: var(--ink);
+}
+
+.gallery-list-panel {
+  min-width: 0;
+  border-top: 1px solid var(--ink);
+}
+
+.gallery-upload-panel {
+  position: sticky;
+  top: 92px;
+  padding-bottom: 32px;
+}
+
+.admin-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  max-height: 620px;
+  padding-top: 18px;
+  overflow: auto;
+}
+
+.admin-gallery-item {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--paper-strong);
+}
+
+.admin-gallery-item img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.admin-gallery-item-actions {
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+}
+
+.admin-gallery-item-actions button {
+  display: grid;
+  min-height: 32px;
+  flex: 1;
+  place-items: center;
+  border: 1px solid var(--line);
+  background: var(--white);
+}
+
+.admin-gallery-item-actions button svg {
+  width: 15px;
+  height: 15px;
+}
+
+.admin-gallery-item-actions button:disabled {
+  opacity: 0.3;
+}
+
+.admin-gallery-item-actions [data-remove-gallery-image] {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .image-fieldset {
@@ -870,7 +1017,8 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 
-  .product-editor {
+  .product-editor,
+  .gallery-upload-panel {
     position: static;
   }
 
@@ -898,24 +1046,55 @@ textarea:focus {
     position: static;
     display: flex;
     height: auto;
-    flex-direction: row;
-    align-items: center;
-    padding: 12px 16px;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 12px;
     border-right: 0;
     border-bottom: 1px solid var(--line);
   }
 
-  .admin-sidebar > div:first-child,
-  .admin-sidebar nav {
+  .admin-sidebar > div:first-child {
     display: none;
+  }
+
+  .admin-sidebar nav {
+    display: flex;
+    flex: none;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sidebar-action {
+    position: relative;
+    flex: 1;
+    min-width: 84px;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 6px;
+    font-size: 10px;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .sidebar-action svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .sidebar-badge {
+    position: absolute;
+    top: 2px;
+    right: 14px;
+    margin-left: 0;
   }
 
   .sidebar-footer {
     display: flex;
     width: 100%;
     justify-content: space-between;
-    padding: 0;
-    border: 0;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
   }
 
   .admin-workspace {
@@ -989,6 +1168,11 @@ textarea:focus {
 
   .admin-product-price {
     grid-column: 2;
+  }
+
+  .analytics-columns {
+    grid-template-columns: 1fr;
+    gap: 26px;
   }
 }
 

@@ -9,7 +9,7 @@
     <link rel="apple-touch-icon" href="assets/optimized/apple-touch-icon.png">
     <meta name="robots" content="noindex, nofollow, noarchive">
     <title>Admin | Bar Martiri</title>
-    <link rel="stylesheet" href="admin.css?v=20260809-1">
+    <link rel="stylesheet" href="admin.css?v=20260809-2">
   </head>
   <body>
     <header class="admin-header">
@@ -65,6 +65,20 @@
             </svg>
             Porositë
             <span class="sidebar-badge" data-pending-orders-badge hidden>0</span>
+          </button>
+          <button class="sidebar-action" type="button" data-admin-view-tab="analytics">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M4 20V10M12 20V4M20 20v-7"></path>
+            </svg>
+            Analitika
+          </button>
+          <button class="sidebar-action" type="button" data-admin-view-tab="gallery">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <path d="m21 15-5-5L5 21"></path>
+            </svg>
+            Galeria
           </button>
         </nav>
         <div class="sidebar-footer">
@@ -315,14 +329,69 @@
             </form>
           </section>
         </div>
+
+        <div class="analytics-panel" data-admin-view-panel="analytics" hidden>
+          <section class="orders-panel" aria-labelledby="analytics-panel-title">
+            <div class="section-toolbar">
+              <h3 id="analytics-panel-title">Analitika e porosive</h3>
+              <button class="secondary-button" type="button" data-refresh-analytics>Rifresko</button>
+            </div>
+
+            <div class="stat-grid" data-analytics-stats></div>
+
+            <div class="analytics-columns">
+              <div class="analytics-block">
+                <h4>Produktet më të shitura</h4>
+                <ol class="top-items-list" data-top-items></ol>
+              </div>
+              <div class="analytics-block">
+                <h4>Porositë sipas orës</h4>
+                <div class="hour-bars" data-hour-bars></div>
+              </div>
+            </div>
+
+            <p class="orders-empty" data-analytics-empty hidden>Ende s’ka porosi për analitikë.</p>
+          </section>
+        </div>
+
+        <div class="admin-layout" data-admin-view-panel="gallery" hidden>
+          <section class="gallery-list-panel" aria-labelledby="gallery-list-title">
+            <div class="section-toolbar">
+              <h3 id="gallery-list-title">Fotot në faqe</h3>
+              <span data-gallery-count>0</span>
+            </div>
+            <div class="admin-gallery-grid" data-admin-gallery-grid></div>
+            <p class="empty-list" data-gallery-empty hidden>Ende s’ka foto. Shtoje të parën këtu.</p>
+          </section>
+
+          <section class="gallery-upload-panel" aria-labelledby="gallery-upload-title">
+            <div class="section-toolbar">
+              <h3 id="gallery-upload-title">Shto foto</h3>
+            </div>
+            <label class="drop-zone" data-gallery-drop-zone for="gallery-image">
+              <span class="drop-zone-copy" data-gallery-drop-copy>
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <path d="m21 15-5-5L5 21"></path>
+                </svg>
+                <strong>Tërhiq fotografinë këtu</strong>
+                <small>ose kliko për ta zgjedhur; shfaqet menjëherë në faqe</small>
+              </span>
+            </label>
+            <input id="gallery-image" data-gallery-image-input type="file" accept="image/png,image/jpeg,image/webp" hidden>
+            <p class="form-error" data-gallery-error role="alert"></p>
+            <p class="sort-status" data-gallery-status role="status" aria-live="polite"></p>
+          </section>
+        </div>
       </section>
     </main>
 
     <script defer src="assets/vendor/supabase.min.js"></script>
-    <script defer src="supabase-config.js?v=20260804-1"></script>
+    <script defer src="supabase-config.js?v=20260809-2"></script>
     <script defer src="menu-data.js?v=20260804-1"></script>
-    <script defer src="supabase-store.js?v=20260809-1"></script>
+    <script defer src="supabase-store.js?v=20260809-2"></script>
     <script defer src="indexnow.js?v=20260809-1"></script>
-    <script defer src="admin.js?v=20260809-1"></script>
+    <script defer src="admin.js?v=20260809-2"></script>
   </body>
 </html>
