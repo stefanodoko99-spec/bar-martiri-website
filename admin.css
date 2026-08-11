@@ -1,20 +1,21 @@
 :root {
-  --font-display: Georgia, 'Times New Roman', serif;
   --font-body: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --paper: #f4f0e8;
-  --paper-strong: #fffdf8;
-  --ink: #151515;
-  --ink-soft: #69665f;
-  --line: #d5d0c6;
-  --line-strong: #9f9a91;
+  --paper: #f5f6f8;
+  --paper-strong: #ffffff;
+  --ink: #161a23;
+  --ink-soft: #6b7280;
+  --line: #e3e6eb;
+  --line-strong: #c7cbd3;
   --white: #ffffff;
-  --mint: #67bfa0;
-  --mint-soft: #dff3ec;
-  --blue: #1268a0;
-  --blue-soft: #e1eef5;
-  --danger: #a12626;
-  --danger-soft: #f8e6e2;
-  --shadow: rgba(21, 21, 21, 0.14);
+  --mint: #16a34a;
+  --mint-soft: #e8f7ec;
+  --blue: #2f6fed;
+  --blue-soft: #eaf1ff;
+  --danger: #dc2626;
+  --danger-soft: #fdecec;
+  --warning: #d97706;
+  --warning-soft: #fdf1e0;
+  --shadow: rgba(20, 24, 34, 0.08);
   --radius: 8px;
 }
 
@@ -145,10 +146,11 @@ svg {
 
 .auth-card h1 {
   margin: 10px 0 12px;
-  font-family: var(--font-display);
-  font-size: 44px;
-  font-weight: 400;
-  line-height: 0.98;
+  font-family: var(--font-body);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
 }
 
 .auth-intro {
@@ -174,18 +176,25 @@ input,
 select,
 textarea {
   width: 100%;
-  border: 1px solid var(--line);
-  border-radius: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
   background: var(--white);
   color: var(--ink);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   text-transform: none;
 }
 
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-soft);
+}
+
 input,
 select {
-  min-height: 46px;
+  min-height: 42px;
   padding: 0 12px;
 }
 
@@ -195,50 +204,55 @@ textarea {
   resize: vertical;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
-  border-color: var(--ink);
-  outline: 0;
-}
-
 .primary-button,
 .secondary-button,
 .danger-button {
   display: inline-flex;
-  min-height: 46px;
+  min-height: 44px;
   align-items: center;
   justify-content: center;
-  gap: 9px;
+  gap: 8px;
   padding: 0 16px;
   border: 1px solid transparent;
-  border-radius: 0;
-  font-size: 12px;
-  font-weight: 800;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
   text-decoration: none;
-  text-transform: uppercase;
   white-space: nowrap;
+  transition: background-color 120ms ease, border-color 120ms ease, filter 120ms ease;
 }
 
 .primary-button {
-  background: var(--ink);
+  background: var(--blue);
   color: var(--white);
 }
 
+.primary-button:hover {
+  filter: brightness(0.93);
+}
+
 .primary-button--small {
-  min-height: 42px;
+  min-height: 40px;
 }
 
 .secondary-button {
-  border-color: var(--line);
+  border-color: var(--line-strong);
   background: var(--paper-strong);
   color: var(--ink);
 }
 
+.secondary-button:hover {
+  background: var(--paper);
+}
+
 .danger-button {
-  border-color: var(--danger);
+  border-color: transparent;
   background: var(--danger-soft);
   color: var(--danger);
+}
+
+.danger-button:hover {
+  filter: brightness(0.96);
 }
 
 .form-error {
@@ -271,9 +285,10 @@ textarea:focus {
 
 .admin-sidebar h1 {
   margin: 4px 0 20px;
-  font-family: var(--font-display);
-  font-size: 26px;
-  font-weight: 400;
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .admin-sidebar nav {
@@ -293,14 +308,20 @@ textarea:focus {
   border-radius: 6px;
   background: transparent;
   color: var(--ink-soft);
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 600;
   text-align: left;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.sidebar-action:hover {
+  background: var(--paper);
+  color: var(--ink);
 }
 
 .sidebar-action.is-active {
-  background: var(--ink);
-  color: var(--white);
+  background: var(--blue-soft);
+  color: var(--blue);
 }
 
 .sidebar-footer {
@@ -342,10 +363,11 @@ textarea:focus {
 
 .workspace-header h2 {
   margin: 2px 0 0;
-  font-family: var(--font-display);
-  font-size: clamp(26px, 2.6vw, 34px);
-  font-weight: 400;
-  line-height: 1;
+  font-family: var(--font-body);
+  font-size: clamp(20px, 2vw, 24px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 .admin-notice {
@@ -449,86 +471,126 @@ textarea:focus {
   background: transparent;
 }
 
-.admin-product-list {
-  max-height: 620px;
-  overflow: auto;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.admin-product-row {
-  display: grid;
-  min-height: 72px;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 8px;
-  align-items: center;
+.admin-product-table-wrap {
+  max-height: 620px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.admin-product-table {
   width: 100%;
-  padding: 6px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.admin-product-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--line);
-  background: transparent;
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.admin-product-table .col-image {
+  width: 52px;
+}
+
+.admin-product-table .col-price {
+  width: 90px;
+}
+
+.admin-product-table .col-reorder {
+  width: 76px;
+}
+
+.admin-product-table td {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+
+.admin-product-table tbody tr:last-child td {
+  border-bottom: 0;
 }
 
 .admin-product-row:hover,
 .admin-product-row.is-selected {
-  background: var(--paper-strong);
+  background: var(--blue-soft);
+}
+
+.col-image img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: var(--paper);
 }
 
 .admin-product-select {
-  display: grid;
-  min-width: 0;
-  grid-template-columns: 56px minmax(0, 1fr) auto;
-  gap: 13px;
-  align-items: center;
-  padding: 2px 0;
+  display: block;
+  width: 100%;
+  padding: 8px 0;
   border: 0;
   background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
   text-align: left;
   cursor: pointer;
 }
 
-.admin-product-select img {
-  width: 56px;
-  height: 56px;
-  object-fit: contain;
-}
-
-.admin-product-select strong,
-.admin-product-select small {
-  display: block;
-}
-
-.admin-product-select strong {
-  margin-bottom: 4px;
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 400;
-}
-
-.admin-product-select small {
+.admin-product-category {
   color: var(--ink-soft);
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
 }
 
 .admin-product-price {
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .reorder-controls {
-  display: grid;
+  display: flex;
   gap: 4px;
 }
 
 .reorder-controls button {
   display: grid;
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   place-items: center;
   border: 1px solid var(--line);
-  border-radius: 50%;
-  background: var(--paper);
+  border-radius: 6px;
+  background: var(--paper-strong);
   cursor: pointer;
+}
+
+.reorder-controls button:hover:not(:disabled) {
+  background: var(--paper);
 }
 
 .reorder-controls button:disabled {
@@ -537,8 +599,8 @@ textarea:focus {
 }
 
 .reorder-controls svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 .data-actions {
@@ -578,8 +640,12 @@ textarea:focus {
 
 .translation-fieldset legend {
   padding: 0 8px;
-  font-family: var(--font-display);
-  font-size: 20px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
 }
 
 .translation-grid {
@@ -608,6 +674,26 @@ textarea:focus {
   margin-top: 14px;
   color: var(--ink-soft);
   font-size: 12px;
+}
+
+.field-help--auto-translate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.field-help--auto-translate svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  stroke-width: 1.6;
 }
 
 .translation-fieldset :disabled {
@@ -699,31 +785,30 @@ textarea:focus {
 
 .order-status-badge {
   display: inline-flex;
-  min-height: 24px;
+  min-height: 22px;
   align-items: center;
   padding: 0 10px;
   border-radius: 999px;
-  background: #ece9e2;
+  background: var(--paper);
   color: var(--ink-soft);
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 600;
   white-space: nowrap;
 }
 
 .order-status-badge.is-pending {
-  background: #fff2cc;
-  color: #8a6d00;
+  background: var(--warning-soft);
+  color: var(--warning);
 }
 
 .order-status-badge.is-confirmed {
-  background: #dff3e3;
-  color: #1c6b34;
+  background: var(--mint-soft);
+  color: var(--mint);
 }
 
 .order-status-badge.is-cancelled {
-  background: #fbe3e1;
-  color: #a3241c;
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .order-card-contact {
@@ -790,9 +875,11 @@ textarea:focus {
 
 .stat-card strong {
   display: block;
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 400;
+  font-family: var(--font-body);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
 }
 
 .analytics-columns {
@@ -864,15 +951,15 @@ textarea:focus {
   margin-left: auto;
   padding: 0 5px;
   border-radius: 999px;
-  background: #b3261e;
+  background: var(--danger);
   color: var(--white);
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .sidebar-action.is-active .sidebar-badge {
-  background: var(--white);
-  color: var(--ink);
+  background: var(--blue);
+  color: var(--white);
 }
 
 .gallery-list-panel {
@@ -1164,17 +1251,12 @@ textarea:focus {
     grid-column: 1;
   }
 
-  .admin-product-select {
-    grid-template-columns: 58px minmax(0, 1fr);
+  .admin-product-table .admin-product-category {
+    display: none;
   }
 
-  .admin-product-select img {
-    width: 58px;
-    height: 58px;
-  }
-
-  .admin-product-price {
-    grid-column: 2;
+  .admin-product-table thead th:nth-child(3) {
+    display: none;
   }
 
   .analytics-columns {

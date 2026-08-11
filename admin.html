@@ -132,7 +132,20 @@
               <button class="secondary-button" type="button" data-apply-sort>Apliko</button>
               <p class="sort-status" data-sort-status role="status" aria-live="polite"></p>
             </div>
-            <div class="admin-product-list" data-admin-product-list></div>
+            <div class="admin-product-table-wrap">
+              <table class="admin-product-table">
+                <thead>
+                  <tr>
+                    <th scope="col" class="col-image"><span class="sr-only">Foto</span></th>
+                    <th scope="col">Emri</th>
+                    <th scope="col">Kategoria</th>
+                    <th scope="col" class="col-price">Çmimi</th>
+                    <th scope="col" class="col-reorder"><span class="sr-only">Rendit</span></th>
+                  </tr>
+                </thead>
+                <tbody data-admin-product-list></tbody>
+              </table>
+            </div>
             <div class="data-actions">
               <button class="secondary-button" type="button" data-apply-description-drafts>
                 <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -193,34 +206,12 @@
                 <textarea name="description" rows="4" maxlength="240"></textarea>
               </label>
 
-              <fieldset class="translation-fieldset">
-                <legend>Përkthimet</legend>
-                <div class="translation-grid">
-                  <div>
-                    <p class="translation-label">Italiano</p>
-                    <label>
-                      Emri në italisht
-                      <input name="name_it" type="text" maxlength="80">
-                    </label>
-                    <label>
-                      Përshkrimi në italisht
-                      <textarea name="description_it" rows="3" maxlength="240"></textarea>
-                    </label>
-                  </div>
-                  <div>
-                    <p class="translation-label">English</p>
-                    <label>
-                      Emri në anglisht
-                      <input name="name_en" type="text" maxlength="80">
-                    </label>
-                    <label>
-                      Përshkrimi në anglisht
-                      <textarea name="description_en" rows="3" maxlength="240"></textarea>
-                    </label>
-                  </div>
-                </div>
-                <p class="field-help">Fushat bëhen aktive pasi të aplikohet migrimi Supabase i përfshirë në codebase.</p>
-              </fieldset>
+              <p class="field-help field-help--auto-translate">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M5 8h9M9.5 5v3.5c0 4-2 7-6 8.5M8 8c0 4 3 7.5 8 9M14 21l4-9 4 9M15.5 18h5"></path>
+                </svg>
+                Përkthehet automatikisht në italisht dhe anglisht kur ruash.
+              </p>
 
               <fieldset class="image-fieldset">
                 <legend>Fotoja</legend>
@@ -398,45 +389,24 @@
               <h3 id="story-panel-title">Historia jonë</h3>
             </div>
             <p class="field-help">
-              Shfaqet në faqe si seksion "Rreth Nesh", vetëm në gjuhët që plotëson këtu. Nëse lë
-              shqipen bosh, seksioni fshihet për atë gjuhë.
+              Shkruaje vetëm në shqip. Shfaqet në faqe si seksion "Rreth Nesh" pasi ta ruash.
             </p>
             <form class="reviews-form" data-story-form>
-              <fieldset class="translation-fieldset">
-                <legend>Shqip</legend>
-                <label>
-                  Titulli
-                  <input name="titleSq" type="text" maxlength="120" placeholder="Historia jonë">
-                </label>
-                <label>
-                  Teksti
-                  <textarea name="bodySq" rows="6" maxlength="2000"></textarea>
-                </label>
-              </fieldset>
+              <label>
+                Titulli
+                <input name="titleSq" type="text" maxlength="120" placeholder="Historia jonë">
+              </label>
+              <label>
+                Teksti
+                <textarea name="bodySq" rows="8" maxlength="2000"></textarea>
+              </label>
 
-              <fieldset class="translation-fieldset">
-                <legend>Italiano</legend>
-                <label>
-                  Titolli
-                  <input name="titleIt" type="text" maxlength="120" placeholder="La nostra storia">
-                </label>
-                <label>
-                  Teksti
-                  <textarea name="bodyIt" rows="6" maxlength="2000"></textarea>
-                </label>
-              </fieldset>
-
-              <fieldset class="translation-fieldset">
-                <legend>English</legend>
-                <label>
-                  Title
-                  <input name="titleEn" type="text" maxlength="120" placeholder="Our story">
-                </label>
-                <label>
-                  Body
-                  <textarea name="bodyEn" rows="6" maxlength="2000"></textarea>
-                </label>
-              </fieldset>
+              <p class="field-help field-help--auto-translate">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M5 8h9M9.5 5v3.5c0 4-2 7-6 8.5M8 8c0 4 3 7.5 8 9M14 21l4-9 4 9M15.5 18h5"></path>
+                </svg>
+                Përkthehet automatikisht në italisht dhe anglisht kur ruash.
+              </p>
 
               <p class="form-error" data-story-error role="alert"></p>
               <p class="sort-status" data-story-status role="status" aria-live="polite"></p>

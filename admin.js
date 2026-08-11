@@ -3,6 +3,28 @@
 
   const menuData = window.BAR_MARTIRI_MENU || { categories: [], products: [] };
   const store = window.BAR_MARTIRI_STORE;
+  const supabaseConfig = window.BAR_MARTIRI_SUPABASE || {};
+
+  // Translates a batch of Albanian strings to Italian and English via the
+  // translate-text Edge Function (DeepL). Returns { it: string[], en: string[] },
+  // matching the order of the input texts. Throws if translation fails, so
+  // callers can decide whether to block the save or fall back to Albanian text.
+  async function translateToItEn(texts) {
+    const session = await store.getSession();
+    if (!session?.access_token) throw new Error('Duhet të jesh i kyçur për të përkthyer.');
+    const response = await fetch(`${supabaseConfig.url}/functions/v1/translate-text`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: supabaseConfig.publishableKey,
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ texts, targetLangs: ['IT', 'EN'] }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || 'Përkthimi dështoi.');
+    return { it: data.translations.IT, en: data.translations.EN };
+  }
 
   const authShell = document.querySelector('[data-auth-shell]');
   const loginView = document.querySelector('[data-login-view]');
@@ -222,16 +244,15 @@
     }
   });
 
+  let lastLoadedStory = null;
+
   async function loadStoryPanel() {
     if (!store?.getStory || !storyForm) return;
     try {
       const story = await store.getStory();
+      lastLoadedStory = story;
       storyForm.elements.titleSq.value = story.titleSq;
       storyForm.elements.bodySq.value = story.bodySq;
-      storyForm.elements.titleIt.value = story.titleIt;
-      storyForm.elements.bodyIt.value = story.bodyIt;
-      storyForm.elements.titleEn.value = story.titleEn;
-      storyForm.elements.bodyEn.value = story.bodyEn;
     } catch {
       setError(storyError, 'Historia nuk mund të ngarkohet.');
     }
@@ -242,19 +263,26 @@
     setError(storyError, '');
     if (storyStatus) storyStatus.textContent = '';
 
-    const story = {
-      titleSq: storyForm.elements.titleSq.value.trim(),
-      bodySq: storyForm.elements.bodySq.value.trim(),
-      titleIt: storyForm.elements.titleIt.value.trim(),
-      bodyIt: storyForm.elements.bodyIt.value.trim(),
-      titleEn: storyForm.elements.titleEn.value.trim(),
-      bodyEn: storyForm.elements.bodyEn.value.trim(),
-    };
+    const titleSq = storyForm.elements.titleSq.value.trim();
+    const bodySq = storyForm.elements.bodySq.value.trim();
 
     const submitButton = storyForm.querySelector('button[type="submit"]');
     try {
       if (submitButton) submitButton.disabled = true;
-      await store.saveStory(story);
+      // Keep any previously-translated it/en text unless a fresh translation succeeds,
+      // so editing Albanian without a working translator doesn't wipe them out.
+      let titleIt = lastLoadedStory?.titleIt || '';
+      let bodyIt = lastLoadedStory?.bodyIt || '';
+      let titleEn = lastLoadedStory?.titleEn || '';
+      let bodyEn = lastLoadedStory?.bodyEn || '';
+      try {
+        const translated = await translateToItEn([titleSq, bodySq]);
+        [titleIt, bodyIt] = translated.it;
+        [titleEn, bodyEn] = translated.en;
+      } catch {
+        // Translation isn't set up yet — save the Albanian text anyway.
+      }
+      lastLoadedStory = await store.saveStory({ titleSq, bodySq, titleIt, bodyIt, titleEn, bodyEn });
       if (storyStatus) storyStatus.textContent = 'Historia u ruajt.';
       window.BAR_MARTIRI_INDEXNOW?.submit();
     } catch (error) {
@@ -555,21 +583,6 @@
     loginView.querySelector('input[name="password"]')?.focus();
   }
 
-  function updateTranslationFields() {
-    const available = store?.hasTranslationColumns?.() !== false;
-    productForm
-      ?.querySelectorAll('[name="name_it"], [name="description_it"], [name="name_en"], [name="description_en"]')
-      .forEach((field) => {
-        field.disabled = !available;
-      });
-    const help = document.querySelector('.translation-fieldset .field-help');
-    if (help) {
-      help.textContent = available
-        ? 'Përkthimet ruhen në Supabase dhe shfaqen sipas gjuhës së zgjedhur.'
-        : 'Apliko supabase/setup.sql për të aktivizuar përkthimet në databazë.';
-    }
-  }
-
   async function showAdmin() {
     authShell.hidden = true;
     adminApp.hidden = false;
@@ -577,7 +590,6 @@
     resetEditor();
     try {
       products = await store.listProducts();
-      updateTranslationFields();
       renderProducts();
     } catch {
       productError.textContent = 'Produktet nuk mund të ngarkohen nga Supabase.';
@@ -710,41 +722,47 @@
     }
 
     products.forEach((product) => {
-      const row = document.createElement('div');
+      const row = document.createElement('tr');
       row.className = 'admin-product-row';
       row.dataset.productId = product.id;
 
+      const imageCell = document.createElement('td');
+      imageCell.className = 'col-image';
+      const image = document.createElement('img');
+      image.src = product.image || 'assets/icecream-gallery/ice-cream-cone-transparent.png';
+      image.alt = '';
+      imageCell.append(image);
+
+      const nameCell = document.createElement('td');
       const selectProduct = document.createElement('button');
       selectProduct.className = 'admin-product-select';
       selectProduct.type = 'button';
       selectProduct.setAttribute('aria-label', `Ndrysho ${product.name || 'produktin'}`);
-
-      const image = document.createElement('img');
-      image.src = product.image || 'assets/icecream-gallery/ice-cream-cone-transparent.png';
-      image.alt = '';
-
-      const details = document.createElement('span');
-      const name = document.createElement('strong');
-      const category = document.createElement('small');
-      name.textContent = product.name || 'Pa emer';
-      category.textContent = categoryLabel(product.category);
-      details.append(name, category);
-
-      const price = document.createElement('span');
-      price.className = 'admin-product-price';
-      price.textContent = formatPrice(product.price);
-      selectProduct.append(image, details, price);
+      selectProduct.textContent = product.name || 'Pa emer';
       selectProduct.addEventListener('click', () => editProduct(product.id));
+      nameCell.append(selectProduct);
+
+      const categoryCell = document.createElement('td');
+      categoryCell.className = 'admin-product-category';
+      categoryCell.textContent = categoryLabel(product.category);
+
+      const priceCell = document.createElement('td');
+      priceCell.className = 'col-price admin-product-price';
+      priceCell.textContent = formatPrice(product.price);
 
       const categoryProducts = products.filter((item) => item.category === product.category);
       const categoryIndex = categoryProducts.findIndex((item) => item.id === product.id);
+      const reorderCell = document.createElement('td');
+      reorderCell.className = 'col-reorder';
       const controls = document.createElement('div');
       controls.className = 'reorder-controls';
       controls.append(
         createMoveButton(product, -1, categoryIndex === 0),
         createMoveButton(product, 1, categoryIndex === categoryProducts.length - 1)
       );
-      row.append(selectProduct, controls);
+      reorderCell.append(controls);
+
+      row.append(imageCell, nameCell, categoryCell, priceCell, reorderCell);
       productList.append(row);
     });
   }
@@ -781,15 +799,6 @@
     productForm.elements.category.value = product.category || menuData.categories[0]?.id || '';
     productForm.elements.price.value = product.price || '';
     productForm.elements.description.value = product.description || '';
-    const fallbackTranslations = menuData.productTranslations?.[product.id] || {};
-    productForm.elements.name_it.value =
-      product.translations?.it?.name || fallbackTranslations.it?.name || '';
-    productForm.elements.description_it.value =
-      product.translations?.it?.description || fallbackTranslations.it?.description || '';
-    productForm.elements.name_en.value =
-      product.translations?.en?.name || fallbackTranslations.en?.name || '';
-    productForm.elements.description_en.value =
-      product.translations?.en?.description || fallbackTranslations.en?.description || '';
     editorTitle.textContent = 'Ndrysho produktin';
     deleteButton.hidden = false;
     productError.textContent = '';
@@ -818,16 +827,7 @@
       category: String(data.get('category') || ''),
       price: String(data.get('price') || '').trim(),
       description: String(data.get('description') || '').trim(),
-      translations: {
-        it: {
-          name: String(data.get('name_it') || '').trim(),
-          description: String(data.get('description_it') || '').trim(),
-        },
-        en: {
-          name: String(data.get('name_en') || '').trim(),
-          description: String(data.get('description_en') || '').trim(),
-        },
-      },
+      translations: existingProduct?.translations || { it: {}, en: {} },
       image: currentImage,
       sortOrder: existingProduct?.sortOrder ?? products.length,
     };
@@ -840,8 +840,20 @@
     const submitButton = productForm.querySelector('button[type="submit"]');
     try {
       submitButton.disabled = true;
+      productError.textContent = '';
       if (pendingImage && store.isRemote()) {
         product.image = await store.uploadImage(pendingImage.blob, pendingImage.name);
+      }
+      try {
+        const translated = await translateToItEn([product.name, product.description]);
+        product.translations = {
+          it: { name: translated.it[0], description: translated.it[1] },
+          en: { name: translated.en[0], description: translated.en[1] },
+        };
+      } catch {
+        // Translation isn't set up yet (or DeepL is briefly unavailable) —
+        // save the Albanian text anyway rather than blocking the admin.
+        // Re-saving later will fill in it/en once translation is configured.
       }
       const savedProduct = await store.saveProduct(product);
       const existingIndex = products.findIndex((item) => item.id === savedProduct.id);
