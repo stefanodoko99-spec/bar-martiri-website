@@ -30,6 +30,9 @@
   const reviewsListEl = document.querySelector('.reviews-list');
   const gallerySection = document.querySelector('[data-gallery-section]');
   const galleryGridEl = document.querySelector('[data-gallery-grid]');
+  const storySection = document.querySelector('[data-story-section]');
+  const storyTitleEl = document.querySelector('[data-story-title]');
+  const storyBodyEl = document.querySelector('[data-story-body]');
   const whatsappButton = document.querySelector('[data-whatsapp-button]');
   const basketItemsEl = document.querySelector('[data-basket-items]');
   const basketEmptyEl = document.querySelector('[data-basket-empty]');
@@ -236,6 +239,7 @@
     orderCancelledDetail: { sq: 'Na vjen keq. Provo përsëri ose na kontakto.', it: 'Ci dispiace. Riprova o contattaci.', en: 'Sorry about that. Try again or contact us.' },
     orderError: { sq: 'Porosia nuk mund të dërgohet. Provo përsëri.', it: 'L’ordine non può essere inviato. Riprova.', en: 'The order couldn’t be sent. Try again.' },
     newOrder: { sq: 'Porosi e re', it: 'Nuovo ordine', en: 'New order' },
+    storyEyebrow: { sq: 'Rreth Nesh', it: 'Chi Siamo', en: 'About Us' },
   });
 
   const optimizedLocalImages = {
@@ -287,6 +291,15 @@
     ],
   });
   let reviewSummary = DEFAULT_REVIEWS;
+  const DEFAULT_STORY = Object.freeze({
+    titleSq: '',
+    bodySq: '',
+    titleIt: '',
+    bodyIt: '',
+    titleEn: '',
+    bodyEn: '',
+  });
+  let storyData = DEFAULT_STORY;
 
   function dynamicText(key) {
     return DYNAMIC_TEXT[key]?.[currentLanguage] || DYNAMIC_TEXT[key]?.sq || '';
@@ -463,6 +476,53 @@
       renderReviews();
     } catch {
       // Keep showing the default review summary when the table isn't reachable yet.
+    }
+  }
+
+  function renderStory() {
+    if (!storySection || !storyTitleEl || !storyBodyEl) return;
+    const byLanguage = {
+      sq: { title: storyData.titleSq, body: storyData.bodySq },
+      it: { title: storyData.titleIt, body: storyData.bodyIt },
+      en: { title: storyData.titleEn, body: storyData.bodyEn },
+    };
+    const current = byLanguage[currentLanguage] || byLanguage.sq;
+    if (!current.body) {
+      storySection.hidden = true;
+      return;
+    }
+    storyTitleEl.textContent = current.title;
+    storyBodyEl.textContent = current.body;
+    storySection.hidden = false;
+  }
+
+  async function loadStory() {
+    if (!supabaseConfig.url || !supabaseConfig.publishableKey) return;
+    try {
+      const response = await fetch(
+        `${supabaseConfig.url}/rest/v1/site_story?id=eq.main&select=title_sq,body_sq,title_it,body_it,title_en,body_en`,
+        {
+          headers: {
+            apikey: supabaseConfig.publishableKey,
+            Authorization: `Bearer ${supabaseConfig.publishableKey}`,
+          },
+        }
+      );
+      if (!response.ok) return;
+      const rows = await response.json();
+      const row = rows?.[0];
+      if (!row) return;
+      storyData = {
+        titleSq: String(row.title_sq || ''),
+        bodySq: String(row.body_sq || ''),
+        titleIt: String(row.title_it || ''),
+        bodyIt: String(row.body_it || ''),
+        titleEn: String(row.title_en || ''),
+        bodyEn: String(row.body_en || ''),
+      };
+      renderStory();
+    } catch {
+      // Keep the story section hidden when the table isn't reachable yet.
     }
   }
 
@@ -933,6 +993,7 @@
       renderProducts();
     }
     renderReviews();
+    renderStory();
     renderBasket();
   }
 
@@ -1744,12 +1805,25 @@
     hideCookieBanner();
   }
 
+  function positionCookieBanner() {
+    if (!cookieBanner || cookieBanner.hidden) {
+      document.documentElement.style.removeProperty('--cookie-banner-offset');
+      return;
+    }
+    const bottom = cookieBanner.getBoundingClientRect().bottom;
+    document.documentElement.style.setProperty('--cookie-banner-offset', `${Math.max(0, bottom + 16)}px`);
+  }
+
   function showCookieBanner() {
     if (!cookieBanner) return;
     window.setTimeout(
       () => {
         cookieBanner.hidden = false;
-        requestAnimationFrame(() => cookieBanner.classList.add('is-visible'));
+        requestAnimationFrame(() => {
+          cookieBanner.classList.add('is-visible');
+          positionCookieBanner();
+        });
+        window.addEventListener('resize', positionCookieBanner);
       },
       reducedMotion ? 0 : 900
     );
@@ -1758,6 +1832,8 @@
   function hideCookieBanner() {
     if (!cookieBanner) return;
     cookieBanner.classList.remove('is-visible');
+    window.removeEventListener('resize', positionCookieBanner);
+    document.documentElement.style.removeProperty('--cookie-banner-offset');
     window.setTimeout(() => {
       cookieBanner.hidden = true;
     }, reducedMotion ? 0 : 240);
@@ -1827,14 +1903,6 @@
     const flavorProgress = document.querySelector('[data-flavor-progress]');
     const compactStory = window.matchMedia('(max-width: 640px)').matches;
 
-    gsap.from('.hero-copy > *', {
-      autoAlpha: 0,
-      y: 22,
-      duration: 0.65,
-      stagger: 0.08,
-      ease: 'power2.out',
-      clearProps: 'opacity,visibility,transform',
-    });
     if (flavorCards.length === 5) {
       const spacing = () =>
         compactStory
@@ -1999,6 +2067,7 @@
   createMarqueeVisibility();
   if (!getCookiePreference()) showCookieBanner();
   void loadReviewSummary();
+  void loadStory();
   void loadGalleryImages();
   updateWhatsAppVisibility();
   window.setInterval(updateWhatsAppVisibility, 60 * 1000);

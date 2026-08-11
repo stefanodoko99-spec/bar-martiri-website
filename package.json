@@ -4,12 +4,13 @@
   "version": "1.0.0",
   "scripts": {
     "build": "node scripts/generate-locales.mjs && node scripts/generate-image-sitemap.mjs",
-    "build:vercel": "npm run build && node scripts/build-vercel.mjs && node scripts/render-menu.mjs --dir dist",
+    "build:vercel": "npm run build && node scripts/build-vercel.mjs && node scripts/render-menu.mjs --dir dist && node scripts/minify-dist.mjs",
     "check": "node --check script.js && node --check menu-data.js && node --check supabase-config.js && node --check supabase-store.js && node --check admin.js && node --check sw.js && node scripts/verify.mjs",
     "optimize:catalog": "node scripts/optimize-existing-images.mjs",
     "optimize:catalog-local": "node scripts/convert-catalog-images.mjs"
   },
   "devDependencies": {
+    "esbuild": "^0.28.2",
     "sharp": "0.35.3"
   }
 }

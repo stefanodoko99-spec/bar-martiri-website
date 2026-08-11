@@ -80,6 +80,13 @@
             </svg>
             Galeria
           </button>
+          <button class="sidebar-action" type="button" data-admin-view-tab="story">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M4 19.5V5a2 2 0 0 1 2-2h9l5 5v11.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19.5Z"></path>
+              <path d="M14 3v6h6M8 13h8M8 17h5"></path>
+            </svg>
+            Historia
+          </button>
         </nav>
         <div class="sidebar-footer">
           <a href='/'>Shiko faqen <span aria-hidden="true">↗</span></a>
@@ -90,8 +97,8 @@
       <section class="admin-workspace">
         <header class="workspace-header">
           <div>
-            <p class="eyebrow">Katalogu</p>
-            <h2>Produktet</h2>
+            <p class="eyebrow" data-workspace-eyebrow>Katalogu</p>
+            <h2 data-workspace-title>Produktet</h2>
           </div>
           <button class="primary-button primary-button--small" type="button" data-new-product>
             <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -382,6 +389,62 @@
             <input id="gallery-image" data-gallery-image-input type="file" accept="image/png,image/jpeg,image/webp" hidden>
             <p class="form-error" data-gallery-error role="alert"></p>
             <p class="sort-status" data-gallery-status role="status" aria-live="polite"></p>
+          </section>
+        </div>
+
+        <div class="admin-layout" data-admin-view-panel="story" hidden>
+          <section class="reviews-panel" aria-labelledby="story-panel-title">
+            <div class="section-toolbar">
+              <h3 id="story-panel-title">Historia jonë</h3>
+            </div>
+            <p class="field-help">
+              Shfaqet në faqe si seksion "Rreth Nesh", vetëm në gjuhët që plotëson këtu. Nëse lë
+              shqipen bosh, seksioni fshihet për atë gjuhë.
+            </p>
+            <form class="reviews-form" data-story-form>
+              <fieldset class="translation-fieldset">
+                <legend>Shqip</legend>
+                <label>
+                  Titulli
+                  <input name="titleSq" type="text" maxlength="120" placeholder="Historia jonë">
+                </label>
+                <label>
+                  Teksti
+                  <textarea name="bodySq" rows="6" maxlength="2000"></textarea>
+                </label>
+              </fieldset>
+
+              <fieldset class="translation-fieldset">
+                <legend>Italiano</legend>
+                <label>
+                  Titolli
+                  <input name="titleIt" type="text" maxlength="120" placeholder="La nostra storia">
+                </label>
+                <label>
+                  Teksti
+                  <textarea name="bodyIt" rows="6" maxlength="2000"></textarea>
+                </label>
+              </fieldset>
+
+              <fieldset class="translation-fieldset">
+                <legend>English</legend>
+                <label>
+                  Title
+                  <input name="titleEn" type="text" maxlength="120" placeholder="Our story">
+                </label>
+                <label>
+                  Body
+                  <textarea name="bodyEn" rows="6" maxlength="2000"></textarea>
+                </label>
+              </fieldset>
+
+              <p class="form-error" data-story-error role="alert"></p>
+              <p class="sort-status" data-story-status role="status" aria-live="polite"></p>
+
+              <div class="form-actions">
+                <button class="primary-button" type="submit">Ruaj historinë</button>
+              </div>
+            </form>
           </section>
         </div>
       </section>

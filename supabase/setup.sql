@@ -208,6 +208,43 @@ to authenticated
 using (public.is_menu_admin())
 with check (public.is_menu_admin());
 
+-- "Our story" about section (title + body per language), written from
+-- /admin and shown on the public site. Stays hidden per-language until that
+-- language's body text is filled in.
+create table if not exists public.site_story (
+  id text primary key default 'main',
+  title_sq text not null default '',
+  body_sq text not null default '',
+  title_it text not null default '',
+  body_it text not null default '',
+  title_en text not null default '',
+  body_en text not null default '',
+  updated_at timestamptz not null default now()
+);
+
+insert into public.site_story (id) values ('main') on conflict (id) do nothing;
+
+alter table public.site_story enable row level security;
+
+drop policy if exists "Public can read site story" on public.site_story;
+create policy "Public can read site story"
+on public.site_story for select
+to anon, authenticated
+using (true);
+
+drop policy if exists "Admins can insert site story" on public.site_story;
+create policy "Admins can insert site story"
+on public.site_story for insert
+to authenticated
+with check (public.is_menu_admin());
+
+drop policy if exists "Admins can update site story" on public.site_story;
+create policy "Admins can update site story"
+on public.site_story for update
+to authenticated
+using (public.is_menu_admin())
+with check (public.is_menu_admin());
+
 -- Orders placed from the public site's basket, confirmed from /admin, with a
 -- Telegram notification fired automatically on every new order.
 create extension if not exists pgcrypto;

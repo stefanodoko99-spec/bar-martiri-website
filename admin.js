@@ -48,6 +48,9 @@
   const botSettingsForm = document.querySelector('[data-bot-settings-form]');
   const botSettingsError = document.querySelector('[data-bot-settings-error]');
   const botSettingsStatus = document.querySelector('[data-bot-settings-status]');
+  const storyForm = document.querySelector('[data-story-form]');
+  const storyError = document.querySelector('[data-story-error]');
+  const storyStatus = document.querySelector('[data-story-status]');
   let products = [...menuData.products];
   let currentImage = '';
   let pendingImage = null;
@@ -55,6 +58,18 @@
   let orders = [];
   let ordersPollTimer = 0;
   let galleryImages = [];
+
+  const workspaceEyebrow = document.querySelector('[data-workspace-eyebrow]');
+  const workspaceTitle = document.querySelector('[data-workspace-title]');
+  const newProductButton = document.querySelector('[data-new-product]');
+  const WORKSPACE_HEADINGS = {
+    products: { eyebrow: 'Katalogu', title: 'Produktet' },
+    reviews: { eyebrow: 'Reputacioni', title: 'Vlerësimet' },
+    orders: { eyebrow: 'Shitjet', title: 'Porositë' },
+    analytics: { eyebrow: 'Statistikat', title: 'Analitika' },
+    gallery: { eyebrow: 'Faqja', title: 'Galeria' },
+    story: { eyebrow: 'Faqja', title: 'Historia' },
+  };
 
   document.querySelectorAll('[data-admin-view-tab]').forEach((tab) => {
     tab.addEventListener('click', () => {
@@ -65,6 +80,12 @@
       document.querySelectorAll('[data-admin-view-panel]').forEach((panel) => {
         panel.hidden = panel.dataset.adminViewPanel !== view;
       });
+      const heading = WORKSPACE_HEADINGS[view];
+      if (heading) {
+        if (workspaceEyebrow) workspaceEyebrow.textContent = heading.eyebrow;
+        if (workspaceTitle) workspaceTitle.textContent = heading.title;
+      }
+      if (newProductButton) newProductButton.hidden = view !== 'products';
       if (view === 'orders') {
         void loadOrdersPanel();
         startOrdersPolling();
@@ -73,6 +94,7 @@
       }
       if (view === 'analytics') void loadAnalyticsPanel();
       if (view === 'gallery') void loadGalleryPanel();
+      if (view === 'story') void loadStoryPanel();
     });
   });
 
@@ -195,6 +217,48 @@
       window.BAR_MARTIRI_INDEXNOW?.submit();
     } catch (error) {
       setError(reviewsError, error.message || 'Vlerësimet nuk mund të ruhen.');
+    } finally {
+      if (submitButton) submitButton.disabled = false;
+    }
+  });
+
+  async function loadStoryPanel() {
+    if (!store?.getStory || !storyForm) return;
+    try {
+      const story = await store.getStory();
+      storyForm.elements.titleSq.value = story.titleSq;
+      storyForm.elements.bodySq.value = story.bodySq;
+      storyForm.elements.titleIt.value = story.titleIt;
+      storyForm.elements.bodyIt.value = story.bodyIt;
+      storyForm.elements.titleEn.value = story.titleEn;
+      storyForm.elements.bodyEn.value = story.bodyEn;
+    } catch {
+      setError(storyError, 'Historia nuk mund të ngarkohet.');
+    }
+  }
+
+  storyForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    setError(storyError, '');
+    if (storyStatus) storyStatus.textContent = '';
+
+    const story = {
+      titleSq: storyForm.elements.titleSq.value.trim(),
+      bodySq: storyForm.elements.bodySq.value.trim(),
+      titleIt: storyForm.elements.titleIt.value.trim(),
+      bodyIt: storyForm.elements.bodyIt.value.trim(),
+      titleEn: storyForm.elements.titleEn.value.trim(),
+      bodyEn: storyForm.elements.bodyEn.value.trim(),
+    };
+
+    const submitButton = storyForm.querySelector('button[type="submit"]');
+    try {
+      if (submitButton) submitButton.disabled = true;
+      await store.saveStory(story);
+      if (storyStatus) storyStatus.textContent = 'Historia u ruajt.';
+      window.BAR_MARTIRI_INDEXNOW?.submit();
+    } catch (error) {
+      setError(storyError, error.message || 'Historia nuk mund të ruhet.');
     } finally {
       if (submitButton) submitButton.disabled = false;
     }

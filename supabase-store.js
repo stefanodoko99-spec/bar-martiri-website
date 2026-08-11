@@ -12,6 +12,15 @@
       { author: 'E Cabej', rating: 5, quote: 'The service is excellent.' },
     ],
   });
+  const STORY_KEY = 'barMartiri.story.v1';
+  const DEFAULT_STORY = Object.freeze({
+    titleSq: '',
+    bodySq: '',
+    titleIt: '',
+    bodyIt: '',
+    titleEn: '',
+    bodyEn: '',
+  });
   const config = window.BAR_MARTIRI_SUPABASE || {};
   const menuData = window.BAR_MARTIRI_MENU || { products: [] };
   const isConfigured = Boolean(
@@ -370,6 +379,70 @@
     return normalized;
   }
 
+  function normalizeStory(row) {
+    const source = row || {};
+    return {
+      titleSq: String(source.title_sq ?? source.titleSq ?? '').slice(0, 120),
+      bodySq: String(source.body_sq ?? source.bodySq ?? '').slice(0, 2000),
+      titleIt: String(source.title_it ?? source.titleIt ?? '').slice(0, 120),
+      bodyIt: String(source.body_it ?? source.bodyIt ?? '').slice(0, 2000),
+      titleEn: String(source.title_en ?? source.titleEn ?? '').slice(0, 120),
+      bodyEn: String(source.body_en ?? source.bodyEn ?? '').slice(0, 2000),
+    };
+  }
+
+  function loadLocalStory() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(STORY_KEY));
+      return stored ? normalizeStory(stored) : normalizeStory(DEFAULT_STORY);
+    } catch {
+      return normalizeStory(DEFAULT_STORY);
+    }
+  }
+
+  function saveLocalStory(story) {
+    localStorage.setItem(STORY_KEY, JSON.stringify(story));
+  }
+
+  async function getStory() {
+    if (!client) return loadLocalStory();
+    try {
+      const { data, error } = await client
+        .from('site_story')
+        .select('title_sq,body_sq,title_it,body_it,title_en,body_en')
+        .eq('id', 'main')
+        .single();
+      if (error) throw error;
+      return normalizeStory(data);
+    } catch {
+      return loadLocalStory();
+    }
+  }
+
+  async function saveStory(story) {
+    const normalized = normalizeStory(story);
+    if (!client) {
+      saveLocalStory(normalized);
+      return normalized;
+    }
+
+    const { error } = await client.from('site_story').upsert(
+      {
+        id: 'main',
+        title_sq: normalized.titleSq,
+        body_sq: normalized.bodySq,
+        title_it: normalized.titleIt,
+        body_it: normalized.bodyIt,
+        title_en: normalized.titleEn,
+        body_en: normalized.bodyEn,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'id' }
+    );
+    if (error) throw error;
+    return normalized;
+  }
+
   function normalizeOrder(row) {
     return {
       id: String(row.id),
@@ -513,5 +586,7 @@
     listGalleryImages,
     saveGalleryImage,
     deleteGalleryImage,
+    getStory,
+    saveStory,
   });
 })();
