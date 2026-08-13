@@ -145,28 +145,83 @@ svg {
 }
 
 .language-switcher {
+  position: relative;
+}
+
+.language-toggle {
   display: flex;
-  overflow: hidden;
+  align-items: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 12px;
   border: 1px solid var(--line-strong);
   border-radius: 999px;
   background: var(--paper-strong);
   background: color-mix(in srgb, var(--paper-strong) 86%, transparent);
-}
-
-.language-switcher button {
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0 8px;
-  background: transparent;
-  color: var(--ink-soft);
-  font-size: 11px;
+  color: var(--ink);
+  font-size: 12px;
   font-weight: 800;
   cursor: pointer;
 }
 
-.language-switcher button[aria-pressed='true'] {
-  background: var(--ink);
-  color: var(--white);
+.language-toggle .language-flag {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.language-chevron {
+  width: 12px;
+  height: 12px;
+  color: var(--ink-soft);
+  transition: transform 160ms var(--ease-standard);
+}
+
+.language-toggle[aria-expanded='true'] .language-chevron {
+  transform: rotate(180deg);
+}
+
+.language-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  display: grid;
+  min-width: 160px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper-strong);
+  box-shadow: 0 18px 50px var(--shadow-strong);
+}
+
+.language-menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.language-menu button:hover {
+  background: var(--paper);
+}
+
+.language-menu button[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--ink) 8%, var(--paper));
+  font-weight: 800;
+}
+
+.language-menu .language-flag {
+  font-size: 18px;
+  line-height: 1;
 }
 
 .wordmark {
@@ -1139,11 +1194,6 @@ svg {
   min-width: 0;
 }
 
-.panel-language-switcher button {
-  min-width: 44px;
-  min-height: 44px;
-}
-
 .icon-button {
   display: grid;
   width: 46px;
@@ -1999,10 +2049,12 @@ svg {
     gap: 8px;
   }
 
-  .language-switcher button {
-    min-width: 44px;
-    min-height: 44px;
-    padding: 0 7px;
+  .language-toggle {
+    padding: 0 10px;
+  }
+
+  .language-menu {
+    right: -8px;
   }
 
   .hero-section {

@@ -190,7 +190,7 @@
         ]
       }
     </script>
-    <link rel="stylesheet" href="styles.css?v=20260811-1">
+    <link rel="stylesheet" href="styles.css?v=20260812-1">
   </head>
   <body>
     <a class="skip-link" href="/it/#main">Vai al contenuto</a>
@@ -202,10 +202,23 @@
       </a>
       <div class="header-tools">
         <p class="place-mark">Spille · Albania</p>
-        <div class="language-switcher" data-language-switcher aria-label="Cambia lingua">
-          <button type="button" data-language-switch="sq" aria-pressed="true">SQ</button>
-          <button type="button" data-language-switch="it" aria-pressed="false">IT</button>
-          <button type="button" data-language-switch="en" aria-pressed="false">EN</button>
+        <div class="language-switcher" data-language-switcher>
+          <button type="button" class="language-toggle" data-language-toggle aria-haspopup="listbox" aria-expanded="false" aria-label="Cambia lingua">
+            <span class="language-flag" data-language-flag aria-hidden="true"></span>
+            <span data-language-code></span>
+            <svg class="language-chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg>
+          </button>
+          <div class="language-menu" data-language-menu role="listbox" hidden>
+            <button type="button" role="option" data-language-switch="sq" aria-pressed="true">
+              <span class="language-flag" aria-hidden="true">🇦🇱</span>Shqip
+            </button>
+            <button type="button" role="option" data-language-switch="it" aria-pressed="false">
+              <span class="language-flag" aria-hidden="true">🇮🇹</span>Italiano
+            </button>
+            <button type="button" role="option" data-language-switch="en" aria-pressed="false">
+              <span class="language-flag" aria-hidden="true">🇬🇧</span>English
+            </button>
+          </div>
         </div>
       </div>
     </header>
@@ -561,10 +574,23 @@
             <h2 id="menu-title">MENU</h2>
           </div>
           <div class="panel-tools">
-            <div class="language-switcher panel-language-switcher" data-language-switcher aria-label="Cambia lingua">
-              <button type="button" data-language-switch="sq" aria-pressed="true">SQ</button>
-              <button type="button" data-language-switch="it" aria-pressed="false">IT</button>
-              <button type="button" data-language-switch="en" aria-pressed="false">EN</button>
+            <div class="language-switcher panel-language-switcher" data-language-switcher>
+              <button type="button" class="language-toggle" data-language-toggle aria-haspopup="listbox" aria-expanded="false" aria-label="Cambia lingua">
+                <span class="language-flag" data-language-flag aria-hidden="true"></span>
+                <span data-language-code></span>
+                <svg class="language-chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg>
+              </button>
+              <div class="language-menu" data-language-menu role="listbox" hidden>
+                <button type="button" role="option" data-language-switch="sq" aria-pressed="true">
+                  <span class="language-flag" aria-hidden="true">🇦🇱</span>Shqip
+                </button>
+                <button type="button" role="option" data-language-switch="it" aria-pressed="false">
+                  <span class="language-flag" aria-hidden="true">🇮🇹</span>Italiano
+                </button>
+                <button type="button" role="option" data-language-switch="en" aria-pressed="false">
+                  <span class="language-flag" aria-hidden="true">🇬🇧</span>English
+                </button>
+              </div>
             </div>
             <button class="icon-button" type="button" data-panel-close aria-label="Chiudi il menu">
               <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -604,10 +630,23 @@
             <h2 id="location-panel-title">Ci trovi qui</h2>
           </div>
           <div class="panel-tools">
-            <div class="language-switcher panel-language-switcher" data-language-switcher aria-label="Cambia lingua">
-              <button type="button" data-language-switch="sq" aria-pressed="true">SQ</button>
-              <button type="button" data-language-switch="it" aria-pressed="false">IT</button>
-              <button type="button" data-language-switch="en" aria-pressed="false">EN</button>
+            <div class="language-switcher panel-language-switcher" data-language-switcher>
+              <button type="button" class="language-toggle" data-language-toggle aria-haspopup="listbox" aria-expanded="false" aria-label="Cambia lingua">
+                <span class="language-flag" data-language-flag aria-hidden="true"></span>
+                <span data-language-code></span>
+                <svg class="language-chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg>
+              </button>
+              <div class="language-menu" data-language-menu role="listbox" hidden>
+                <button type="button" role="option" data-language-switch="sq" aria-pressed="true">
+                  <span class="language-flag" aria-hidden="true">🇦🇱</span>Shqip
+                </button>
+                <button type="button" role="option" data-language-switch="it" aria-pressed="false">
+                  <span class="language-flag" aria-hidden="true">🇮🇹</span>Italiano
+                </button>
+                <button type="button" role="option" data-language-switch="en" aria-pressed="false">
+                  <span class="language-flag" aria-hidden="true">🇬🇧</span>English
+                </button>
+              </div>
             </div>
             <button class="icon-button" type="button" data-panel-close aria-label="Chiudi la posizione">
               <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -664,10 +703,23 @@
             <h2 id="info-panel-title">Bar Martiri</h2>
           </div>
           <div class="panel-tools">
-            <div class="language-switcher panel-language-switcher" data-language-switcher aria-label="Cambia lingua">
-              <button type="button" data-language-switch="sq" aria-pressed="true">SQ</button>
-              <button type="button" data-language-switch="it" aria-pressed="false">IT</button>
-              <button type="button" data-language-switch="en" aria-pressed="false">EN</button>
+            <div class="language-switcher panel-language-switcher" data-language-switcher>
+              <button type="button" class="language-toggle" data-language-toggle aria-haspopup="listbox" aria-expanded="false" aria-label="Cambia lingua">
+                <span class="language-flag" data-language-flag aria-hidden="true"></span>
+                <span data-language-code></span>
+                <svg class="language-chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg>
+              </button>
+              <div class="language-menu" data-language-menu role="listbox" hidden>
+                <button type="button" role="option" data-language-switch="sq" aria-pressed="true">
+                  <span class="language-flag" aria-hidden="true">🇦🇱</span>Shqip
+                </button>
+                <button type="button" role="option" data-language-switch="it" aria-pressed="false">
+                  <span class="language-flag" aria-hidden="true">🇮🇹</span>Italiano
+                </button>
+                <button type="button" role="option" data-language-switch="en" aria-pressed="false">
+                  <span class="language-flag" aria-hidden="true">🇬🇧</span>English
+                </button>
+              </div>
             </div>
             <button class="icon-button" type="button" data-panel-close aria-label="Chiudi le informazioni">
               <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -742,10 +794,23 @@
             <h2 id="basket-panel-title">Il tuo ordine</h2>
           </div>
           <div class="panel-tools">
-            <div class="language-switcher panel-language-switcher" data-language-switcher aria-label="Cambia lingua">
-              <button type="button" data-language-switch="sq" aria-pressed="true">SQ</button>
-              <button type="button" data-language-switch="it" aria-pressed="false">IT</button>
-              <button type="button" data-language-switch="en" aria-pressed="false">EN</button>
+            <div class="language-switcher panel-language-switcher" data-language-switcher>
+              <button type="button" class="language-toggle" data-language-toggle aria-haspopup="listbox" aria-expanded="false" aria-label="Cambia lingua">
+                <span class="language-flag" data-language-flag aria-hidden="true"></span>
+                <span data-language-code></span>
+                <svg class="language-chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg>
+              </button>
+              <div class="language-menu" data-language-menu role="listbox" hidden>
+                <button type="button" role="option" data-language-switch="sq" aria-pressed="true">
+                  <span class="language-flag" aria-hidden="true">🇦🇱</span>Shqip
+                </button>
+                <button type="button" role="option" data-language-switch="it" aria-pressed="false">
+                  <span class="language-flag" aria-hidden="true">🇮🇹</span>Italiano
+                </button>
+                <button type="button" role="option" data-language-switch="en" aria-pressed="false">
+                  <span class="language-flag" aria-hidden="true">🇬🇧</span>English
+                </button>
+              </div>
             </div>
             <button class="icon-button" type="button" data-panel-close aria-label="Chiudi il carrello">
               <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -928,7 +993,7 @@
     <script defer src="supabase-config.js?v=20260809-2"></script>
     <script defer src="product-image-map.js?v=20260806-2"></script>
     <script defer src="menu-data.js?v=20260809-1"></script>
-    <script defer src="script.js?v=20260811-1"></script>
+    <script defer src="script.js?v=20260812-1"></script>
     <script defer src="/vercel-analytics.js?v=20260808-1"></script>
   </body>
 </html>

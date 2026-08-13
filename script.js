@@ -23,6 +23,12 @@
   const menuSearchInput = document.querySelector('[data-menu-search]');
   const cookieBanner = document.querySelector('[data-cookie-banner]');
   const languageSwitches = [...document.querySelectorAll('[data-language-switch]')];
+  const languageSwitchers = [...document.querySelectorAll('[data-language-switcher]')];
+  const LANGUAGE_META = Object.freeze({
+    sq: { flag: '🇦🇱', code: 'SQ' },
+    it: { flag: '🇮🇹', code: 'IT' },
+    en: { flag: '🇬🇧', code: 'EN' },
+  });
   const mapFrame = document.querySelector('[data-map-shell] iframe');
   const mapPlaceholder = document.querySelector('[data-map-placeholder]');
   const reviewRatingEl = document.querySelector('[data-review-rating]');
@@ -987,6 +993,7 @@
     languageSwitches.forEach((button) => {
       button.setAttribute('aria-pressed', String(button.dataset.languageSwitch === currentLanguage));
     });
+    syncLanguageSwitchers();
 
     if (menuRendered) {
       renderCategories();
@@ -1049,6 +1056,49 @@
       }
       applyLanguage(language);
     });
+  });
+
+  function closeLanguageMenus(except) {
+    languageSwitchers.forEach((switcher) => {
+      if (switcher === except) return;
+      const toggle = switcher.querySelector('[data-language-toggle]');
+      const menu = switcher.querySelector('[data-language-menu]');
+      if (toggle) toggle.setAttribute('aria-expanded', 'false');
+      if (menu) menu.hidden = true;
+    });
+  }
+
+  function syncLanguageSwitchers() {
+    const meta = LANGUAGE_META[currentLanguage] || LANGUAGE_META.sq;
+    languageSwitchers.forEach((switcher) => {
+      const flagEl = switcher.querySelector('[data-language-flag]');
+      const codeEl = switcher.querySelector('[data-language-code]');
+      if (flagEl) flagEl.textContent = meta.flag;
+      if (codeEl) codeEl.textContent = meta.code;
+    });
+    closeLanguageMenus();
+  }
+
+  languageSwitchers.forEach((switcher) => {
+    const toggle = switcher.querySelector('[data-language-toggle]');
+    const menu = switcher.querySelector('[data-language-menu]');
+    if (!toggle || !menu) return;
+    toggle.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+      closeLanguageMenus(isOpen ? undefined : switcher);
+      toggle.setAttribute('aria-expanded', String(!isOpen));
+      menu.hidden = isOpen;
+    });
+  });
+
+  document.addEventListener('click', (event) => {
+    if (event.target.closest('[data-language-switcher]')) return;
+    closeLanguageMenus();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeLanguageMenus();
   });
 
   function normalizeDegrees(value) {
