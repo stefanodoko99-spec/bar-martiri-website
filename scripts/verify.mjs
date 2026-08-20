@@ -75,8 +75,8 @@ const assertions = [
     'Albanian service copy must use the approved Shezlone and Rezervo wording',
   ],
   [
-    (publicHtml.match(/data-language-switcher/g) || []).length === 5,
-    'Language controls must be available in the header and all four panels',
+    (publicHtml.match(/data-language-switcher/g) || []).length === 4,
+    'Language controls must be available in the header and all three panels',
   ],
   [
     publicHtml.includes('data-menu-search') && publicHtml.includes('data-category-tabs'),

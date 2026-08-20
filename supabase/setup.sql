@@ -670,5 +670,34 @@ to authenticated
 using (public.is_menu_admin())
 with check (public.is_menu_admin());
 
+-- Chat retention: messages aren't kept past 1 day. Purges old messages, then
+-- drops any conversation left with none (so last_message_preview doesn't
+-- linger with nothing behind it). Scheduled hourly via pg_cron below.
+create extension if not exists pg_cron;
+
+create or replace function public.purge_old_chat_messages()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  delete from public.chat_messages where created_at < now() - interval '1 day';
+  delete from public.chat_conversations c
+  where not exists (
+    select 1 from public.chat_messages m where m.conversation_id = c.id
+  );
+end;
+$$;
+
+select cron.unschedule('purge-old-chat-messages')
+where exists (select 1 from cron.job where jobname = 'purge-old-chat-messages');
+
+select cron.schedule(
+  'purge-old-chat-messages',
+  '0 * * * *',
+  $$select public.purge_old_chat_messages();$$
+);
+
 -- After creating the administrator in Authentication, run this with its UUID:
 -- insert into public.admin_users (user_id) values ('AUTH-USER-UUID') on conflict do nothing;

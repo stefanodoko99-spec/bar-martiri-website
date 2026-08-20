@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="Bar Martiri Admin">
     <meta name="robots" content="noindex, nofollow, noarchive">
     <title>Admin | Bar Martiri</title>
-    <link rel="stylesheet" href="admin.css?v=20260820-1">
+    <link rel="stylesheet" href="admin.css?v=20260820-2">
   </head>
   <body>
     <header class="admin-header">
@@ -340,34 +340,43 @@
         </div>
 
         <div class="admin-layout" data-admin-view-panel="chats" hidden>
-          <section class="chat-conversations-panel" aria-labelledby="chats-panel-title">
-            <div class="section-toolbar">
-              <h3 id="chats-panel-title">Bisedat</h3>
-              <button class="secondary-button" type="button" data-refresh-chats>Rifresko</button>
-            </div>
-            <p class="field-help" data-chat-push-help>
-              Aktivizo njoftimet për të marrë sinjal në telefon sapo shkruan një klient.
-              <button class="secondary-button" type="button" data-enable-chat-push>Aktivizo njoftimet</button>
-            </p>
-            <p class="form-error" data-chat-push-status role="status" aria-live="polite"></p>
-            <div class="chat-conversations-list" data-chat-conversations-list></div>
-            <p class="orders-empty" data-chat-conversations-empty hidden>Ende s'ka biseda.</p>
-          </section>
-
-          <section class="chat-thread-panel" aria-labelledby="chat-thread-title">
-            <div class="section-toolbar">
-              <h3 id="chat-thread-title">Biseda</h3>
-            </div>
-            <div class="chat-thread-messages" data-chat-thread-messages></div>
-            <p class="orders-empty" data-chat-thread-empty>Zgjidh një bisedë nga lista.</p>
-            <form class="chat-reply-form" data-chat-reply-form hidden>
-              <textarea name="body" rows="2" maxlength="2000" placeholder="Shkruaj një përgjigje..." required></textarea>
-              <p class="form-error" data-chat-reply-error role="alert"></p>
-              <div class="form-actions">
-                <button class="primary-button" type="submit">Dërgo</button>
+          <div class="chat-view" data-chat-view>
+            <section class="chat-conversations-panel" aria-labelledby="chats-panel-title">
+              <div class="section-toolbar">
+                <h3 id="chats-panel-title">Bisedat</h3>
+                <button class="secondary-button" type="button" data-refresh-chats>Rifresko</button>
               </div>
-            </form>
-          </section>
+              <p class="field-help" data-chat-push-help>
+                Aktivizo njoftimet për të marrë sinjal në telefon sapo shkruan një klient.
+                <button class="secondary-button" type="button" data-enable-chat-push>Aktivizo njoftimet</button>
+              </p>
+              <p class="form-error" data-chat-push-status role="status" aria-live="polite"></p>
+              <p class="field-help">Mesazhet fshihen automatikisht pas 1 dite.</p>
+              <div class="chat-conversations-list" data-chat-conversations-list></div>
+              <p class="orders-empty" data-chat-conversations-empty hidden>Ende s'ka biseda.</p>
+            </section>
+
+            <section class="chat-thread-panel" aria-labelledby="chat-thread-title">
+              <div class="chat-thread-header">
+                <button class="icon-button chat-thread-back" type="button" data-chat-thread-back aria-label="Kthehu te bisedat">
+                  <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"></path></svg>
+                </button>
+                <div class="chat-thread-identity">
+                  <span class="chat-thread-avatar" data-chat-thread-avatar aria-hidden="true"></span>
+                  <h3 id="chat-thread-title" data-chat-thread-name>Biseda</h3>
+                </div>
+              </div>
+              <div class="chat-thread-messages" data-chat-thread-messages></div>
+              <p class="orders-empty" data-chat-thread-empty>Zgjidh një bisedë nga lista.</p>
+              <form class="chat-reply-form" data-chat-reply-form hidden>
+                <textarea name="body" rows="1" maxlength="2000" placeholder="Shkruaj një përgjigje..." required></textarea>
+                <p class="form-error" data-chat-reply-error role="alert"></p>
+                <button class="chat-reply-send" type="submit" aria-label="Dërgo">
+                  <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 12h16M13 5l7 7-7 7"></path></svg>
+                </button>
+              </form>
+            </section>
+          </div>
         </div>
 
         <div class="analytics-panel" data-admin-view-panel="analytics" hidden>
@@ -467,6 +476,6 @@
     <script defer src="menu-data.js?v=20260804-1"></script>
     <script defer src="supabase-store.js?v=20260820-1"></script>
     <script defer src="indexnow.js?v=20260809-1"></script>
-    <script defer src="admin.js?v=20260820-2"></script>
+    <script defer src="admin.js?v=20260820-3"></script>
   </body>
 </html>

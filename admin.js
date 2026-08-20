@@ -82,6 +82,10 @@
   const chatReplyForm = document.querySelector('[data-chat-reply-form]');
   const chatReplyError = document.querySelector('[data-chat-reply-error]');
   const enableChatPushButton = document.querySelector('[data-enable-chat-push]');
+  const chatView = document.querySelector('[data-chat-view]');
+  const chatThreadBack = document.querySelector('[data-chat-thread-back]');
+  const chatThreadAvatar = document.querySelector('[data-chat-thread-avatar]');
+  const chatThreadName = document.querySelector('[data-chat-thread-name]');
   let products = [...menuData.products];
   let currentImage = '';
   let pendingImage = null;
@@ -459,6 +463,16 @@
     return `${Math.round(hours / 24)} ditë`;
   }
 
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (char) => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]
+    ));
+  }
+
+  function initialOf(name) {
+    return (name || 'K').trim().charAt(0).toUpperCase() || 'K';
+  }
+
   function renderChatConversations() {
     if (!chatConversationsList) return;
     chatConversationsList.replaceChildren();
@@ -468,10 +482,16 @@
       item.className = 'chat-conversation-item';
       item.classList.toggle('is-active', conversation.id === activeConversationId);
       item.classList.toggle('is-unread', conversation.unreadByAdmin);
+      const name = conversation.customerName || 'Klient';
       item.innerHTML = `
-        <span class="chat-conversation-name">${conversation.customerName || 'Klient'}</span>
-        <span class="chat-conversation-preview">${conversation.lastMessagePreview || ''}</span>
-        <span class="chat-conversation-time">${timeAgo(conversation.lastMessageAt)}</span>
+        <span class="chat-conversation-avatar" aria-hidden="true">${escapeHtml(initialOf(name))}</span>
+        <span class="chat-conversation-body">
+          <span class="chat-conversation-top">
+            <span class="chat-conversation-name">${escapeHtml(name)}</span>
+            <span class="chat-conversation-time">${timeAgo(conversation.lastMessageAt)}</span>
+          </span>
+          <span class="chat-conversation-preview">${escapeHtml(conversation.lastMessagePreview || '')}</span>
+        </span>
       `;
       item.addEventListener('click', () => void openConversation(conversation.id));
       chatConversationsList.append(item);
@@ -520,6 +540,11 @@
   async function openConversation(conversationId) {
     activeConversationId = conversationId;
     renderChatConversations();
+    const conversation = chatConversations.find((item) => item.id === conversationId);
+    const name = conversation?.customerName || 'Klient';
+    if (chatThreadAvatar) chatThreadAvatar.textContent = initialOf(name);
+    if (chatThreadName) chatThreadName.textContent = name;
+    chatView?.classList.add('is-thread-open');
     if (chatThreadEmpty) chatThreadEmpty.hidden = true;
     if (chatReplyForm) chatReplyForm.hidden = false;
     await loadChatThread(conversationId);
@@ -555,7 +580,21 @@
     }
   });
 
+  chatReplyForm?.querySelector('textarea[name="body"]')?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      chatReplyForm.requestSubmit();
+    }
+  });
+
   refreshChatsButton?.addEventListener('click', () => void loadChatsPanel());
+
+  chatThreadBack?.addEventListener('click', () => {
+    chatView?.classList.remove('is-thread-open');
+    activeConversationId = null;
+    stopChatThreadPolling();
+    renderChatConversations();
+  });
 
   function stopChatsPolling() {
     window.clearInterval(chatsPollTimer);

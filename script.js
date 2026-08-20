@@ -1841,7 +1841,7 @@
       }
       void refreshProducts();
     }
-    if (name === 'location' && getCookiePreference() === 'all') loadMap();
+    if (name === 'info' && getCookiePreference() === 'all') loadMap();
     if (name === 'basket') renderBasket();
     if (name === 'chat') void openChatPanel();
 
@@ -2048,7 +2048,7 @@
     button.addEventListener('click', () => {
       const choice = button.dataset.cookieChoice === 'all' ? 'all' : 'essential';
       saveCookiePreference(choice);
-      if (choice === 'all' && activePanel === 'location') loadMap();
+      if (choice === 'all' && activePanel === 'info') loadMap();
       if (choice === 'essential') unloadMap();
     });
   });
