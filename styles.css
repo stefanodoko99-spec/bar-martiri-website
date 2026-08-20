@@ -993,10 +993,10 @@ svg {
   bottom: max(14px, env(safe-area-inset-bottom));
   left: 50%;
   display: grid;
-  width: min(680px, calc(100% - 28px));
+  width: min(392px, calc(100% - 28px));
   height: var(--dock-height);
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 4px;
+  gap: 2px;
   padding: 7px;
   border: 1px solid var(--white);
   border-radius: 22px;
@@ -1013,7 +1013,7 @@ svg {
 }
 
 .bottom-dock.is-compact {
-  width: min(440px, calc(100% - 40px));
+  width: min(308px, calc(100% - 40px));
   height: var(--dock-compact-height);
   border-radius: 18px;
   background: var(--dock-bg-strong);
@@ -1025,8 +1025,7 @@ svg {
   min-width: 0;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 0 8px;
+  padding: 0;
   border-radius: 15px;
   background: transparent;
   color: var(--ink-soft);
@@ -1037,19 +1036,9 @@ svg {
 }
 
 .dock-action svg {
-  width: 19px;
-  min-width: 19px;
-  height: 19px;
-}
-
-.dock-action span {
-  overflow: hidden;
-  font-size: 11px;
-  font-weight: 800;
-  white-space: nowrap;
-  transition:
-    width 300ms var(--ease-out),
-    opacity 200ms var(--ease-standard);
+  width: 21px;
+  min-width: 21px;
+  height: 21px;
 }
 
 .dock-action.is-active {
@@ -1059,18 +1048,18 @@ svg {
 
 .dock-badge {
   position: absolute;
-  top: 2px;
-  right: 10%;
+  top: 4px;
+  right: 16%;
   display: flex;
-  min-width: 16px;
-  height: 16px;
+  min-width: 14px;
+  height: 14px;
   align-items: center;
   justify-content: center;
   padding: 0 4px;
   border-radius: 999px;
   background: var(--ink);
   color: var(--white);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
   line-height: 1;
 }
@@ -1103,17 +1092,7 @@ svg {
   white-space: nowrap;
 }
 
-.bottom-dock.is-compact .dock-action {
-  gap: 0;
-  padding: 0;
-}
-
-.bottom-dock.is-compact .dock-action span {
-  width: 0;
-  opacity: 0;
-}
-
-.bottom-dock.is-compact .dock-action:is(:hover, :focus-visible)::after {
+.dock-action:is(:hover, :focus-visible)::after {
   opacity: 1;
   transform: translate(-50%, 0);
 }
@@ -2251,28 +2230,6 @@ svg {
     margin-left: 0;
   }
 
-  .bottom-dock {
-    width: calc(100% - 20px);
-  }
-
-  .bottom-dock.is-compact {
-    width: min(330px, calc(100% - 38px));
-  }
-
-  .dock-action {
-    flex-direction: column;
-    gap: 2px;
-    padding: 4px;
-  }
-
-  .dock-action span {
-    font-size: 10px;
-  }
-
-  .bottom-dock.is-compact .dock-action {
-    flex-direction: row;
-  }
-
   .dock-panel {
     inset: 0;
     width: 100%;
@@ -2489,10 +2446,6 @@ svg {
 @media (max-width: 374px) {
   .hero-copy h1 {
     font-size: 48px;
-  }
-
-  .dock-action span {
-    font-size: 10px;
   }
 
   .product-card {
