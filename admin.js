@@ -1155,6 +1155,10 @@
     });
   }
 
+  function encodeCanvas(canvas, mimeType, quality) {
+    return new Promise((resolve) => canvas.toBlob(resolve, mimeType, quality));
+  }
+
   async function compressImage(file) {
     if (!file.type.startsWith('image/')) throw new Error('Zgjidh një skedar fotografie.');
     if (file.size > 8 * 1024 * 1024) throw new Error('Fotografia duhet të jetë më e vogël se 8 MB.');
@@ -1168,15 +1172,25 @@
     const context = canvas.getContext('2d');
     context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
     bitmap.close();
+
+    let mimeType = 'image/webp';
     let quality = 0.78;
-    let blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', quality));
-    while (blob && blob.size > 180 * 1024 && quality > 0.58) {
+    let blob = await encodeCanvas(canvas, mimeType, quality);
+    if (!blob || blob.type !== mimeType) {
+      // Safari silently substitutes PNG when it can't encode WebP, and PNG
+      // ignores the quality argument entirely, so the file stays huge no
+      // matter how much we lower it. JPEG compresses reliably everywhere.
+      mimeType = 'image/jpeg';
+      blob = await encodeCanvas(canvas, mimeType, quality);
+    }
+    while (blob && blob.size > 180 * 1024 && quality > 0.4) {
       quality -= 0.08;
-      blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', quality));
+      blob = await encodeCanvas(canvas, mimeType, quality);
     }
     if (!blob) throw new Error('Fotografia nuk mund të kompresohet.');
     return {
       blob,
+      extension: mimeType === 'image/webp' ? 'webp' : 'jpg',
       dataUrl: await blobToDataUrl(blob),
     };
   }
@@ -1189,7 +1203,7 @@
       const baseName = file.name.replace(/\.[^.]+$/, '') || 'product';
       pendingImage = {
         blob: compressed.blob,
-        name: `${baseName}.webp`,
+        name: `${baseName}.${compressed.extension}`,
       };
       showImage(compressed.dataUrl, 'Pamja e fotos se produktit');
     } catch (error) {
@@ -1313,7 +1327,7 @@
       const baseName = file.name.replace(/\.[^.]+$/, '') || 'gallery';
       const imageUrl = await store.uploadImage(
         compressed.blob,
-        `${baseName}.webp`,
+        `${baseName}.${compressed.extension}`,
         window.BAR_MARTIRI_SUPABASE?.galleryBucket
       );
       const saved = await store.saveGalleryImage({ imageUrl, sortOrder: galleryImages.length });
