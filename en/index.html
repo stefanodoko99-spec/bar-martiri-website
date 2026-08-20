@@ -190,7 +190,7 @@
         ]
       }
     </script>
-    <link rel="stylesheet" href="styles.css?v=20260820-2">
+    <link rel="stylesheet" href="styles.css?v=20260820-3">
   </head>
   <body>
     <a class="skip-link" href="/en/#main">Skip to content</a>
@@ -910,26 +910,18 @@
       data-cookie-banner
       role="dialog"
       aria-labelledby="cookie-title"
-      aria-describedby="cookie-description cookie-details"
+      aria-describedby="cookie-description"
       hidden
     >
       <div>
-        <p class="eyebrow" id="cookie-title">Cookie preferences</p>
-        <p id="cookie-description">
-          We use necessary cookies for your language and choice. Google Maps is enabled only with your consent.
-        </p>
-        <details class="cookie-details" id="cookie-details">
-          <summary>View details</summary>
-          <p><strong>Necessary:</strong> save your language and preference for 6 months.</p>
-          <p><strong>Optional:</strong> allow Google Maps content. We do not use advertising or analytics cookies.</p>
-          <a href="/en/privacy">Read the privacy policy</a>
-        </details>
+        <p class="eyebrow" id="cookie-title">Cookies</p>
+        <p id="cookie-description">Google Maps needs your consent.</p>
       </div>
       <div class="cookie-actions">
         <button class="cookie-button cookie-button--quiet" type="button" data-cookie-choice="essential">
-          Reject optional cookies
+          Decline
         </button>
-        <button class="cookie-button" type="button" data-cookie-choice="all">Accept Google Maps</button>
+        <button class="cookie-button" type="button" data-cookie-choice="all">Accept</button>
       </div>
     </aside>
 
@@ -994,6 +986,20 @@
       <button
         class="dock-action"
         type="button"
+        data-dock-action="chat"
+        data-dock-label="Chat"
+        aria-label="Open chat with us"
+        aria-pressed="false"
+      >
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v9a1.5 1.5 0 0 1-1.5 1.5H9l-4 4v-4H5.5A1.5 1.5 0 0 1 4 14.5Z"></path>
+        </svg>
+        <span class="sr-only">Chat</span>
+        <b class="dock-badge" data-chat-unread hidden></b>
+      </button>
+      <button
+        class="dock-action"
+        type="button"
         data-dock-action="location"
         data-dock-label="Location"
         aria-label="Open location"
@@ -1018,20 +1024,6 @@
           <path d="M12 11v6M12 7h.01"></path>
         </svg>
         <span class="sr-only">Info</span>
-      </button>
-      <button
-        class="dock-action"
-        type="button"
-        data-dock-action="chat"
-        data-dock-label="Chat"
-        aria-label="Open chat with us"
-        aria-pressed="false"
-      >
-        <svg aria-hidden="true" viewBox="0 0 24 24">
-          <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v9a1.5 1.5 0 0 1-1.5 1.5H9l-4 4v-4H5.5A1.5 1.5 0 0 1 4 14.5Z"></path>
-        </svg>
-        <span class="sr-only">Chat</span>
-        <b class="dock-badge" data-chat-unread hidden></b>
       </button>
     </nav>
 

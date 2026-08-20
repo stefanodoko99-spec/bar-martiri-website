@@ -189,7 +189,7 @@
         ]
       }
     </script>
-    <link rel="stylesheet" href="styles.css?v=20260820-2">
+    <link rel="stylesheet" href="styles.css?v=20260820-3">
   </head>
   <body>
     <a class="skip-link" href="#main">Kalo te përmbajtja</a>
@@ -913,27 +913,18 @@
       data-cookie-banner
       role="dialog"
       aria-labelledby="cookie-title"
-      aria-describedby="cookie-description cookie-details"
+      aria-describedby="cookie-description"
       hidden
     >
       <div>
-        <p class="eyebrow" id="cookie-title">Preferencat e cookies</p>
-        <p id="cookie-description">
-          Përdorim cookies të domosdoshme për gjuhën dhe zgjedhjen tënde. Google Maps
-          aktivizohet vetëm me pëlqimin tënd.
-        </p>
-        <details class="cookie-details" id="cookie-details">
-          <summary>Shiko hollësitë</summary>
-          <p><strong>Të domosdoshme:</strong> ruajnë gjuhën dhe preferencën për 6 muaj.</p>
-          <p><strong>Opsionale:</strong> lejojnë përmbajtjen e Google Maps. Nuk përdorim cookies reklamimi ose analitike.</p>
-          <a href="/privacy">Lexo politikën e privatësisë</a>
-        </details>
+        <p class="eyebrow" id="cookie-title">Cookies</p>
+        <p id="cookie-description">Për Google Maps kërkohet pëlqimi yt.</p>
       </div>
       <div class="cookie-actions">
         <button class="cookie-button cookie-button--quiet" type="button" data-cookie-choice="essential">
-          Refuzo opsionalet
+          Anulo
         </button>
-        <button class="cookie-button" type="button" data-cookie-choice="all">Prano Google Maps</button>
+        <button class="cookie-button" type="button" data-cookie-choice="all">Prano</button>
       </div>
     </aside>
 
@@ -998,6 +989,20 @@
       <button
         class="dock-action"
         type="button"
+        data-dock-action="chat"
+        data-dock-label="Chat"
+        aria-label="Hap chat-in me ne"
+        aria-pressed="false"
+      >
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v9a1.5 1.5 0 0 1-1.5 1.5H9l-4 4v-4H5.5A1.5 1.5 0 0 1 4 14.5Z"></path>
+        </svg>
+        <span class="sr-only">Chat</span>
+        <b class="dock-badge" data-chat-unread hidden></b>
+      </button>
+      <button
+        class="dock-action"
+        type="button"
         data-dock-action="location"
         data-dock-label="Location"
         aria-label="Hap vendndodhjen"
@@ -1022,20 +1027,6 @@
           <path d="M12 11v6M12 7h.01"></path>
         </svg>
         <span class="sr-only">Info</span>
-      </button>
-      <button
-        class="dock-action"
-        type="button"
-        data-dock-action="chat"
-        data-dock-label="Chat"
-        aria-label="Hap chat-in me ne"
-        aria-pressed="false"
-      >
-        <svg aria-hidden="true" viewBox="0 0 24 24">
-          <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v9a1.5 1.5 0 0 1-1.5 1.5H9l-4 4v-4H5.5A1.5 1.5 0 0 1 4 14.5Z"></path>
-        </svg>
-        <span class="sr-only">Chat</span>
-        <b class="dock-badge" data-chat-unread hidden></b>
       </button>
     </nav>
 

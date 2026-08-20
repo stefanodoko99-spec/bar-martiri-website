@@ -1981,9 +1981,9 @@ svg {
   top: calc(max(12px, env(safe-area-inset-top)) + 76px);
   left: var(--page-pad);
   display: grid;
-  width: min(560px, calc(100% - (var(--page-pad) * 2)));
-  gap: 14px;
-  padding: 16px;
+  width: min(320px, calc(100% - (var(--page-pad) * 2)));
+  gap: 10px;
+  padding: 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--paper-strong);
@@ -2006,28 +2006,8 @@ svg {
 }
 
 .cookie-banner p {
-  margin: 8px 0 0;
-}
-
-.cookie-details {
-  margin-top: 12px;
-  color: var(--ink-soft);
-  font-size: 12px;
-}
-
-.cookie-details summary {
-  min-height: 32px;
-  color: var(--ink);
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.cookie-details a {
-  display: inline-flex;
-  min-height: 40px;
-  align-items: center;
-  color: var(--ink);
-  font-weight: 800;
+  margin: 4px 0 0;
+  font-size: 13px;
 }
 
 .cookie-actions {
@@ -2425,17 +2405,8 @@ svg {
     right: 10px;
     left: 10px;
     width: auto;
+    max-width: 320px;
     padding: 14px;
-  }
-
-  .cookie-actions {
-    display: grid;
-    grid-template-columns: 1fr 0.72fr;
-  }
-
-  .cookie-button {
-    padding: 0 10px;
-    font-size: 11px;
   }
 
   .footer-meta {
