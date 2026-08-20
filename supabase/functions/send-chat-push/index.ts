@@ -2,10 +2,12 @@
 // Reuses the same VAPID secrets already set for send-order-push (no new
 // secrets needed): VAPID_PRIVATE_KEY, VAPID_SUBJECT.
 //
-// Called by the trg_notify_new_chat_message trigger in supabase/setup.sql
-// whenever a customer sends a new chat message. Pushes a notification to
-// every subscription saved in admin_push_subscriptions (there's no per-order
-// scoping here — the admin is the only subscriber).
+// Generic admin push: pushes a notification to every subscription saved in
+// admin_push_subscriptions (the admin is the only subscriber, no per-order
+// scoping). Called by two triggers in supabase/setup.sql —
+// trg_notify_new_chat_message (passes {conversation_id, preview}) and
+// trg_notify_admin_push_new_order (passes {title, body, url}). The name
+// stuck from the first caller; despite the name it's shared by both.
 
 import webpush from 'npm:web-push@3.6.7';
 import { createClient } from 'npm:@supabase/supabase-js@2';
@@ -23,8 +25,9 @@ Deno.serve(async (req) => {
     return new Response('VAPID_PRIVATE_KEY secret is not set', { status: 500 });
   }
 
-  const { preview } = await req.json().catch(() => ({}));
-  if (!preview) {
+  const { preview, title, body, url } = await req.json().catch(() => ({}));
+  const notificationBody = body || preview;
+  if (!notificationBody) {
     return new Response(JSON.stringify({ skipped: true }), {
       headers: { 'Content-Type': 'application/json' },
     });
@@ -45,9 +48,9 @@ Deno.serve(async (req) => {
   }
 
   const payload = JSON.stringify({
-    title: 'Mesazh i ri',
-    body: String(preview).slice(0, 140),
-    url: '/admin',
+    title: title || 'Mesazh i ri',
+    body: String(notificationBody).slice(0, 140),
+    url: url || '/admin',
   });
   const expiredIds: string[] = [];
 

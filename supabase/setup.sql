@@ -419,6 +419,43 @@ create trigger trg_notify_telegram_new_order
 after insert on public.orders
 for each row execute function public.notify_telegram_new_order();
 
+-- Also pushes new orders straight to the admin's phone (admin_push_subscriptions,
+-- same channel the chat notifications use), so Telegram isn't the only place
+-- an order can be missed. Runs alongside notify_telegram_new_order above, not
+-- instead of it — either channel can drop a notification on its own, so both
+-- stay independent.
+create or replace function public.notify_admin_push_new_order()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  perform net.http_post(
+    url := 'https://uctomzwdnfldhoipzepp.supabase.co/functions/v1/send-chat-push',
+    body := jsonb_build_object(
+      'title', 'Porosi e re',
+      'body', format(
+        '%s — %s ALL',
+        coalesce(nullif(new.customer_name, ''), 'Klient'),
+        new.total
+      ),
+      'url', '/admin'
+    ),
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjdG9tendkbmZsZGhvaXB6ZXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NDQzOTEsImV4cCI6MjEwMDMyMDM5MX0._0gk4xTVRm2LvcKHtwZNmFNm4oOdrBX-4n6j9qleGww'
+    )
+  );
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_notify_admin_push_new_order on public.orders;
+create trigger trg_notify_admin_push_new_order
+after insert on public.orders
+for each row execute function public.notify_admin_push_new_order();
+
 -- Photo gallery: admin-uploaded images shown in a public site section. The
 -- section stays hidden on the site until at least one row exists.
 create table if not exists public.gallery_images (
@@ -563,17 +600,22 @@ create table if not exists public.chat_messages (
 alter table public.chat_conversations enable row level security;
 alter table public.chat_messages enable row level security;
 
+-- Customers never touch these tables directly (that would let anyone list or
+-- read every conversation/message by simply omitting the id filter, since
+-- RLS can't require "a filter was applied" — only which rows are visible).
+-- Instead they go through the security-definer RPCs below, each of which
+-- takes an explicit id argument and only ever touches that one conversation.
+-- Only the admin (authenticated + is_menu_admin) reads/writes the tables
+-- directly.
 drop policy if exists "Anyone can start a conversation" on public.chat_conversations;
-create policy "Anyone can start a conversation"
-on public.chat_conversations for insert
-to anon, authenticated
-with check (true);
-
 drop policy if exists "Anyone can view a conversation by id" on public.chat_conversations;
-create policy "Anyone can view a conversation by id"
+drop policy if exists "Customers can mark their conversation read" on public.chat_conversations;
+
+drop policy if exists "Admins can view conversations" on public.chat_conversations;
+create policy "Admins can view conversations"
 on public.chat_conversations for select
-to anon, authenticated
-using (true);
+to authenticated
+using (public.is_menu_admin());
 
 drop policy if exists "Admins can update conversations" on public.chat_conversations;
 create policy "Admins can update conversations"
@@ -582,27 +624,107 @@ to authenticated
 using (public.is_menu_admin())
 with check (public.is_menu_admin());
 
-drop policy if exists "Customers can mark their conversation read" on public.chat_conversations;
-create policy "Customers can mark their conversation read"
-on public.chat_conversations for update
-to anon
-using (true)
-with check (true);
-
 drop policy if exists "Anyone can send a chat message" on public.chat_messages;
-create policy "Anyone can send a chat message"
-on public.chat_messages for insert
-to anon, authenticated
-with check (true);
-
 drop policy if exists "Anyone can view messages by conversation id" on public.chat_messages;
-create policy "Anyone can view messages by conversation id"
+
+drop policy if exists "Admins can send a chat message" on public.chat_messages;
+create policy "Admins can send a chat message"
+on public.chat_messages for insert
+to authenticated
+with check (public.is_menu_admin() and sender = 'admin');
+
+drop policy if exists "Admins can view chat messages" on public.chat_messages;
+create policy "Admins can view chat messages"
 on public.chat_messages for select
-to anon, authenticated
-using (true);
+to authenticated
+using (public.is_menu_admin());
 
 create index if not exists chat_messages_conversation_id_idx on public.chat_messages (conversation_id, created_at);
 create index if not exists chat_conversations_last_message_at_idx on public.chat_conversations (last_message_at desc);
+
+-- Customer-facing chat RPCs. Each takes the conversation id as an explicit
+-- argument (never "all rows"), so a caller can only ever act on the one
+-- conversation it already knows the id of.
+create or replace function public.start_chat_conversation(p_customer_name text default null)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  new_id uuid;
+begin
+  insert into public.chat_conversations (customer_name)
+  values (nullif(trim(coalesce(p_customer_name, '')), ''))
+  returning id into new_id;
+  return new_id;
+end;
+$$;
+
+revoke all on function public.start_chat_conversation(text) from public;
+grant execute on function public.start_chat_conversation(text) to anon, authenticated;
+
+create or replace function public.get_chat_messages(p_conversation_id uuid)
+returns table (sender text, body text, created_at timestamptz)
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select sender, body, created_at
+  from public.chat_messages
+  where conversation_id = p_conversation_id
+  order by created_at asc;
+$$;
+
+revoke all on function public.get_chat_messages(uuid) from public;
+grant execute on function public.get_chat_messages(uuid) to anon, authenticated;
+
+create or replace function public.send_chat_message(p_conversation_id uuid, p_body text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if p_body is null or length(trim(p_body)) = 0 then
+    raise exception 'Message body is required';
+  end if;
+  if not exists (select 1 from public.chat_conversations where id = p_conversation_id) then
+    raise exception 'Unknown conversation';
+  end if;
+  insert into public.chat_messages (conversation_id, sender, body)
+  values (p_conversation_id, 'customer', left(trim(p_body), 2000));
+end;
+$$;
+
+revoke all on function public.send_chat_message(uuid, text) from public;
+grant execute on function public.send_chat_message(uuid, text) to anon, authenticated;
+
+create or replace function public.mark_chat_read_by_customer(p_id uuid)
+returns void
+language sql
+security definer
+set search_path = public
+as $$
+  update public.chat_conversations set unread_by_customer = false where id = p_id;
+$$;
+
+revoke all on function public.mark_chat_read_by_customer(uuid) from public;
+grant execute on function public.mark_chat_read_by_customer(uuid) to anon, authenticated;
+
+create or replace function public.get_chat_unread_by_customer(p_id uuid)
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select coalesce(unread_by_customer, false) from public.chat_conversations where id = p_id;
+$$;
+
+revoke all on function public.get_chat_unread_by_customer(uuid) from public;
+grant execute on function public.get_chat_unread_by_customer(uuid) to anon, authenticated;
 
 -- Keeps the conversation row (list preview, unread flags) in sync with every
 -- new message, and pings the admin's phone via Web Push on customer messages.

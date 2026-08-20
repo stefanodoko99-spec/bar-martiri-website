@@ -1252,6 +1252,20 @@ svg {
   font-size: 13px;
 }
 
+.chat-name-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper);
+  font-size: 16px;
+}
+
+.chat-name-input:focus {
+  outline: none;
+  border-color: var(--ink);
+}
+
 .chat-composer {
   position: sticky;
   bottom: calc(16px + env(safe-area-inset-bottom));

@@ -43,6 +43,7 @@
   const chatMessagesEl = document.querySelector('[data-chat-messages]');
   const chatEmptyEl = document.querySelector('[data-chat-empty]');
   const chatFormEl = document.querySelector('[data-chat-form]');
+  const chatNameInputEl = document.querySelector('[data-chat-name-input]');
   const chatUnreadBadge = document.querySelector('[data-chat-unread]');
   const basketItemsEl = document.querySelector('[data-basket-items]');
   const basketEmptyEl = document.querySelector('[data-basket-empty]');
@@ -218,6 +219,7 @@
     'Porosi e re': { sq: 'Porosi e re', it: 'Nuovo ordine', en: 'New order' },
     'Galeria': { sq: 'Galeria', it: 'Galleria', en: 'Gallery' },
     'Shkruaj në WhatsApp': { sq: 'Shkruaj në WhatsApp', it: 'Scrivici su WhatsApp', en: 'Message us on WhatsApp' },
+    'Emri yt (opsionale)': { sq: 'Emri yt (opsionale)', it: 'Il tuo nome (opzionale)', en: 'Your name (optional)' },
   });
 
   const DYNAMIC_TEXT = Object.freeze({
@@ -537,6 +539,7 @@
   let chatConversationId = localStorage.getItem(CHAT_CONVERSATION_KEY) || null;
   let chatPollTimer = 0;
   let chatBackgroundPollTimer = 0;
+  if (chatNameInputEl) chatNameInputEl.hidden = Boolean(chatConversationId);
 
   function chatRestHeaders(extra = {}) {
     return {
@@ -562,10 +565,11 @@
   async function loadChatMessages() {
     if (!chatConversationId || !supabaseConfig.url || !supabaseConfig.publishableKey) return;
     try {
-      const response = await fetch(
-        `${supabaseConfig.url}/rest/v1/chat_messages?conversation_id=eq.${chatConversationId}&select=sender,body,created_at&order=created_at.asc`,
-        { headers: chatRestHeaders() }
-      );
+      const response = await fetch(`${supabaseConfig.url}/rest/v1/rpc/get_chat_messages`, {
+        method: 'POST',
+        headers: chatRestHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ p_conversation_id: chatConversationId }),
+      });
       if (!response.ok) return;
       const rows = await response.json();
       renderChatMessages(
@@ -576,28 +580,28 @@
     }
   }
 
-  async function ensureChatConversation() {
+  async function ensureChatConversation(customerName) {
     if (chatConversationId) return chatConversationId;
-    const response = await fetch(`${supabaseConfig.url}/rest/v1/chat_conversations`, {
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/rpc/start_chat_conversation`, {
       method: 'POST',
-      headers: chatRestHeaders({ 'Content-Type': 'application/json', Prefer: 'return=representation' }),
-      body: JSON.stringify({}),
+      headers: chatRestHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ p_customer_name: customerName || null }),
     });
     if (!response.ok) throw new Error(`Conversation request failed with ${response.status}`);
-    const rows = await response.json();
-    const conversation = rows?.[0];
-    if (!conversation?.id) throw new Error('Conversation response missing id');
-    chatConversationId = String(conversation.id);
+    const newId = await response.json();
+    if (!newId) throw new Error('Conversation response missing id');
+    chatConversationId = String(newId);
     localStorage.setItem(CHAT_CONVERSATION_KEY, chatConversationId);
+    if (chatNameInputEl) chatNameInputEl.hidden = true;
     return chatConversationId;
   }
 
-  async function sendChatMessage(body) {
-    const conversationId = await ensureChatConversation();
-    const response = await fetch(`${supabaseConfig.url}/rest/v1/chat_messages`, {
+  async function sendChatMessage(body, customerName) {
+    const conversationId = await ensureChatConversation(customerName);
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/rpc/send_chat_message`, {
       method: 'POST',
-      headers: chatRestHeaders({ 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
-      body: JSON.stringify({ conversation_id: conversationId, sender: 'customer', body }),
+      headers: chatRestHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ p_conversation_id: conversationId, p_body: body }),
     });
     if (!response.ok) throw new Error(`Message request failed with ${response.status}`);
   }
@@ -605,10 +609,10 @@
   async function markChatReadByCustomer() {
     if (!chatConversationId) return;
     try {
-      await fetch(`${supabaseConfig.url}/rest/v1/chat_conversations?id=eq.${chatConversationId}`, {
-        method: 'PATCH',
-        headers: chatRestHeaders({ 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
-        body: JSON.stringify({ unread_by_customer: false }),
+      await fetch(`${supabaseConfig.url}/rest/v1/rpc/mark_chat_read_by_customer`, {
+        method: 'POST',
+        headers: chatRestHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ p_id: chatConversationId }),
       });
     } catch {
       // Not critical if the read receipt fails to save.
@@ -635,13 +639,14 @@
   async function checkChatUnread() {
     if (!chatConversationId || !supabaseConfig.url || !supabaseConfig.publishableKey) return;
     try {
-      const response = await fetch(
-        `${supabaseConfig.url}/rest/v1/chat_conversations?id=eq.${chatConversationId}&select=unread_by_customer`,
-        { headers: chatRestHeaders() }
-      );
+      const response = await fetch(`${supabaseConfig.url}/rest/v1/rpc/get_chat_unread_by_customer`, {
+        method: 'POST',
+        headers: chatRestHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ p_id: chatConversationId }),
+      });
       if (!response.ok) return;
-      const rows = await response.json();
-      if (chatUnreadBadge) chatUnreadBadge.hidden = !rows?.[0]?.unread_by_customer;
+      const unread = await response.json();
+      if (chatUnreadBadge) chatUnreadBadge.hidden = !unread;
     } catch {
       // Skip this check if the request fails.
     }
@@ -661,7 +666,7 @@
     const submitButton = chatFormEl.querySelector('button[type="submit"]');
     if (submitButton) submitButton.disabled = true;
     try {
-      await sendChatMessage(body);
+      await sendChatMessage(body, chatNameInputEl?.value.trim());
       input.value = '';
       await loadChatMessages();
     } catch {
