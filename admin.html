@@ -7,6 +7,10 @@
     <link rel="icon" href="/favicon.ico" sizes="48x48">
     <link rel="icon" href="assets/optimized/favicon-96.png" type="image/png" sizes="96x96">
     <link rel="apple-touch-icon" href="assets/optimized/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Bar Martiri Admin">
     <meta name="robots" content="noindex, nofollow, noarchive">
     <title>Admin | Bar Martiri</title>
     <link rel="stylesheet" href="admin.css?v=20260820-1">
@@ -345,6 +349,7 @@
               Aktivizo njoftimet për të marrë sinjal në telefon sapo shkruan një klient.
               <button class="secondary-button" type="button" data-enable-chat-push>Aktivizo njoftimet</button>
             </p>
+            <p class="form-error" data-chat-push-status role="status" aria-live="polite"></p>
             <div class="chat-conversations-list" data-chat-conversations-list></div>
             <p class="orders-empty" data-chat-conversations-empty hidden>Ende s'ka biseda.</p>
           </section>
@@ -462,6 +467,6 @@
     <script defer src="menu-data.js?v=20260804-1"></script>
     <script defer src="supabase-store.js?v=20260820-1"></script>
     <script defer src="indexnow.js?v=20260809-1"></script>
-    <script defer src="admin.js?v=20260820-1"></script>
+    <script defer src="admin.js?v=20260820-2"></script>
   </body>
 </html>

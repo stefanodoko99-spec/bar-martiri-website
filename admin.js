@@ -584,14 +584,44 @@
     return outputArray;
   }
 
+  const chatPushStatus = document.querySelector('[data-chat-push-status]');
+
+  function setChatPushStatus(message) {
+    if (chatPushStatus) chatPushStatus.textContent = message;
+  }
+
   async function subscribeAdminPush() {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    setChatPushStatus('');
+    const isStandalone =
+      window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+    if (isIOS && !isStandalone) {
+      setChatPushStatus(
+        'Në iPhone, njoftimet kërkojnë që faqja të shtohet te "Home Screen": hap /admin në Safari → Share → Add to Home Screen, pastaj hape prej andej dhe provo përsëri.'
+      );
+      return;
+    }
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      setChatPushStatus('Ky browser nuk i mbështet njoftimet push.');
+      return;
+    }
     if (!store?.saveAdminPushSubscription) return;
+
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
       let permission = Notification.permission;
+      if (permission === 'denied') {
+        setChatPushStatus(
+          'Njoftimet janë të bllokuara për këtë faqe. Kliko ikonën pranë URL-së (🔒 ose ⓘ) → Site settings → Notifications → Allow, pastaj provo përsëri.'
+        );
+        return;
+      }
       if (permission === 'default') permission = await Notification.requestPermission();
-      if (permission !== 'granted') return;
+      if (permission !== 'granted') {
+        setChatPushStatus('Nuk u dha leje për njoftime.');
+        return;
+      }
 
       let subscription = await registration.pushManager.getSubscription();
       if (!subscription) {
@@ -607,8 +637,9 @@
         auth: subscriptionJson.keys?.auth,
       });
       if (enableChatPushButton) enableChatPushButton.textContent = 'Njoftimet janë aktive';
-    } catch {
-      // Leave the button as-is so the admin can retry.
+      setChatPushStatus('Njoftimet u aktivizuan me sukses.');
+    } catch (error) {
+      setChatPushStatus(error.message || 'Aktivizimi i njoftimeve dështoi. Provo përsëri.');
     }
   }
 
