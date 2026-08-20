@@ -993,9 +993,9 @@ svg {
   bottom: max(14px, env(safe-area-inset-bottom));
   left: 50%;
   display: grid;
-  width: min(392px, calc(100% - 28px));
+  width: min(330px, calc(100% - 28px));
   height: var(--dock-height);
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 2px;
   padding: 7px;
   border: 1px solid var(--white);
@@ -1013,7 +1013,7 @@ svg {
 }
 
 .bottom-dock.is-compact {
-  width: min(308px, calc(100% - 40px));
+  width: min(260px, calc(100% - 40px));
   height: var(--dock-compact-height);
   border-radius: 18px;
   background: var(--dock-bg-strong);
@@ -1219,7 +1219,7 @@ svg {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  min-height: 200px;
+  min-height: min(48svh, 380px);
   padding-bottom: 12px;
 }
 
@@ -1256,10 +1256,11 @@ svg {
   position: sticky;
   bottom: calc(16px + env(safe-area-inset-bottom));
   display: flex;
-  gap: 10px;
-  padding: 10px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px 8px 18px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 26px;
   background: var(--paper);
   box-shadow: 0 12px 28px var(--shadow-soft);
 }
@@ -1267,22 +1268,30 @@ svg {
 .chat-composer input {
   flex: 1;
   min-width: 0;
+  min-height: 24px;
   border: none;
   background: transparent;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .chat-composer input:focus {
   outline: none;
 }
 
-.chat-composer button {
+.chat-composer-send {
+  display: grid;
   flex: 0 0 auto;
-  padding: 9px 18px;
-  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 50%;
   background: var(--ink);
   color: var(--white);
-  font-weight: 700;
+}
+
+.chat-composer-send svg {
+  width: 19px;
+  height: 19px;
 }
 
 .menu-page-intro {

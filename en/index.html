@@ -190,7 +190,7 @@
         ]
       }
     </script>
-    <link rel="stylesheet" href="styles.css?v=20260820-4">
+    <link rel="stylesheet" href="styles.css?v=20260820-5">
   </head>
   <body>
     <a class="skip-link" href="/en/#main">Skip to content</a>
@@ -765,7 +765,9 @@
           <p class="chat-empty" data-chat-empty>Na shkruaj një mesazh dhe do të përgjigjemi sa më shpejt.</p>
           <form class="chat-composer" data-chat-form>
             <input type="text" name="message" maxlength="1000" placeholder="Shkruaj një mesazh..." autocomplete="off" required>
-            <button type="submit">Dërgo</button>
+            <button class="chat-composer-send" type="submit" aria-label="Dërgo">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 12h16M13 5l7 7-7 7"></path></svg>
+            </button>
           </form>
         </div>
       </section>
