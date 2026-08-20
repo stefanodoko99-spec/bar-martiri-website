@@ -565,6 +565,81 @@
     if (error) throw error;
   }
 
+  function normalizeConversation(row) {
+    return {
+      id: String(row.id),
+      customerName: String(row.customer_name || ''),
+      createdAt: String(row.created_at || ''),
+      lastMessageAt: String(row.last_message_at || ''),
+      lastMessagePreview: String(row.last_message_preview || ''),
+      unreadByAdmin: Boolean(row.unread_by_admin),
+    };
+  }
+
+  function normalizeChatMessage(row) {
+    return {
+      id: String(row.id),
+      conversationId: String(row.conversation_id),
+      sender: String(row.sender || 'customer'),
+      body: String(row.body || ''),
+      createdAt: String(row.created_at || ''),
+    };
+  }
+
+  async function listChatConversations() {
+    if (!client) return [];
+    const { data, error } = await client
+      .from('chat_conversations')
+      .select('id,customer_name,created_at,last_message_at,last_message_preview,unread_by_admin')
+      .order('last_message_at', { ascending: false });
+    if (error) throw error;
+    return (data || []).map(normalizeConversation);
+  }
+
+  async function listChatMessages(conversationId) {
+    if (!client) return [];
+    const { data, error } = await client
+      .from('chat_messages')
+      .select('id,conversation_id,sender,body,created_at')
+      .eq('conversation_id', conversationId)
+      .order('created_at', { ascending: true });
+    if (error) throw error;
+    return (data || []).map(normalizeChatMessage);
+  }
+
+  async function sendAdminChatMessage(conversationId, body) {
+    if (!client) throw new Error('Admin panel unavailable without Supabase.');
+    const { data, error } = await client
+      .from('chat_messages')
+      .insert({ conversation_id: conversationId, sender: 'admin', body })
+      .select('id,conversation_id,sender,body,created_at')
+      .single();
+    if (error) throw error;
+    return normalizeChatMessage(data);
+  }
+
+  async function markConversationReadByAdmin(conversationId) {
+    if (!client) return;
+    const { error } = await client
+      .from('chat_conversations')
+      .update({ unread_by_admin: false })
+      .eq('id', conversationId);
+    if (error) throw error;
+  }
+
+  async function saveAdminPushSubscription(subscription) {
+    if (!client) throw new Error('Admin panel unavailable without Supabase.');
+    const { error } = await client.from('admin_push_subscriptions').upsert(
+      {
+        endpoint: subscription.endpoint,
+        p256dh: subscription.p256dh,
+        auth: subscription.auth,
+      },
+      { onConflict: 'endpoint' }
+    );
+    if (error) throw error;
+  }
+
   window.BAR_MARTIRI_STORE = Object.freeze({
     isRemote: () => Boolean(client),
     hasTranslationColumns: () => translationColumnsSupported,
@@ -588,5 +663,10 @@
     deleteGalleryImage,
     getStory,
     saveStory,
+    listChatConversations,
+    listChatMessages,
+    sendAdminChatMessage,
+    markConversationReadByAdmin,
+    saveAdminPushSubscription,
   });
 })();

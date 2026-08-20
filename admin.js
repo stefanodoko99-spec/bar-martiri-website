@@ -73,6 +73,15 @@
   const storyForm = document.querySelector('[data-story-form]');
   const storyError = document.querySelector('[data-story-error]');
   const storyStatus = document.querySelector('[data-story-status]');
+  const chatConversationsList = document.querySelector('[data-chat-conversations-list]');
+  const chatConversationsEmpty = document.querySelector('[data-chat-conversations-empty]');
+  const refreshChatsButton = document.querySelector('[data-refresh-chats]');
+  const unreadChatsBadge = document.querySelector('[data-unread-chats-badge]');
+  const chatThreadMessages = document.querySelector('[data-chat-thread-messages]');
+  const chatThreadEmpty = document.querySelector('[data-chat-thread-empty]');
+  const chatReplyForm = document.querySelector('[data-chat-reply-form]');
+  const chatReplyError = document.querySelector('[data-chat-reply-error]');
+  const enableChatPushButton = document.querySelector('[data-enable-chat-push]');
   let products = [...menuData.products];
   let currentImage = '';
   let pendingImage = null;
@@ -80,6 +89,10 @@
   let orders = [];
   let ordersPollTimer = 0;
   let galleryImages = [];
+  let chatConversations = [];
+  let activeConversationId = null;
+  let chatsPollTimer = 0;
+  let chatThreadPollTimer = 0;
 
   const workspaceEyebrow = document.querySelector('[data-workspace-eyebrow]');
   const workspaceTitle = document.querySelector('[data-workspace-title]');
@@ -88,6 +101,7 @@
     products: { eyebrow: 'Katalogu', title: 'Produktet' },
     reviews: { eyebrow: 'Reputacioni', title: 'Vlerësimet' },
     orders: { eyebrow: 'Shitjet', title: 'Porositë' },
+    chats: { eyebrow: 'Klientët', title: 'Bisedat' },
     analytics: { eyebrow: 'Statistikat', title: 'Analitika' },
     gallery: { eyebrow: 'Faqja', title: 'Galeria' },
     story: { eyebrow: 'Faqja', title: 'Historia' },
@@ -113,6 +127,13 @@
         startOrdersPolling();
       } else {
         stopOrdersPolling();
+      }
+      if (view === 'chats') {
+        void loadChatsPanel();
+        startChatsPolling();
+      } else {
+        stopChatsPolling();
+        stopChatThreadPolling();
       }
       if (view === 'analytics') void loadAnalyticsPanel();
       if (view === 'gallery') void loadGalleryPanel();
@@ -427,6 +448,171 @@
     stopOrdersPolling();
     ordersPollTimer = window.setInterval(() => void loadOrdersPanel(), 10000);
   }
+
+  function timeAgo(isoString) {
+    const diffMs = Date.now() - new Date(isoString).getTime();
+    const minutes = Math.round(diffMs / 60000);
+    if (minutes < 1) return 'tani';
+    if (minutes < 60) return `${minutes} min`;
+    const hours = Math.round(minutes / 60);
+    if (hours < 24) return `${hours} orë`;
+    return `${Math.round(hours / 24)} ditë`;
+  }
+
+  function renderChatConversations() {
+    if (!chatConversationsList) return;
+    chatConversationsList.replaceChildren();
+    chatConversations.forEach((conversation) => {
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'chat-conversation-item';
+      item.classList.toggle('is-active', conversation.id === activeConversationId);
+      item.classList.toggle('is-unread', conversation.unreadByAdmin);
+      item.innerHTML = `
+        <span class="chat-conversation-name">${conversation.customerName || 'Klient'}</span>
+        <span class="chat-conversation-preview">${conversation.lastMessagePreview || ''}</span>
+        <span class="chat-conversation-time">${timeAgo(conversation.lastMessageAt)}</span>
+      `;
+      item.addEventListener('click', () => void openConversation(conversation.id));
+      chatConversationsList.append(item);
+    });
+    if (chatConversationsEmpty) chatConversationsEmpty.hidden = chatConversations.length > 0;
+
+    const unreadCount = chatConversations.filter((conversation) => conversation.unreadByAdmin).length;
+    if (unreadChatsBadge) {
+      unreadChatsBadge.textContent = String(unreadCount);
+      unreadChatsBadge.hidden = unreadCount === 0;
+    }
+  }
+
+  async function loadChatsPanel() {
+    if (!store?.listChatConversations) return;
+    try {
+      chatConversations = await store.listChatConversations();
+      renderChatConversations();
+    } catch {
+      // Keep showing the last known conversation list if a refresh fails.
+    }
+  }
+
+  function renderChatThread(messages) {
+    if (!chatThreadMessages) return;
+    chatThreadMessages.replaceChildren();
+    messages.forEach((message) => {
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble chat-bubble--${message.sender}`;
+      bubble.textContent = message.body;
+      chatThreadMessages.append(bubble);
+    });
+    chatThreadMessages.scrollTop = chatThreadMessages.scrollHeight;
+  }
+
+  async function loadChatThread(conversationId) {
+    if (!store?.listChatMessages) return;
+    try {
+      const messages = await store.listChatMessages(conversationId);
+      if (conversationId === activeConversationId) renderChatThread(messages);
+    } catch {
+      // Keep showing the last known thread if a refresh fails.
+    }
+  }
+
+  async function openConversation(conversationId) {
+    activeConversationId = conversationId;
+    renderChatConversations();
+    if (chatThreadEmpty) chatThreadEmpty.hidden = true;
+    if (chatReplyForm) chatReplyForm.hidden = false;
+    await loadChatThread(conversationId);
+    stopChatThreadPolling();
+    chatThreadPollTimer = window.setInterval(() => void loadChatThread(conversationId), 4000);
+    try {
+      await store.markConversationReadByAdmin(conversationId);
+      const conversation = chatConversations.find((item) => item.id === conversationId);
+      if (conversation) conversation.unreadByAdmin = false;
+      renderChatConversations();
+    } catch {
+      // Not critical if the read receipt fails to save.
+    }
+  }
+
+  chatReplyForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!activeConversationId) return;
+    if (chatReplyError) chatReplyError.textContent = '';
+    const textarea = chatReplyForm.querySelector('textarea[name="body"]');
+    const body = textarea?.value.trim();
+    if (!body) return;
+    const submitButton = chatReplyForm.querySelector('button[type="submit"]');
+    try {
+      if (submitButton) submitButton.disabled = true;
+      await store.sendAdminChatMessage(activeConversationId, body);
+      textarea.value = '';
+      await loadChatThread(activeConversationId);
+    } catch (error) {
+      if (chatReplyError) chatReplyError.textContent = error.message || 'Mesazhi nuk u dërgua.';
+    } finally {
+      if (submitButton) submitButton.disabled = false;
+    }
+  });
+
+  refreshChatsButton?.addEventListener('click', () => void loadChatsPanel());
+
+  function stopChatsPolling() {
+    window.clearInterval(chatsPollTimer);
+    chatsPollTimer = 0;
+  }
+
+  function startChatsPolling() {
+    stopChatsPolling();
+    chatsPollTimer = window.setInterval(() => void loadChatsPanel(), 10000);
+  }
+
+  function stopChatThreadPolling() {
+    window.clearInterval(chatThreadPollTimer);
+    chatThreadPollTimer = 0;
+  }
+
+  const CHAT_VAPID_PUBLIC_KEY =
+    'BBNd3SdADUSjP5Y4gCBjiMJi7gfO0xulbR24YX5RBM_9bMvOYTubWDw2kddV2sny7wQE6zO2nAO8kEKcJOJ9jUQ';
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; i += 1) outputArray[i] = rawData.charCodeAt(i);
+    return outputArray;
+  }
+
+  async function subscribeAdminPush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (!store?.saveAdminPushSubscription) return;
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js');
+      let permission = Notification.permission;
+      if (permission === 'default') permission = await Notification.requestPermission();
+      if (permission !== 'granted') return;
+
+      let subscription = await registration.pushManager.getSubscription();
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(CHAT_VAPID_PUBLIC_KEY),
+        });
+      }
+      const subscriptionJson = subscription.toJSON();
+      await store.saveAdminPushSubscription({
+        endpoint: subscriptionJson.endpoint,
+        p256dh: subscriptionJson.keys?.p256dh,
+        auth: subscriptionJson.keys?.auth,
+      });
+      if (enableChatPushButton) enableChatPushButton.textContent = 'Njoftimet janë aktive';
+    } catch {
+      // Leave the button as-is so the admin can retry.
+    }
+  }
+
+  enableChatPushButton?.addEventListener('click', () => void subscribeAdminPush());
 
   refreshOrdersButton?.addEventListener('click', () => void loadOrdersPanel());
 
@@ -1245,6 +1431,8 @@
 
   document.querySelector('[data-logout]')?.addEventListener('click', async () => {
     stopOrdersPolling();
+    stopChatsPolling();
+    stopChatThreadPolling();
     try {
       await store.signOut();
     } catch {

@@ -40,6 +40,10 @@
   const storyTitleEl = document.querySelector('[data-story-title]');
   const storyBodyEl = document.querySelector('[data-story-body]');
   const whatsappButton = document.querySelector('[data-whatsapp-button]');
+  const chatMessagesEl = document.querySelector('[data-chat-messages]');
+  const chatEmptyEl = document.querySelector('[data-chat-empty]');
+  const chatFormEl = document.querySelector('[data-chat-form]');
+  const chatUnreadBadge = document.querySelector('[data-chat-unread]');
   const basketItemsEl = document.querySelector('[data-basket-items]');
   const basketEmptyEl = document.querySelector('[data-basket-empty]');
   const basketSummaryEl = document.querySelector('[data-basket-summary]');
@@ -531,6 +535,146 @@
       // Keep the story section hidden when the table isn't reachable yet.
     }
   }
+
+  const CHAT_CONVERSATION_KEY = 'barMartiri.chatConversation.v1';
+  const CHAT_POLL_INTERVAL = 4000;
+  const CHAT_BACKGROUND_POLL_INTERVAL = 20000;
+  let chatConversationId = localStorage.getItem(CHAT_CONVERSATION_KEY) || null;
+  let chatPollTimer = 0;
+  let chatBackgroundPollTimer = 0;
+
+  function chatRestHeaders(extra = {}) {
+    return {
+      apikey: supabaseConfig.publishableKey,
+      Authorization: `Bearer ${supabaseConfig.publishableKey}`,
+      ...extra,
+    };
+  }
+
+  function renderChatMessages(messages) {
+    if (!chatMessagesEl) return;
+    chatMessagesEl.replaceChildren();
+    messages.forEach((message) => {
+      const bubble = document.createElement('p');
+      bubble.className = `chat-message-bubble chat-message-bubble--${message.sender}`;
+      bubble.textContent = message.body;
+      chatMessagesEl.append(bubble);
+    });
+    if (chatEmptyEl) chatEmptyEl.hidden = messages.length > 0;
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+  }
+
+  async function loadChatMessages() {
+    if (!chatConversationId || !supabaseConfig.url || !supabaseConfig.publishableKey) return;
+    try {
+      const response = await fetch(
+        `${supabaseConfig.url}/rest/v1/chat_messages?conversation_id=eq.${chatConversationId}&select=sender,body,created_at&order=created_at.asc`,
+        { headers: chatRestHeaders() }
+      );
+      if (!response.ok) return;
+      const rows = await response.json();
+      renderChatMessages(
+        (rows || []).map((row) => ({ sender: String(row.sender), body: String(row.body || '') }))
+      );
+    } catch {
+      // Keep showing the last known thread if a refresh fails.
+    }
+  }
+
+  async function ensureChatConversation() {
+    if (chatConversationId) return chatConversationId;
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/chat_conversations`, {
+      method: 'POST',
+      headers: chatRestHeaders({ 'Content-Type': 'application/json', Prefer: 'return=representation' }),
+      body: JSON.stringify({}),
+    });
+    if (!response.ok) throw new Error(`Conversation request failed with ${response.status}`);
+    const rows = await response.json();
+    const conversation = rows?.[0];
+    if (!conversation?.id) throw new Error('Conversation response missing id');
+    chatConversationId = String(conversation.id);
+    localStorage.setItem(CHAT_CONVERSATION_KEY, chatConversationId);
+    return chatConversationId;
+  }
+
+  async function sendChatMessage(body) {
+    const conversationId = await ensureChatConversation();
+    const response = await fetch(`${supabaseConfig.url}/rest/v1/chat_messages`, {
+      method: 'POST',
+      headers: chatRestHeaders({ 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+      body: JSON.stringify({ conversation_id: conversationId, sender: 'customer', body }),
+    });
+    if (!response.ok) throw new Error(`Message request failed with ${response.status}`);
+  }
+
+  async function markChatReadByCustomer() {
+    if (!chatConversationId) return;
+    try {
+      await fetch(`${supabaseConfig.url}/rest/v1/chat_conversations?id=eq.${chatConversationId}`, {
+        method: 'PATCH',
+        headers: chatRestHeaders({ 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+        body: JSON.stringify({ unread_by_customer: false }),
+      });
+    } catch {
+      // Not critical if the read receipt fails to save.
+    }
+    if (chatUnreadBadge) chatUnreadBadge.hidden = true;
+  }
+
+  function stopChatPolling() {
+    window.clearInterval(chatPollTimer);
+    chatPollTimer = 0;
+  }
+
+  function startChatPolling() {
+    stopChatPolling();
+    chatPollTimer = window.setInterval(() => void loadChatMessages(), CHAT_POLL_INTERVAL);
+  }
+
+  async function openChatPanel() {
+    await loadChatMessages();
+    await markChatReadByCustomer();
+    startChatPolling();
+  }
+
+  async function checkChatUnread() {
+    if (!chatConversationId || !supabaseConfig.url || !supabaseConfig.publishableKey) return;
+    try {
+      const response = await fetch(
+        `${supabaseConfig.url}/rest/v1/chat_conversations?id=eq.${chatConversationId}&select=unread_by_customer`,
+        { headers: chatRestHeaders() }
+      );
+      if (!response.ok) return;
+      const rows = await response.json();
+      if (chatUnreadBadge) chatUnreadBadge.hidden = !rows?.[0]?.unread_by_customer;
+    } catch {
+      // Skip this check if the request fails.
+    }
+  }
+
+  function startChatBackgroundPoll() {
+    if (!chatConversationId || chatBackgroundPollTimer) return;
+    void checkChatUnread();
+    chatBackgroundPollTimer = window.setInterval(() => void checkChatUnread(), CHAT_BACKGROUND_POLL_INTERVAL);
+  }
+
+  chatFormEl?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const input = chatFormEl.querySelector('input[name="message"]');
+    const body = input?.value.trim();
+    if (!body) return;
+    const submitButton = chatFormEl.querySelector('button[type="submit"]');
+    if (submitButton) submitButton.disabled = true;
+    try {
+      await sendChatMessage(body);
+      input.value = '';
+      await loadChatMessages();
+    } catch {
+      // Keep the typed text so the customer can retry sending it.
+    } finally {
+      if (submitButton) submitButton.disabled = false;
+    }
+  });
 
   async function loadGalleryImages() {
     if (!supabaseConfig.url || !supabaseConfig.publishableKey || !galleryGridEl) return;
@@ -1704,6 +1848,7 @@
     }
     if (name === 'location' && getCookiePreference() === 'all') loadMap();
     if (name === 'basket') renderBasket();
+    if (name === 'chat') void openChatPanel();
 
     requestAnimationFrame(() => {
       panelLayer.classList.add('is-visible');
@@ -1728,6 +1873,7 @@
     }
 
     const closingPanel = panels.find((panel) => panel.dataset.panel === activePanel);
+    if (activePanel === 'chat') stopChatPolling();
     activePanel = null;
     panelLayer.classList.remove('is-visible');
     closingPanel?.classList.remove('is-open');
@@ -2119,6 +2265,7 @@
   void loadReviewSummary();
   void loadStory();
   void loadGalleryImages();
+  startChatBackgroundPoll();
   updateWhatsAppVisibility();
   window.setInterval(updateWhatsAppVisibility, 60 * 1000);
   void initializeBasket();

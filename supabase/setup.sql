@@ -539,5 +539,136 @@ for each row
 when (old.status is distinct from new.status)
 execute function public.notify_customer_order_status();
 
+-- Live chat between customers and the admin. A conversation is created
+-- lazily on the customer's first message and identified purely by its
+-- unguessable UUID (same trust model as orders above — no customer login).
+create table if not exists public.chat_conversations (
+  id uuid primary key default gen_random_uuid(),
+  customer_name text,
+  created_at timestamptz not null default now(),
+  last_message_at timestamptz not null default now(),
+  last_message_preview text,
+  unread_by_admin boolean not null default true,
+  unread_by_customer boolean not null default false
+);
+
+create table if not exists public.chat_messages (
+  id uuid primary key default gen_random_uuid(),
+  conversation_id uuid not null references public.chat_conversations(id) on delete cascade,
+  sender text not null check (sender in ('customer', 'admin')),
+  body text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.chat_conversations enable row level security;
+alter table public.chat_messages enable row level security;
+
+drop policy if exists "Anyone can start a conversation" on public.chat_conversations;
+create policy "Anyone can start a conversation"
+on public.chat_conversations for insert
+to anon, authenticated
+with check (true);
+
+drop policy if exists "Anyone can view a conversation by id" on public.chat_conversations;
+create policy "Anyone can view a conversation by id"
+on public.chat_conversations for select
+to anon, authenticated
+using (true);
+
+drop policy if exists "Admins can update conversations" on public.chat_conversations;
+create policy "Admins can update conversations"
+on public.chat_conversations for update
+to authenticated
+using (public.is_menu_admin())
+with check (public.is_menu_admin());
+
+drop policy if exists "Customers can mark their conversation read" on public.chat_conversations;
+create policy "Customers can mark their conversation read"
+on public.chat_conversations for update
+to anon
+using (true)
+with check (true);
+
+drop policy if exists "Anyone can send a chat message" on public.chat_messages;
+create policy "Anyone can send a chat message"
+on public.chat_messages for insert
+to anon, authenticated
+with check (true);
+
+drop policy if exists "Anyone can view messages by conversation id" on public.chat_messages;
+create policy "Anyone can view messages by conversation id"
+on public.chat_messages for select
+to anon, authenticated
+using (true);
+
+create index if not exists chat_messages_conversation_id_idx on public.chat_messages (conversation_id, created_at);
+create index if not exists chat_conversations_last_message_at_idx on public.chat_conversations (last_message_at desc);
+
+-- Keeps the conversation row (list preview, unread flags) in sync with every
+-- new message, and pings the admin's phone via Web Push on customer messages.
+-- The bearer token here is the public anon key, same convention as
+-- notify_customer_order_status above.
+create or replace function public.notify_new_chat_message()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if new.sender = 'customer' then
+    update public.chat_conversations
+    set last_message_at = new.created_at,
+        last_message_preview = left(new.body, 140),
+        unread_by_admin = true
+    where id = new.conversation_id;
+
+    perform net.http_post(
+      url := 'https://uctomzwdnfldhoipzepp.supabase.co/functions/v1/send-chat-push',
+      body := jsonb_build_object(
+        'conversation_id', new.conversation_id,
+        'preview', left(new.body, 140)
+      ),
+      headers := jsonb_build_object(
+        'Content-Type', 'application/json',
+        'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjdG9tendkbmZsZGhvaXB6ZXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NDQzOTEsImV4cCI6MjEwMDMyMDM5MX0._0gk4xTVRm2LvcKHtwZNmFNm4oOdrBX-4n6j9qleGww'
+      )
+    );
+  else
+    update public.chat_conversations
+    set last_message_at = new.created_at,
+        last_message_preview = left(new.body, 140),
+        unread_by_customer = true
+    where id = new.conversation_id;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_notify_new_chat_message on public.chat_messages;
+create trigger trg_notify_new_chat_message
+after insert on public.chat_messages
+for each row execute function public.notify_new_chat_message();
+
+-- Admin's own Web Push subscription(s) for chat notifications. Distinct from
+-- push_subscriptions above (which is per-order and customer-facing): this one
+-- has no order_id and only the logged-in admin may read/write it.
+create table if not exists public.admin_push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.admin_push_subscriptions enable row level security;
+
+drop policy if exists "Admins can manage their push subscriptions" on public.admin_push_subscriptions;
+create policy "Admins can manage their push subscriptions"
+on public.admin_push_subscriptions for all
+to authenticated
+using (public.is_menu_admin())
+with check (public.is_menu_admin());
+
 -- After creating the administrator in Authentication, run this with its UUID:
 -- insert into public.admin_users (user_id) values ('AUTH-USER-UUID') on conflict do nothing;
