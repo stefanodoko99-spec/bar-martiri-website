@@ -15,6 +15,8 @@ const publicFiles = [
   'supabase-config.js',
   'supabase-store.js',
   'indexnow.js',
+  'sw.js',
+  'manifest.json',
   '46e297fcd1eacc2d8f7f2cec82e9cfce.txt',
   'favicon.ico',
   'robots.txt',
